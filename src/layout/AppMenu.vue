@@ -8,6 +8,72 @@ const model = ref([
         label: 'Home',
         items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', to: '/' }]
     },
+
+    {
+        label: 'Gestion Clínica',
+        icon: 'pi pi-fw pi-briefcase',
+        items: [
+            {
+                label: 'Agendamientos de Citas',
+                icon: 'material-symbols-outlined clinical_notes',
+                to: '/gestion/cita'
+            },
+            {
+                label: 'Integrador Whatsapp',
+                icon: 'pi pi-fw pi-whatsapp',
+                to: '/gestion/integrador'
+            },
+            {
+                label: 'Quiroprácticos',
+                icon: 'material-symbols-outlined medical_information',
+                to: '/gestion/quiropractico'
+            },
+            {
+                label: 'Pacientes',
+                icon: 'pi pi-fw pi-user-plus',
+                to: '/gestion/paciente'
+            },
+        ]
+    },
+    {
+        label: 'Mantenimiento',
+        icon: 'pi pi-fw pi-briefcase',
+        items: [
+            {
+                label: 'Sedes',
+                icon: 'pi pi-fw pi-building',
+                to: '/mantenimiento/sede'
+            },
+            {
+                label: 'Usuarios',
+                icon: 'pi pi-fw pi-users',
+                to: '/mantenimiento/usuario'
+            },
+            {
+                label: 'Horario',
+                icon: 'pi pi-calendar-plus',
+                to: '/mantenimiento/horario'
+            },
+        ]
+    },
+    {
+        label: 'Gestión Ventas',
+        icon: 'pi pi-fw pi-briefcase',
+        items: [
+            {
+                label: 'Realizar Ventas',
+                icon: 'pi pi-fw pi-shopping-cart',
+                to: '/gestion/venta'
+            },
+            {
+                label: 'Comprobantes',
+                icon: 'pi pi-fw pi-file',
+                to: '/gestion/comprobante'
+            },
+        ]
+    },
+
+    /*
     {
         label: 'UI Components',
         items: [
@@ -28,6 +94,7 @@ const model = ref([
             { label: 'Misc', icon: 'pi pi-fw pi-circle', to: '/uikit/misc' }
         ]
     },
+    
     {
         label: 'Pages',
         icon: 'pi pi-fw pi-briefcase',
@@ -136,6 +203,7 @@ const model = ref([
             }
         ]
     }
+    */
 ]);
 </script>
 

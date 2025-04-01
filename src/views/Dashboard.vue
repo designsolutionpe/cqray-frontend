@@ -4,9 +4,268 @@ import NotificationsWidget from '@/components/dashboard/NotificationsWidget.vue'
 import RecentSalesWidget from '@/components/dashboard/RecentSalesWidget.vue';
 import RevenueStreamWidget from '@/components/dashboard/RevenueStreamWidget.vue';
 import StatsWidget from '@/components/dashboard/StatsWidget.vue';
+import IngresosEgresosWidget from '@/components/dashboard/IngresosEgresosWidget.vue';
+import { useToast } from 'primevue/usetoast';
+import { onMounted, ref } from 'vue';
+
+/*
+const monthNames = [
+    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
+    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+];*/
+
+const spanishLocale = {
+    startsWith: 'Empieza con',
+    contains: 'Contiene',
+    notContains: 'No contiene',
+    equals: 'Es igual a',
+    notEquals: 'No es igual a',
+    noFilter: 'Sin filtro',
+    lt: 'Menor que',
+    lte: 'Menor o igual que',
+    gt: 'Mayor que',
+    gte: 'Mayor o igual que',
+    dateIs: 'La fecha es',
+    dateIsNot: 'La fecha no es',
+    dateBefore: 'La fecha es anterior a',
+    dateAfter: 'La fecha es posterior a',
+    clear: 'Limpiar',
+    apply: 'Aplicar',
+    matchAll: 'Coincidir todos',
+    matchAny: 'Coincidir cualquier',
+    addRule: 'Añadir regla',
+    removeRule: 'Eliminar regla',
+    accept: 'Aceptar',
+    reject: 'Rechazar',
+    choose: 'Elegir',
+    upload: 'Subir',
+    cancel: 'Cancelar',
+    completed: 'Completado',
+    pending: 'Pendiente',
+    fileSizeTypes: ['Bytes', 'KB', 'MB', 'GB'],
+    dayNames: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
+    dayNamesShort: ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'],
+    dayNamesMin: ['D', 'L', 'M', 'M', 'J', 'V', 'S'],
+    monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+    monthNamesShort: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+    chooseYear: 'Elegir año',
+    chooseMonth: 'Elegir mes',
+    chooseDate: 'Elegir fecha',
+    prevDecade: 'Década anterior',
+    nextDecade: 'Próxima década',
+    prevYear: 'Año anterior',
+    nextYear: 'Próximo año',
+    prevMonth: 'Mes anterior',
+    nextMonth: 'Próximo mes',
+    prevHour: 'Hora anterior',
+    nextHour: 'Próxima hora',
+    prevMinute: 'Minuto anterior',
+    nextMinute: 'Próximo minuto',
+    prevSecond: 'Segundo anterior',
+    nextSecond: 'Próximo segundo',
+    am: 'AM',
+    pm: 'PM',
+    today: 'Hoy',
+    weekHeader: 'Semana',
+    firstDayOfWeek: 0, // Domingo
+    showMonthAfterYear: false,
+    dateFormat: 'dd/mm/yy',
+    weak: 'Débil',
+    medium: 'Medio',
+    strong: 'Fuerte',
+    passwordPrompt: 'Escriba la contraseña',
+    emptyFilterMessage: 'No hay resultados',
+    searchMessage: 'Resultados de búsqueda',
+    selectionMessage: 'Elemento seleccionado',
+    emptySelectionMessage: 'No se ha seleccionado ningún elemento',
+    emptySearchMessage: 'No hay resultados para la búsqueda',
+    emptyMessage: 'No hay elementos disponibles',
+    fileChosenMessage: 'Archivo seleccionado',
+    noFileChosenMessage: 'No se ha seleccionado ningún archivo',
+    aria: {
+        datePicker: 'Selector de fecha',
+        calendar: 'Calendario',
+        prevMonth: 'Mes anterior',
+        nextMonth: 'Próximo mes',
+        prevYear: 'Año anterior',
+        nextYear: 'Próximo año',
+    }
+};
+
+const monthNames = [
+    'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 
+    'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'
+];
+
+const dayNames = [
+    'Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'
+];
+
+
+const citasDates = ref({
+    '2025-03-05': 3,
+    '2025-03-07': 5,
+    '2025-03-10': 2,
+    '2025-03-12': 7,
+    '2025-03-15': 1,
+    '2025-03-18': 2
+});
+
+const selectedDate = ref(null);
+const citasCount = ref(0);
+const citasDetails = ref([]);
+const toast = useToast();
+
+const showCitasDetails = () => {
+    toast.add({ severity: 'info', summary: 'Detalles de Citas', detail: `Mostrar citas para el día ${selectedDate.value}`, life: 3000 });
+};
+
+const handleDateClick = (date) => {
+    const formattedDate = formatDate(date);
+    
+    if (citasDates.value[formattedDate]) {
+        selectedDate.value = formattedDate;
+        citasCount.value = citasDates.value[formattedDate];
+        citasDetails.value = ["Cita 1", "Cita 2", "Cita 3"];
+    } else {
+        selectedDate.value = formattedDate;
+        citasCount.value = 0;
+        citasDetails.value = [];
+    }
+};
+
+const formatDate = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+};
+
+onMounted(() => {
+    // Esto puede ser donde cargues los datos de citas desde una API o una base de datos.
+    console.log("Calendario cargado");
+});
+
 </script>
 
 <template>
+    <div>
+    <div class="card grid grid-cols-12 gap-1">
+
+        <div class="col-span-12 md:col-span-8 lg:col-span-9 xl:col-span-10">
+            <div class="flex items-center mb-0">
+                <span class="block text-2xl font-bold text-blue-500">Calendario de Citas</span>
+            </div>
+            <!-- Card que contiene el DatePicker -->
+            <div class="card flex justify-center mb-0">
+                <DatePicker v-model="selectedDate" 
+                    inline
+                    class="w-full sm:w-[50rem]" 
+                    :dates="citasDates"
+                    @day-click="handleDateClick"
+                    :locale="spanishLocale"
+                />
+            </div>
+
+            <IngresosEgresosWidget/>
+
+        </div>
+
+
+        <div class="col-span-6 md:col-span-4 lg:col-span-3 xl:col-span-2">
+            <!--Sedes-->
+            <Card class="mb-1">
+                <template #content>
+                <div class="flex items-center mb-0">
+                    <div class="col-span-4 flex items-center justify-center bg-blue-100 dark:bg-blue-400/10 rounded-border"
+                    style="width: 3.5rem; height: 3.5rem">
+                        <i class="pi pi-fw pi-building text-blue-500 !text-4xl"></i>
+                    </div>
+                    <div class="col-span-8 flex justify-center flex-col pl-4">
+                        <span class="block text-lg font-bold">Sedes</span>
+                        <span class="block text-2xl font-bold text-blue-500">05</span>
+                    </div>
+                </div>
+                </template>
+            </Card>
+            <!--Citas-->
+            <Card class="mb-1">
+                <template #content>
+                <div class="flex items-center mb-0">
+                    <div class="col-span-4 flex items-center justify-center bg-cyan-100 dark:bg-cyan-400/10 rounded-border"
+                    style="width: 3.5rem; height: 3.5rem">
+                        <i class="pi pi-fw pi-calendar-clock text-cyan-500 !text-4xl"></i>
+                    </div>
+                    <div class="col-span-8 flex justify-center flex-col pl-4">
+                        <span class="block text-lg font-bold">Citas</span>
+                        <span class="block text-2xl font-bold text-cyan-500">11</span>
+                    </div>
+                </div>
+                </template>
+            </Card>
+            <!--Quiroprácticos-->
+            <Card class="mb-1">
+                <template #content>
+                <div class="flex items-center mb-0">
+                    <div class="col-span-4 flex items-center justify-center bg-blue-100 dark:bg-blue-400/10 rounded-border"
+                    style="width: 3.5rem; height: 3.5rem">
+                        <span class="material-symbols-outlined text-blue-500 !text-5xl">medical_information</span>
+                    </div>
+                    <div class="col-span-8 flex justify-center flex-col pl-4">
+                        <span class="block text-lg font-bold">Quiroprácticos</span>
+                        <span class="block text-2xl font-bold text-blue-500">23</span>
+                    </div>
+                </div>
+                </template>
+            </Card>
+            <!--Pacientes-->
+            <Card class="mb-1">
+                <template #content>
+                <div class="flex items-center mb-0">
+                    <div class="col-span-4 flex items-center justify-center bg-cyan-100 dark:bg-cyan-400/10 rounded-border"
+                    style="width: 3.5rem; height: 3.5rem">
+                        <i class="pi pi-fw pi-user-plus text-cyan-500 !text-5xl"></i>
+                    </div>
+                    <div class="col-span-8 flex justify-center flex-col pl-4">
+                        <span class="block text-lg font-bold">Pacientes</span>
+                        <span class="block text-2xl font-bold text-cyan-500">190</span>
+                    </div>
+                </div>
+                </template>
+            </Card>
+            <!--Pagos-->
+            <Card class="mb-1">
+                <template #content>
+                <div class="flex items-center mb-0">
+                    <div class="col-span-4 flex items-center justify-center bg-blue-100 dark:bg-blue-400/10 rounded-border"
+                    style="width: 3.5rem; height: 3.5rem">
+                        <i class="pi pi pi-money-bill text-blue-500 !text-5xl"></i>
+                    </div>
+                    <div class="col-span-8 flex justify-center flex-col pl-4">
+                        <span class="block text-lg font-bold">Pagos</span>
+                        <span class="block text-2xl font-bold text-blue-500">23</span>
+                    </div>
+                </div>
+                </template>
+            </Card>
+            <!--Recetas-->
+            <Card class="mb-1">
+                <template #content>
+                <div class="flex items-center mb-0">
+                    <div class="col-span-4 flex items-center justify-center bg-cyan-100 dark:bg-cyan-400/10 rounded-border"
+                    style="width: 3.5rem; height: 3.5rem">
+                        <i class="pi pi-fw pi pi-file text-cyan-500 !text-5xl"></i>
+                    </div>
+                    <div class="col-span-8 flex justify-center flex-col pl-4">
+                        <span class="block text-lg font-bold">Reportes</span>
+                    </div>
+                </div>
+                </template>
+            </Card>
+        </div>
+    </div>
+
+    <!--
     <div class="grid grid-cols-12 gap-8">
         <StatsWidget />
 
@@ -19,4 +278,6 @@ import StatsWidget from '@/components/dashboard/StatsWidget.vue';
             <NotificationsWidget />
         </div>
     </div>
+    -->
+</div>
 </template>

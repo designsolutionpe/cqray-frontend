@@ -76,6 +76,16 @@
                 margin-right: 0.5rem;
             }
 
+            .material-symbols-outlined {
+                margin-right: 0.75rem;
+                font-size: 1rem; /* Ajusta esto según el tamaño de los PrimeIcons */
+                font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 48;
+                vertical-align: middle;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+            }
+
             .layout-submenu-toggler {
                 font-size: 75%;
                 margin-left: auto;

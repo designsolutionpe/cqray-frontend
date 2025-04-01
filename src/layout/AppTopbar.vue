@@ -1,6 +1,23 @@
 <script setup>
 import { useLayout } from '@/layout/composables/layout';
+import { useStore } from 'vuex';
+import { computed } from 'vue';
+import { useRouter } from 'vue-router';
 import AppConfigurator from './AppConfigurator.vue';
+
+const router = useRouter();
+const store = useStore();
+const nombreCompleto = computed(() => `${store.getters.nombre} ${store.getters.apellido}`);
+const userRole = computed(() => store.getters.userRole);
+
+const logoutUser = () => {
+  try {
+    store.dispatch('logout');
+    router.push({ name: 'login' });
+  } catch (error) {
+    console.error('Error al cerrar sesión:', error);
+  }
+};
 
 const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
 </script>
@@ -12,6 +29,7 @@ const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
                 <i class="pi pi-bars"></i>
             </button>
             <router-link to="/" class="layout-topbar-logo">
+                <!--
                 <svg viewBox="0 0 54 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path
                         fill-rule="evenodd"
@@ -29,12 +47,22 @@ const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
                         />
                     </g>
                 </svg>
-
-                <span>SAKAI</span>
+                -->
+                <img src="/logo_ray.png" alt="Logo Ray" style="width: 120px; height: auto;">
             </router-link>
         </div>
 
+        <div class="flex flex-col items-left">
+            <div class="font-semibold text-[#2D2E93] dark:text-white">
+                SISTEMA ERP TOTAL
+            </div>
+            <div class="text-sm text-[#FE5933] dark:text-[#FE5933]-300/10">
+                Gestión de Centros Quiroprácticos
+            </div>
+        </div>
+
         <div class="layout-topbar-actions">
+
             <div class="layout-config-menu">
                 <button type="button" class="layout-topbar-action" @click="toggleDarkMode">
                     <i :class="['pi', { 'pi-moon': isDarkTheme, 'pi-sun': !isDarkTheme }]"></i>
@@ -60,17 +88,24 @@ const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
 
             <div class="layout-topbar-menu hidden lg:block">
                 <div class="layout-topbar-menu-content">
-                    <button type="button" class="layout-topbar-action">
-                        <i class="pi pi-calendar"></i>
-                        <span>Calendar</span>
-                    </button>
-                    <button type="button" class="layout-topbar-action">
-                        <i class="pi pi-inbox"></i>
-                        <span>Messages</span>
-                    </button>
+                    
+                    <div class="flex flex-col items-center">
+                        <div class="font-semibold text-[#2D2E93] dark:text-white">{{ nombreCompleto }}</div>
+                        <div class="text-sm text-[#FE5933] dark:text-[#FE5933]-300/10">{{ userRole }}</div>
+                    </div>
+
+
                     <button type="button" class="layout-topbar-action">
                         <i class="pi pi-user"></i>
-                        <span>Profile</span>
+                        <span>Perfil</span>
+                    </button>
+                    <button type="button" class="layout-topbar-action">
+                        <i class="pi pi-cog"></i>
+                        <span>Ajustes</span>
+                    </button>
+                    <button type="button" class="layout-topbar-action" @click="logoutUser">
+                        <i class="pi pi-sign-out"></i>
+                        <span>Cerrar sesión</span>
                     </button>
                 </div>
             </div>

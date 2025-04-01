@@ -1,9 +1,27 @@
 import AppLayout from '@/layout/AppLayout.vue';
 import { createRouter, createWebHistory } from 'vue-router';
+import store from '@/store';
 
 const router = createRouter({
     history: createWebHistory(),
     routes: [
+        {
+            path: '/sesion/login',
+            name: 'login',
+            component: () => import('@/views/sesion/Login.vue')
+        },
+        {
+            path: '/sesion',
+            component: AppLayout,
+            children: [
+                {
+                    path: 'perfil',
+                    name: 'perfil',
+                    component: () => import('@/views/sesion/Perfil.vue'),
+                    meta : { requiresAuth: true}
+                },
+            ]
+        },
         {
             path: '/',
             component: AppLayout,
@@ -11,8 +29,51 @@ const router = createRouter({
                 {
                     path: '/',
                     name: 'dashboard',
-                    component: () => import('@/views/Dashboard.vue')
+                    component: () => import('@/views/Dashboard.vue'),
+                    meta : { requiresAuth: true}
+                    //meta: { requiresAuth: true, roles: ['admin', 'user'] },
                 },
+                {
+                    path: '/gestion/cita',
+                    name: 'cita',
+                    component: () => import('@/views/gestion/Cita.vue'),
+                    meta : { requiresAuth: true}
+                    //meta: { requiresAuth: true, roles: ['admin', 'user'] },
+                },
+                {
+                    path: '/gestion/quiropractico',
+                    name: 'quiropractico',
+                    component: () => import('@/views/gestion/Quiropractico.vue'),
+                    meta : { requiresAuth: true}
+                    //meta: { requiresAuth: true, roles: ['admin'] },
+                },
+                {
+                    path: '/gestion/paciente',
+                    name: 'paciente',
+                    component: () => import('@/views/gestion/Paciente.vue'),
+                    meta : { requiresAuth: true}
+                    //meta: { requiresAuth: true, roles: ['admin', 'user'] },
+                },
+
+                {
+                    path: '/mantenimiento/sede',
+                    name: 'sede',
+                    component: () => import('@/views/mantenimiento/Sede.vue'),
+                    meta : { requiresAuth: true}
+                },
+                {
+                    path: '/mantenimiento/usuario',
+                    name: 'usuario',
+                    component: () => import('@/views/mantenimiento/Usuario.vue'),
+                    meta : { requiresAuth: true}
+                },
+                {
+                    path: '/mantenimiento/horario',
+                    name: 'horario',
+                    component: () => import('@/views/mantenimiento/Horario.vue'),
+                    meta : { requiresAuth: true}
+                },
+
                 {
                     path: '/uikit/formlayout',
                     name: 'formlayout',
@@ -116,12 +177,13 @@ const router = createRouter({
             name: 'notfound',
             component: () => import('@/views/pages/NotFound.vue')
         },
-
+        /*
         {
             path: '/auth/login',
             name: 'login',
             component: () => import('@/views/pages/auth/Login.vue')
         },
+        */
         {
             path: '/auth/access',
             name: 'accessDenied',
@@ -134,5 +196,21 @@ const router = createRouter({
         }
     ]
 });
+
+
+router.beforeEach((to, from, next) => {
+    // Verificar si la ruta requiere autenticación
+    if (to.meta.requiresAuth && !store.getters.isAuthenticated) {
+      next({ name: 'login' });  // Si no está autenticado, redirigir al login
+    }
+    // Verificar si la ruta requiere un rol específico
+    else if (to.meta.roles && !to.meta.roles.includes(store.getters.userRole)) {
+      next({ name: 'accessDenied' });  // Si el rol no coincide, redirigir a acceso denegado
+    }
+    else {
+      next();  // Permitir la navegación si todo está bien
+    }
+});
+  
 
 export default router;
