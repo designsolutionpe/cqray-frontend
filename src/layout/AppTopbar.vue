@@ -107,8 +107,8 @@ const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
                         <div class="text-sm text-[#FE5933] dark:text-[#FE5933]-300/10">{{ userRole }}</div>
                     </div>
                     <button type="button" v-tooltip.bottom="'Perfil'" class="layout-topbar-action" @click="mostrarPerfil">
-                        <img v-if="!foto.value" class="w-100" :src="formatearFoto()" alt="Perfil">
-                        <i v-if="foto.value" class="pi pi-user"></i>
+                        <img v-if="foto != null" class="w-100" :src="formatearFoto()" alt="Perfil">
+                        <i v-if="foto == null" class="pi pi-user"></i>
                         <span>Perfil</span>
                     </button>
                     <button type="button" class="layout-topbar-action">
