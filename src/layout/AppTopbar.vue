@@ -32,9 +32,15 @@ const mostrarPerfil = () => {
 const onImageError = () => {
     bImageError.value = true
 }
+const mostrarAjustes = () => {
+  try {
+    router.push({ name: 'pago' });
+  } catch (error) {
+    console.error('Error al mostrar método pago:', error);
+  }
+};
 
 watch(foto,(n,o)=>{
-    console.log('new',n,'old',o)
     if(n)
         bImageError.value = false
     else
@@ -120,7 +126,7 @@ const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
                         <i v-else class="pi pi-user"></i>
                         <span>Perfil</span>
                     </button>
-                    <button type="button" class="layout-topbar-action">
+                    <button type="button" class="layout-topbar-action" @click="mostrarAjustes">
                         <i class="pi pi-cog"></i>
                         <span>Ajustes</span>
                     </button>
