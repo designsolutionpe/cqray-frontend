@@ -23,6 +23,18 @@ const router = createRouter({
             ]
         },
         {
+            path: '/mantenimiento',
+            component: AppLayout,
+            children: [
+                {
+                    path: 'pago',
+                    name: 'pago',
+                    component: () => import('@/views/mantenimiento/Pago.vue'),
+                    meta : { requiresAuth: true}
+                },
+            ]
+        },
+        {
             path: '/',
             component: AppLayout,
             children: [

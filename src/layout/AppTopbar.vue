@@ -28,6 +28,14 @@ const mostrarPerfil = () => {
   }
 };
 
+const mostrarAjustes = () => {
+  try {
+    router.push({ name: 'pago' });
+  } catch (error) {
+    console.error('Error al mostrar método pago:', error);
+  }
+};
+
 const formatearFoto = () => {
     return `${import.meta.env.VITE_BASE_URL}/storage/${foto.value}`;
 }
@@ -111,7 +119,7 @@ const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
                         <i v-if="foto == null" class="pi pi-user"></i>
                         <span>Perfil</span>
                     </button>
-                    <button type="button" class="layout-topbar-action">
+                    <button type="button" class="layout-topbar-action" @click="mostrarAjustes">
                         <i class="pi pi-cog"></i>
                         <span>Ajustes</span>
                     </button>
