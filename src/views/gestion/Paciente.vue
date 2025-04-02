@@ -20,17 +20,6 @@ const generos = ref([
     { label: "Femenino", value: "Femenino" },
 ]);
 
-const gruposSanguineos = ref([
-    { label: "O-", value: "O-" },
-    { label: "O+", value: "O+" },
-    { label: "A-", value: "A-" },
-    { label: "A+", value: "A+" },
-    { label: "B-", value: "B-" },    
-    { label: "B+", value: "B+" },
-    { label: "AB-", value: "AB-" },
-    { label: "AB+", value: "AB+" },
-]);
-
 const sedes = ref([]);
 
 const cargarSedes = async () => {
@@ -194,7 +183,7 @@ async function savePaciente() {
     
     // Datos de Paciente
     formData.append("id_sede", sanitizeNumber(paciente.value.id_sede));
-    formData.append("grupo_sanguineo", sanitizeValue(paciente.value.grupo_sanguineo));
+    formData.append("historia_clinica", sanitizeNumber(paciente.value.historia_clinica));
     formData.append("estado", sanitizeNumber(paciente.value.estado));
 
     // Adjuntar imagen si existe
@@ -266,7 +255,7 @@ onMounted(() => {
                 <Column field="persona.nombre" header="Nombres" sortable style="min-width: 10rem"></Column>
                 <Column field="persona.genero" header="Genero" sortable style="min-width: 5rem"></Column>
                 <Column field="persona.fecha_nacimiento" header="Fecha Nacimiento" sortable style="min-width: 6rem"></Column>
-                <Column field="grupo_sanguineo" header="Grupo Sanguineo" sortable style="min-width: 6rem"></Column>
+                <Column field="historia_clinica" header="Historia Clinica" sortable style="min-width: 5rem"></Column>
                 <Column :exportable="false" style="min-width: 12rem">
                     <template #body="slotProps">
                         <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="editPaciente(slotProps.data)" />
@@ -330,8 +319,8 @@ onMounted(() => {
                         <InputText id="email" type="email" v-model="paciente.persona.email" fluid />
                     </div>
                     <div class="col-span-6">
-                        <label for="grupoSanguineo" class="block font-bold mb-3">Grupo Sanguíneo</label>
-                        <Select id="grupoSanguineo" v-model="paciente.grupo_sanguineo" :options="gruposSanguineos" optionLabel="label" optionValue="value" placeholder="Seleccione un grupo sanguíneo" fluid />
+                        <label for="historiaClinica" class="block font-bold mb-3">Historia Clínica</label>
+                        <InputNumber id="historiaClinica" v-model="paciente.historia_clinica" :useGrouping="false" :min="0" fluid />
                     </div>
                 </div>
 

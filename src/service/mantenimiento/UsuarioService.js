@@ -10,6 +10,16 @@ export const getUsuarios = async () => {
     }
 }
 
+export const getUsuarioById = async (id) => {
+    try {
+        const response = await api.get(`/usuarios/${id}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error al obtener el usuario:', error);
+        throw error;
+    }
+};
+
 // Crear un nuevo usuario
 export const createUsuario = async (data) => {
     try {
@@ -29,6 +39,23 @@ export const updateUsuario = async (id, data) => {
     } catch (error) {
         console.error('Error al actualizar usuario:', error.response?.data || error);
         throw error;
+    }
+};
+
+// Actualizar usuario y persona
+export const updateUsuarioPersona = async (id, formData) => {
+
+    formData.append('_method', 'PUT');  
+    try {
+      const response = await api.post(`/usuario-persona/${id}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error al actualizar Usuario/Persona:', error.response?.data || error);
+      throw error;
     }
 };
 

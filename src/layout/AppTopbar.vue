@@ -19,6 +19,14 @@ const logoutUser = () => {
   }
 };
 
+const mostrarPerfil = () => {
+  try {
+    router.push({ name: 'perfil' });
+  } catch (error) {
+    console.error('Error al mostrar perfil:', error);
+  }
+};
+
 const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
 </script>
 
@@ -93,9 +101,7 @@ const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
                         <div class="font-semibold text-[#2D2E93] dark:text-white">{{ nombreCompleto }}</div>
                         <div class="text-sm text-[#FE5933] dark:text-[#FE5933]-300/10">{{ userRole }}</div>
                     </div>
-
-
-                    <button type="button" class="layout-topbar-action">
+                    <button type="button" v-tooltip.bottom="'Perfil'" class="layout-topbar-action" @click="mostrarPerfil">
                         <i class="pi pi-user"></i>
                         <span>Perfil</span>
                     </button>

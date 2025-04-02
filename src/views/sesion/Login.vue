@@ -21,11 +21,12 @@ const loginUserHandler = async () => {
     if (response && response.token) {
       store.dispatch('login', { 
         isAuthenticated: true, 
+        id: response.data.id,
         userRole: response.data.rol,
         token: response.token,
         nombre: response.data.persona.nombre,
         apellido: response.data.persona.apellido
-       });
+       });       
       router.push({ name: 'dashboard' });
     } else {
       console.error('Respuesta inválida del backend');
