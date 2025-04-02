@@ -1,4 +1,5 @@
 <script setup>
+import Preloader from '@/components/Preloader.vue';
 import { getSedes } from '@/service/mantenimiento/SedeService';
 import { getUsuarioById, updateUsuarioPersona } from '@/service/mantenimiento/UsuarioService';
 import { useToast } from 'primevue/usetoast';
@@ -112,6 +113,7 @@ async function savePerfil(){
     try {
         if (perfil.value.id) {
             // Actualizamos usuario/persona
+            isLoading.value = true
             const respuesta = await updateUsuarioPersona(perfil.value.id, formData);
             console.log("data actualiza",respuesta)
 
@@ -127,6 +129,7 @@ async function savePerfil(){
             toast.add({ severity: 'success', summary: 'Perfil Actualizado', life: 3000 });
         }
         await cargarUsuario(); 
+        isLoading.value = false
     } catch (error) {
         console.error('⛔ Error al guardar el perfil:', error.response?.data || error);
         toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudo guardar el perfil', life: 3000 });
@@ -142,7 +145,8 @@ onMounted(() => {
 
 <template>
     <div>
-        <div class="card">
+        <div class="card relative overflow-hidden">
+            <Preloader v-if="isLoading"/>
             <div class="flex flex-col gap-6">
                 <div class="text-2xl font-bold text-primary">Administrar perfil</div>
                 <div class="text-red-500 text-sm -mt-4 mb-4">Ajustes perfil</div>

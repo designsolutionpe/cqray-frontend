@@ -6,12 +6,14 @@ import { useStore } from 'vuex';
 
 const login = ref('');
 const password = ref('');
+const isLoading = ref(false)
 const checked = ref(false);
 const store = useStore();
 const router = useRouter();
 
 const loginUserHandler = async () => {
   try {
+    isLoading.value = true
     const response = await loginUser({
       login: login.value,
       password: password.value,
@@ -26,8 +28,9 @@ const loginUserHandler = async () => {
         token: response.token,
         nombre: response.data.persona.nombre,
         apellido: response.data.persona.apellido,
-        foto: response.data.persona.foto
+        foto: `${import.meta.env.VITE_BASE_URL}/storage/${response.data.persona.foto}`
       });       
+      isLoading.value = false
       router.push({ name: 'dashboard' });
     } else {
       console.error('Respuesta inválida del backend');
@@ -35,6 +38,7 @@ const loginUserHandler = async () => {
   } catch (error) {
     console.error('Login fallido:', error);
   }
+  isLoading.value = false
 };
 
 </script>
@@ -61,7 +65,7 @@ const loginUserHandler = async () => {
         <InputGroupAddon>
           <i class="pi pi-user"></i>
         </InputGroupAddon>
-        <InputText id="login1" v-model="login" type="text" placeholder="Ingrese su usuario"
+        <InputText id="login1" v-model="login" type="text" placeholder="Ingrese su usuario" :disabled="isLoading"
           class="w-full" required/>
       </InputGroup>
 
@@ -73,20 +77,20 @@ const loginUserHandler = async () => {
         <InputGroupAddon>
           <i class="pi pi-lock"></i>
         </InputGroupAddon>
-        <Password id="password1" v-model="password" placeholder="Ingrese su contraseña" required
-          :toggleMask="true" :feedback="false" class="w-full"/>
+        <Password id="password1" v-model="password" placeholder="Ingrese su contraseña" required :disabled="isLoading"
+          :toggleMask="!isLoading" :feedback="false" class="w-full"/>
       </InputGroup>
 
       <!-- Recordarme y botón -->
       <div class="flex items-center justify-between mb-4">
         <div class="flex items-center space-x-2">
-          <Checkbox v-model="checked" id="rememberme1" binary />
+          <Checkbox v-model="checked" id="rememberme1" binary :disabled="isLoading"/>
           <label for="rememberme1" class="text-gray-700">
             Recordarme
           </label>
         </div>
       </div>
-      <Button label="Ingresar" class="login-btn w-full" @click="loginUserHandler" />
+      <Button label="Ingresar" class="w-full bg-secondary text-white" @click="loginUserHandler" :loading="isLoading" />
     </div>
 
     <div class="mt-6 text-center text-white">
@@ -107,16 +111,6 @@ const loginUserHandler = async () => {
   background-repeat: no-repeat;
   background-size: cover; /* o 'contain', depende de tu necesidad */
   background-position: center;
-}
-.login-btn
-{
-  background: #2D2E93;
-  border-color: #2D2E93;
-}
-.login-btn:not(:disabled):hover
-{
-  background: #2D2E93;
-  border-color: #2D2E93;
 }
 
 </style>
