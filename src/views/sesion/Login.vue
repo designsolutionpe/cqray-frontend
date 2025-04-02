@@ -44,7 +44,7 @@ const loginUserHandler = async () => {
     
     <!-- Logo y título -->
     <div class="text-center mb-6">
-      <img src="/logo_ray.png" alt="Logo" class="w-32 mx-auto mb-4"/>
+      <img src="/logo_ray2.png" alt="Logo" class="w-1/2 mx-auto mb-4"/>
       <h1 class="text-3xl font-bold text-white">
         Iniciar sesión
       </h1>
@@ -85,7 +85,7 @@ const loginUserHandler = async () => {
           </label>
         </div>
       </div>
-      <Button label="Ingresar" class="w-full" @click="loginUserHandler" />
+      <Button label="Ingresar" class="login-btn w-full" @click="loginUserHandler" />
     </div>
 
     <div class="mt-6 text-center text-white">
@@ -102,10 +102,20 @@ const loginUserHandler = async () => {
   margin-right: 0.75rem;
 }
 .fondo-ondas {
-  background-image: url('@/assets/fondo_olas.svg');
+  background-image: url('@/assets/gradient_2.jpg');
   background-repeat: no-repeat;
   background-size: cover; /* o 'contain', depende de tu necesidad */
   background-position: center;
+}
+.login-btn
+{
+  background: #2D2E93;
+  border-color: #2D2E93;
+}
+.login-btn:not(:disabled):hover
+{
+  background: #2D2E93;
+  border-color: #2D2E93;
 }
 
 </style>
