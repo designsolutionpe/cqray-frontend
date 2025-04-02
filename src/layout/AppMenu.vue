@@ -68,7 +68,6 @@ const model = ref([
                 items: [
                     { label: 'Todos los usuarios' , to: '/mantenimiento/usuario' },
                     { label: 'Añadir usuario' , to: '#' },
-                    { label: 'Añadir Call Center' , to: '#' },
                 ]
             },
             {
