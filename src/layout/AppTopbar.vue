@@ -1,6 +1,6 @@
 <script setup>
 import { useLayout } from '@/layout/composables/layout';
-import { computed } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 import AppConfigurator from './AppConfigurator.vue';
@@ -10,6 +10,7 @@ const store = useStore();
 const nombreCompleto = computed(() => `${store.getters.nombre} ${store.getters.apellido}`);
 const userRole = computed(() => store.getters.userRole);
 const foto = computed(() => store.getters.foto)
+const bImageError = ref( false )
 
 const logoutUser = () => {
   try {
@@ -28,9 +29,17 @@ const mostrarPerfil = () => {
   }
 };
 
-const formatearFoto = () => {
-    return `${import.meta.env.VITE_BASE_URL}/storage/${foto.value}`;
+const onImageError = () => {
+    bImageError.value = true
 }
+
+watch(foto,(n,o)=>{
+    console.log('new',n,'old',o)
+    if(n)
+        bImageError.value = false
+    else
+        bImageError.value = true
+})
 
 const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
 </script>
@@ -106,9 +115,9 @@ const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
                         <div class="font-semibold text-[#2D2E93] dark:text-white">{{ nombreCompleto }}</div>
                         <div class="text-sm text-[#FE5933] dark:text-[#FE5933]-300/10">{{ userRole }}</div>
                     </div>
-                    <button type="button" v-tooltip.bottom="'Perfil'" class="layout-topbar-action" @click="mostrarPerfil">
-                        <img v-if="foto != null" class="w-100" :src="formatearFoto()" alt="Perfil">
-                        <i v-if="foto == null" class="pi pi-user"></i>
+                    <button type="button" v-tooltip.bottom="'Perfil'" class="layout-topbar-action overflow-hidden" @click="mostrarPerfil">
+                        <img v-if="!bImageError" class="w-100" :src="foto" alt="Perfil" @error="onImageError">
+                        <i v-else class="pi pi-user"></i>
                         <span>Perfil</span>
                     </button>
                     <button type="button" class="layout-topbar-action">

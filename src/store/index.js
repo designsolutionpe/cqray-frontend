@@ -28,6 +28,17 @@ export default createStore({
       localStorage.setItem('apellido', apellido || '');
       localStorage.setItem('foto',foto || '')
     },
+    updateUserData(state,{ userRole , nombre , apellido , foto })
+    {
+      state.userRole = userRole
+      state.nombre = nombre
+      state.apellido = apellido
+      state.foto = foto
+      localStorage.setItem('userRole',state.userRole)
+      localStorage.setItem('nombre',state.nombre)
+      localStorage.setItem('apellido',state.apellido)
+      localStorage.setItem('foto',state.foto)
+    },
     logout(state) {
       state.isAuthenticated = false;
       state.userRole = null;
@@ -48,6 +59,9 @@ export default createStore({
   actions: {
     login({ commit }, payload) {
       commit('setAuth', payload);
+    },
+    updateUserData({ commit },payload){
+      commit('updateUserData',payload)
     },
     logout({ commit }) {
       commit('logout');

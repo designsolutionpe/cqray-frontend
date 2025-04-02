@@ -1,22 +1,23 @@
 <script setup>
-import { useToast } from 'primevue/usetoast';
 import { getSedes } from '@/service/mantenimiento/SedeService';
-import { getUsuarioById } from '@/service/mantenimiento/UsuarioService';
-import { updateUsuarioPersona } from '@/service/mantenimiento/UsuarioService';
-import { onMounted, ref } from 'vue';
+import { getUsuarioById, updateUsuarioPersona } from '@/service/mantenimiento/UsuarioService';
+import { useToast } from 'primevue/usetoast';
+import { computed, onMounted, ref } from 'vue';
 import { useStore } from 'vuex';
-import { computed } from 'vue';
 
 const sedes = ref([]);
 const store = useStore();
 const id = computed(() => store.getters.id);
+const isLoading = ref( true )
 
 const perfil = ref({
     persona:{},
 });
 const cargarUsuario = async () => {
     try {
+        isLoading.value = true
         const response = await getUsuarioById(id.value);
+        isLoading.value = false
         perfil.value = response;
 
         if (perfil.value.persona.foto) {
@@ -112,6 +113,17 @@ async function savePerfil(){
         if (perfil.value.id) {
             // Actualizamos usuario/persona
             const respuesta = await updateUsuarioPersona(perfil.value.id, formData);
+            console.log("data actualiza",respuesta)
+
+            const foto = respuesta.data.persona.foto
+
+            store.dispatch('updateUserData',{
+                userRole: respuesta.data.user.rol,
+                nombre: respuesta.data.persona.nombre,
+                apellido: respuesta.data.persona.apellido,
+                foto: foto ? `${import.meta.env.VITE_BASE_URL}/storage/${foto}` : null
+            })
+
             toast.add({ severity: 'success', summary: 'Perfil Actualizado', life: 3000 });
         }
         await cargarUsuario(); 
