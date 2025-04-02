@@ -1,14 +1,15 @@
 <script setup>
 import { useLayout } from '@/layout/composables/layout';
-import { useStore } from 'vuex';
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
+import { useStore } from 'vuex';
 import AppConfigurator from './AppConfigurator.vue';
 
 const router = useRouter();
 const store = useStore();
 const nombreCompleto = computed(() => `${store.getters.nombre} ${store.getters.apellido}`);
 const userRole = computed(() => store.getters.userRole);
+const foto = computed(() => store.getters.foto)
 
 const logoutUser = () => {
   try {
@@ -26,6 +27,10 @@ const mostrarPerfil = () => {
     console.error('Error al mostrar perfil:', error);
   }
 };
+
+const formatearFoto = () => {
+    return `${import.meta.env.VITE_BASE_URL}/storage/${foto.value}`;
+}
 
 const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
 </script>
@@ -102,7 +107,8 @@ const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
                         <div class="text-sm text-[#FE5933] dark:text-[#FE5933]-300/10">{{ userRole }}</div>
                     </div>
                     <button type="button" v-tooltip.bottom="'Perfil'" class="layout-topbar-action" @click="mostrarPerfil">
-                        <i class="pi pi-user"></i>
+                        <img v-if="!foto.value" class="w-100" :src="formatearFoto()" alt="Perfil">
+                        <i v-if="foto.value" class="pi pi-user"></i>
                         <span>Perfil</span>
                     </button>
                     <button type="button" class="layout-topbar-action">

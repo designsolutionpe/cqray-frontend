@@ -25,8 +25,9 @@ const loginUserHandler = async () => {
         userRole: response.data.rol,
         token: response.token,
         nombre: response.data.persona.nombre,
-        apellido: response.data.persona.apellido
-       });       
+        apellido: response.data.persona.apellido,
+        foto: response.data.persona.foto
+      });       
       router.push({ name: 'dashboard' });
     } else {
       console.error('Respuesta inválida del backend');
