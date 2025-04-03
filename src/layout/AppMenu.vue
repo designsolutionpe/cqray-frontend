@@ -16,34 +16,33 @@ const model = ref([
                 label: 'Agendamientos de Citas',
                 icon: 'material-symbols-outlined clinical_notes',
                 items: [
-                    { label: 'Todas las citas' , to: '/gestion/cita' },
-                    { label: 'Añadir citas' , to: '#' },
-                    { label: 'Calendario de citas' , to: '#' },
+                    { label: 'Todas las citas', to: '/gestion/cita' },
+                    { label: 'Añadir citas', to: '#' },
+                    { label: 'Calendario de citas', to: '#' },
                 ]
             },
             {
                 label: 'Integrador Whatsapp',
                 icon: 'pi pi-fw pi-whatsapp',
-                to: '/gestion/integrador'
+                to: '#'
             },
             {
                 label: 'Quiroprácticos',
                 icon: 'material-symbols-outlined medical_information',
-                items:[
-                    { label: 'Todos los quiroprácticos' , to: '/gestion/quiropractico' },
-                    { label: 'Añadir quiroprácticos' , to: '#' },
-                    { label: 'Historial atendidos' , to: '#' },
+                items: [
+                    { label: 'Todos los quiroprácticos', to: '/gestion/quiropractico' },
+                    { label: 'Añadir quiroprácticos', to: '#' },
+                    { label: 'Historial atendidos', to: '#' },
                 ]
             },
             {
                 label: 'Pacientes',
                 icon: 'pi pi-fw pi-user-plus',
-                to: '/gestion/paciente',
                 items: [
-                    { label: 'Todos los pacientes' , to: '/gestion/paciente' },
-                    { label: 'Añadir pacientes' , to: '#' },
-                    { label: 'Historial de pagos' , to: '#' },
-                    { label: 'Historias clínicas' , to: '#' },
+                    { label: 'Todos los pacientes', to: '/gestion/paciente' },
+                    { label: 'Añadir pacientes', to: '#' },
+                    { label: 'Historial de pagos', to: '#' },
+                    { label: 'Historias clínicas', to: '#' },
                 ]
             },
         ]
@@ -55,65 +54,58 @@ const model = ref([
             {
                 label: 'Control de sedes',
                 icon: 'pi pi-fw pi-building',
-                to: '/mantenimiento/sede',
                 items: [
-                    { label: 'Todos los sedes' , to: '/mantenimiento/sede' },
-                    { label: 'Añadir sede' , to: '#' },
+                    { label: 'Todos los sedes', to: '/mantenimiento/sede' },
+                    { label: 'Añadir sede', to: '#' },
                 ]
             },
             {
                 label: 'Control de usuario',
                 icon: 'pi pi-fw pi-users',
-                to: '/mantenimiento/usuario',
                 items: [
-                    { label: 'Todos los usuarios' , to: '/mantenimiento/usuario' },
-                    { label: 'Añadir usuario' , to: '#' },
+                    { label: 'Todos los usuarios', to: '/mantenimiento/usuario' },
+                    { label: 'Añadir usuario', to: '#' },
                 ]
             },
             {
                 label: 'Control método de pagos',
                 icon: 'pi pi-fw pi-credit-card',
-                to: '/mantenimiento/',
                 items: [
-                    { label: 'Todos los métodos de pago' , to: '#' },
-                    { label: 'Añadir métodos de pago' , to: '#' },
+                    { label: 'Todos los métodos de pago', to: '#' },
+                    { label: 'Añadir métodos de pago', to: '#' },
                 ]
             },
             {
                 label: 'Horarios quiroprácticos',
                 icon: 'pi pi-fw pi-calendar-plus',
-                to: '/mantenimiento/horario',
                 items: [
-                    { label: 'Todos los horarios' , to: '/mantenimiento/horario' },
-                    { label: 'Añadir horario' , to: '#' },
+                    { label: 'Todos los horarios', to: '/mantenimiento/horario' },
+                    { label: 'Añadir horario', to: '#' },
                 ]
             },
             {
                 label: 'Categorías',
                 icon: 'pi pi-fw pi-list',
-                to: '/mantenimiento/',
                 items: [
-                    { label: 'Todas las categorías' , to: '#' },
-                    { label: 'Añadir categorías' , to: '#' },
+                    { label: 'Todas las categorías', to: '#' },
+                    { label: 'Añadir categorías', to: '#' },
                 ]
             },
             {
                 label: 'Compras',
                 icon: 'pi pi-fw pi-shopping-cart',
-                to: '/mantenimiento/',
                 items: [
-                    { label: 'Registrar proveedor' , to: '#' },
-                    { label: 'Ingresar compra' , to: '#' },
-                    { label: 'Ver lista de compras' , to: '#' },
+                    { label: 'Registrar proveedor', to: '#' },
+                    { label: 'Ingresar compra', to: '#' },
+                    { label: 'Ver lista de compras', to: '#' },
                 ]
             },
             {
                 label: 'Artículos',
                 icon: 'pi pi-fw pi-file',
-                to: '/mantenimiento/',
                 items: [
-                    { label: 'Agregar producto' , to: '#' },
-                    { label: 'Agregar servicio' , to: '#' },
+                    { label: 'Agregar producto', to: '#' },
+                    { label: 'Agregar servicio', to: '#' },
                 ]
             },
         ]
@@ -126,29 +118,29 @@ const model = ref([
                 label: 'Realizar Ventas',
                 icon: 'pi pi-fw pi-dollar',
                 items: [
-                    { label: 'Boleta' , to: '/gestion/venta' },
-                    { label: 'Factura' , to: '#' },
-                    { label: 'Nota de crédito' , to: '#' },
+                    { label: 'Boleta', to: '#' },
+                    { label: 'Factura', to: '#' },
+                    { label: 'Nota de crédito', to: '#' },
                 ]
             },
             {
                 label: 'Comprobantes',
                 icon: 'pi pi-fw pi-receipt',
                 items: [
-                    { label: 'Consultar comprobante' , to: '/gestion/comprobante' },
-                    { label: 'Factura y boleta anulados' , to: '#' },
-                    { label: 'Enviar resumen de boletas' , to: '#' },
-                    { label: 'Validar facturas' , to: '#' },
-                    { label: 'Validar boletas' , to: '#' },
+                    { label: 'Consultar comprobante', to: '#' },
+                    { label: 'Factura y boleta anulados', to: '#' },
+                    { label: 'Enviar resumen de boletas', to: '#' },
+                    { label: 'Validar facturas', to: '#' },
+                    { label: 'Validar boletas', to: '#' },
                 ]
             },
             {
                 label: 'Anular comprobantes',
                 icon: 'pi pi-fw pi-times-circle',
                 items: [
-                    { label: 'Baja facturas' , to: '#' },
-                    { label: 'Baja boletas' , to: '#' },
-                    { label: 'Baja nota de crédito' , to: '#' },
+                    { label: 'Baja facturas', to: '#' },
+                    { label: 'Baja boletas', to: '#' },
+                    { label: 'Baja nota de crédito', to: '#' },
                 ]
             },
         ]
@@ -160,39 +152,35 @@ const model = ref([
             {
                 label: 'Caja',
                 icon: 'pi pi-fw pi-money-bill',
-                to: '/',
                 items: [
-                    { label: 'Caja chica' , to: '#' },
-                    { label: 'Gastos / Ingresos' , to: '#' },
-                    { label: 'Ingreso diario' , to: '#' },
-                    { label: 'Utilidad semanal' , to: '#' },
-                    { label: 'Balance de ganancias' , to: '#' },
+                    { label: 'Caja chica', to: '#' },
+                    { label: 'Gastos / Ingresos', to: '#' },
+                    { label: 'Ingreso diario', to: '#' },
+                    { label: 'Utilidad semanal', to: '#' },
+                    { label: 'Balance de ganancias', to: '#' },
                 ]
             },
             {
                 label: 'Administración',
                 icon: 'pi pi-fw pi-address-book',
-                to: '/',
                 items: [
-                    { label: 'Registro de inventario' , to: '#' },
+                    { label: 'Registro de inventario', to: '#' },
                 ]
             },
             {
                 label: 'Movimiento',
                 icon: 'pi pi-fw pi-arrow-right-arrow-left',
-                to: '/',
                 items: [
-                    { label: 'Kardex por artículo' , to: '#' },
+                    { label: 'Kardex por artículo', to: '#' },
                 ]
             },
             {
                 label: 'Planilla personal',
                 icon: 'pi pi-fw pi-sitemap',
-                to: '/',
                 items: [
-                    { label: 'Empleados' , to: '#' },
-                    { label: 'Tipo de seguro' , to: '#' },
-                    { label: 'Boleta de pago' , to: '#'},
+                    { label: 'Empleados', to: '#' },
+                    { label: 'Tipo de seguro', to: '#' },
+                    { label: 'Boleta de pago', to: '#' },
                 ]
             },
         ]

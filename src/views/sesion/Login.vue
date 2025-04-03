@@ -90,7 +90,7 @@ const loginUserHandler = async () => {
           </label>
         </div>
       </div>
-      <Button label="Ingresar" class="w-full bg-secondary text-white" @click="loginUserHandler" :loading="isLoading" />
+      <Button label="Ingresar" class="w-full login-btn" @click="loginUserHandler" :loading="isLoading" />
     </div>
 
     <div class="mt-6 text-center text-white">
@@ -111,6 +111,13 @@ const loginUserHandler = async () => {
   background-repeat: no-repeat;
   background-size: cover; /* o 'contain', depende de tu necesidad */
   background-position: center;
+}
+
+.login-btn,
+.login-btn:not(:disabled):hover
+{
+  background-color: #2D2E93;
+  border-color: #2D2E93;
 }
 
 </style>

@@ -9,16 +9,18 @@ import { useStore } from 'vuex';
 const sedes = ref([]);
 const store = useStore();
 const id = computed(() => store.getters.id);
-const isLoading = ref( true )
+const isLoading = ref(true)
+const bImageError = ref(false)
 
 const perfil = ref({
-    persona:{},
+    persona: {},
 });
 const cargarUsuario = async () => {
     try {
         isLoading.value = true
         const response = await getUsuarioById(id.value);
         isLoading.value = false
+        bImageError.value = false
         perfil.value = response;
 
         if (perfil.value.persona.foto) {
@@ -64,6 +66,7 @@ function onFileSelect(event) {
 
         const reader = new FileReader();
         reader.onload = (e) => {
+            bImageError.value = false
             previewSrc.value = e.target.result;
         };
         reader.readAsDataURL(file);
@@ -77,8 +80,16 @@ function removeImage() {
     previewSrc.value = null;
 }
 
+function onImageError() {
 
-async function savePerfil(){
+    console.log('error test', previewSrc.value, bImageError.value)
+
+    bImageError.value = true
+
+}
+
+async function savePerfil() {
+
     submitted.value = true;
 
     // Validar los campos básicos del perfil
@@ -93,18 +104,18 @@ async function savePerfil(){
 
     // Crear FormData para enviar a nuestro endpoint
     const formData = new FormData();
-    
+
     // Campos de User (parcial)
     formData.append('login', sanitizeValue(perfil.value.login));
     formData.append('email', sanitizeValue(perfil.value.email));
     formData.append('rol', sanitizeValue(perfil.value.rol));
     formData.append('password', sanitizeValue(perfil.value.password));
     formData.append('id_sede', sanitizeNumber(perfil.value.id_sede));
-    
+
     // Campos de Persona (parcial)
     formData.append('nombre', sanitizeValue(perfil.value.persona.nombre));
     formData.append('apellido', sanitizeValue(perfil.value.persona.apellido));
-    
+
     // Adjuntar imagen si existe (para la foto)
     if (selectedFile.value instanceof File) {
         formData.append('foto', selectedFile.value);
@@ -115,11 +126,10 @@ async function savePerfil(){
             // Actualizamos usuario/persona
             isLoading.value = true
             const respuesta = await updateUsuarioPersona(perfil.value.id, formData);
-            console.log("data actualiza",respuesta)
 
             const foto = respuesta.data.persona.foto
 
-            store.dispatch('updateUserData',{
+            store.dispatch('updateUserData', {
                 userRole: respuesta.data.user.rol,
                 nombre: respuesta.data.persona.nombre,
                 apellido: respuesta.data.persona.apellido,
@@ -128,7 +138,7 @@ async function savePerfil(){
 
             toast.add({ severity: 'success', summary: 'Perfil Actualizado', life: 3000 });
         }
-        await cargarUsuario(); 
+        await cargarUsuario();
         isLoading.value = false
     } catch (error) {
         console.error('⛔ Error al guardar el perfil:', error.response?.data || error);
@@ -146,53 +156,71 @@ onMounted(() => {
 <template>
     <div>
         <div class="card relative overflow-hidden">
-            <Preloader v-if="isLoading"/>
+            <Preloader v-if="isLoading" />
             <div class="flex flex-col gap-6">
                 <div class="text-2xl font-bold text-primary">Administrar perfil</div>
                 <div class="text-red-500 text-sm -mt-4 mb-4">Ajustes perfil</div>
 
                 <div class="grid grid-cols-12 gap-4">
-                    <!-- Nombre -->
-                    <div class="col-span-6">
-                        <label for="nombre" class="block font-bold mb-2">Nombre</label>
-                        <InputText id="nombre" v-model.trim="perfil.persona.nombre" fluid placeholder="Ingresa nombres" />
-                    </div>
-
-                    <!-- Apellidos -->
-                    <div class="col-span-6">
-                        <label for="apellidos" class="block font-bold mb-2">Apellidos</label>
-                        <InputText id="apellidos" v-model.trim="perfil.persona.apellido" fluid placeholder="Ingresa apellidos" />
-                    </div>
-
-                    <!-- Login (Email) -->
-                    <div class="col-span-6">
-                        <label for="email" class="block font-bold mb-2">Correo</label>
-                        <InputText id="email" v-model.trim="perfil.email" type="email" fluid placeholder="Ingresa correo" />
-                    </div>
-
-                    <!-- Clave -->
-                    <div class="col-span-6">
-                        <label for="clave" class="block font-bold mb-2">Contraseña</label>
-                        <Password id="clave" v-model="perfil.password" toggleMask fluid placeholder="Ingresa contraseña" />
-                    </div>
-
-                    <!-- Sede -->
-                    <div class="col-span-6">
-                        <label for="sede" class="block font-bold mb-2">Sede</label>
-                        <Select id="sede" v-model="perfil.id_sede" :options="sedes" optionLabel="label" optionValue="value" placeholder="Selecciona una sede" fluid />
-                    </div>
 
                     <!-- Imagen -->
-                    <div class="col-span-6">
-                      <label for="imagen" class="block font-bold mb-2">Foto</label>
-                      <div class="flex flex-col gap-3 items-start">
-                        <FileUpload mode="basic" name="foto" accept="image/*" chooseLabel="Subir imagen"
-                          :maxFileSize="1000000" @select="onFileSelect" customUpload auto class="p-button-primary" />
-                        <div v-if="previewSrc" class="relative flex items-center">
-                          <img :src="previewSrc" alt="Imagen" class="w-42 h-42 rounded-lg shadow" />
-                          <Button v-tooltip.bottom="'Eliminar'" icon="pi pi-trash" class="mr-4 p-button-rounded p-button-danger p-button-lg" @click="removeImage" />
+                    <div class="col-span-12 md:col-span-6 lg:col-span-5">
+                        <label for="imagen" class="block font-bold mb-2">Foto</label>
+                        <div class="flex flex-col gap-3 items-start">
+                            <FileUpload mode="basic" name="foto" accept="image/*" chooseLabel="Subir imagen"
+                                :maxFileSize="1000000" @select="onFileSelect" customUpload auto
+                                class="p-button-primary" />
+                            <div v-if="previewSrc && !bImageError"
+                                class="relative flex flex-col gap-3 items-start w-full">
+                                <Button v-tooltip.bottom="'Eliminar'" label="Eliminar imagen" icon="pi pi-trash"
+                                    class="p-button-danger" @click="removeImage" />
+                                <div
+                                    class="overflow-hidden w-60 h-60 md:w-72 md:h-72 rounded-full shadow grid place-items-center mx-auto">
+                                    <img :src="previewSrc" alt="Imagen" class="w-60 h-60 md:w-72 md:h-72"
+                                        @error="onImageError" />
+                                </div>
+                            </div>
+                            <p class="text-red-500" v-else-if="bImageError">*Hubo un error al cargar la imagen. Por
+                                favor actualice la imagen para regularizar</p>
                         </div>
-                      </div>
+                    </div>
+
+                    <div class="flex flex-col gap-3 col-span-12 md:col-span-6 lg:col-span-7">
+
+                        <!-- Nombre -->
+                        <div class="col-span-12 md:col-span-6">
+                            <label for="nombre" class="block font-bold mb-2">Nombre</label>
+                            <InputText id="nombre" v-model.trim="perfil.persona.nombre" fluid
+                                placeholder="Ingresa nombres" />
+                        </div>
+
+                        <!-- Apellidos -->
+                        <div class="col-span-12 md:col-span-6">
+                            <label for="apellidos" class="block font-bold mb-2">Apellidos</label>
+                            <InputText id="apellidos" v-model.trim="perfil.persona.apellido" fluid
+                                placeholder="Ingresa apellidos" />
+                        </div>
+
+                        <!-- Login (Email) -->
+                        <div class="col-span-12 md:col-span-6">
+                            <label for="email" class="block font-bold mb-2">Correo</label>
+                            <InputText id="email" v-model.trim="perfil.email" type="email" fluid
+                                placeholder="Ingresa correo" />
+                        </div>
+
+                        <!-- Clave -->
+                        <div class="col-span-12 md:col-span-6">
+                            <label for="clave" class="block font-bold mb-2">Contraseña</label>
+                            <Password id="clave" v-model="perfil.password" toggleMask fluid
+                                placeholder="Ingresa contraseña" />
+                        </div>
+
+                        <!-- Sede -->
+                        <div class="col-span-12 md:col-span-6">
+                            <label for="sede" class="block font-bold mb-2">Sede</label>
+                            <Select id="sede" v-model="perfil.id_sede" :options="sedes" optionLabel="label"
+                                optionValue="value" placeholder="Selecciona una sede" fluid />
+                        </div>
                     </div>
                 </div>
 
@@ -203,4 +231,4 @@ onMounted(() => {
             </div>
         </div>
     </div>
-</template>    
+</template>
