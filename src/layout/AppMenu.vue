@@ -52,15 +52,16 @@ const model = ref([
         icon: 'pi pi-fw pi-briefcase',
         items: [
             {
-                label: 'Control de sedes',
+                label: 'Control sedes',
                 icon: 'pi pi-fw pi-building',
+                parentItemKey: 'sedes',
                 items: [
                     { label: 'Todos los sedes', to: '/mantenimiento/sede' },
                     { label: 'Añadir sede', to: '#' },
                 ]
             },
             {
-                label: 'Control de usuario',
+                label: 'Control usuarios',
                 icon: 'pi pi-fw pi-users',
                 items: [
                     { label: 'Todos los usuarios', to: '/mantenimiento/usuario' },
@@ -68,19 +69,21 @@ const model = ref([
                 ]
             },
             {
-                label: 'Control método de pagos',
-                icon: 'pi pi-fw pi-credit-card',
+                label: 'Control pacientes',
+                icon: 'pi pi-fw pi-plus-circle',
                 items: [
-                    { label: 'Todos los métodos de pago', to: '#' },
-                    { label: 'Añadir métodos de pago', to: '#' },
+                    { label: 'Todos los planes', to: '#' },
+                    { label: 'Todos los diagnosticos', to: '#' },
+                    { label: 'Todos los documentos', to: '#' },
                 ]
             },
             {
-                label: 'Horarios quiroprácticos',
+                label: 'Control quiroprácticos',
                 icon: 'pi pi-fw pi-calendar-plus',
                 items: [
-                    { label: 'Todos los horarios', to: '/mantenimiento/horario' },
-                    { label: 'Añadir horario', to: '#' },
+                    { label: 'Configuración de resultados', to: '#' },
+                    { label: 'Configuración firma de anexo', to: '#' },
+                    { label: 'Configuración de horarios', to: '#' },
                 ]
             },
             {
@@ -195,7 +198,7 @@ const model = ref([
                 to: '#'
             },
             {
-                label: 'Venta día / mes',
+                label: 'Venta día / semana / mes',
                 icon: 'pi pi-fw pi-chart-line',
                 to: '#'
             },
@@ -205,17 +208,12 @@ const model = ref([
                 to: '#'
             },
             {
-                label: 'Ventas por administrador',
+                label: 'Ventas por administrador sede',
                 icon: 'pi pi-fw pi-chart-line',
                 to: '#'
             },
             {
-                label: 'Reporte inventario valorizado',
-                icon: 'pi pi-fw pi-chart-line',
-                to: '#'
-            },
-            {
-                label: 'Generar PLE',
+                label: 'Margen ganancias',
                 icon: 'pi pi-fw pi-chart-line',
                 to: '#'
             },
@@ -225,7 +223,37 @@ const model = ref([
                 to: '#'
             },
             {
-                label: 'Margen ganancias',
+                label: 'Reportes sedes',
+                icon: 'pi pi-fw pi-chart-line',
+                to: '#'
+            },
+            {
+                label: 'Reportes agendas',
+                icon: 'pi pi-fw pi-chart-line',
+                to: '#'
+            },
+            {
+                label: 'Rep. quiropracticos',
+                icon: 'pi pi-fw pi-chart-line',
+                to: '#'
+            },
+            {
+                label: 'Reportes pacientes',
+                icon: 'pi pi-fw pi-chart-line',
+                to: '#'
+            },
+            {
+                label: 'Reportes recetas',
+                icon: 'pi pi-fw pi-chart-line',
+                to: '#'
+            },
+            {
+                label: 'Reportes historias clinicas',
+                icon: 'pi pi-fw pi-chart-line',
+                to: '#'
+            },
+            {
+                label: 'Reportes usuarios',
                 icon: 'pi pi-fw pi-chart-line',
                 to: '#'
             },

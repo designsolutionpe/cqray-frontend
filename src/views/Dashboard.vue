@@ -93,7 +93,7 @@ const spanishLocale = {
 };
 
 const monthNames = [
-    'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 
+    'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
     'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'
 ];
 
@@ -122,7 +122,7 @@ const showCitasDetails = () => {
 
 const handleDateClick = (date) => {
     const formattedDate = formatDate(date);
-    
+
     if (citasDates.value[formattedDate]) {
         selectedDate.value = formattedDate;
         citasCount.value = citasDates.value[formattedDate];
@@ -150,122 +150,120 @@ onMounted(() => {
 
 <template>
     <div>
-    <div class="card grid grid-cols-12 gap-1">
+        <div class="card grid grid-cols-12 gap-1">
 
-        <div class="col-span-12 md:col-span-8 lg:col-span-9 xl:col-span-10">
-            <div class="flex items-center mb-0">
-                <span class="block text-2xl font-bold text-blue-500">Calendario de Citas</span>
+            <div class="col-span-12 md:col-span-8 lg:col-span-9 xl:col-span-10">
+                <div class="flex items-center mb-0">
+                    <span class="block text-2xl font-bold text-blue-500">Calendario de Citas</span>
+                </div>
+                <!-- Card que contiene el DatePicker -->
+                <div class="card flex justify-center mb-0">
+                    <DatePicker v-model="selectedDate" inline class="w-full sm:w-[50rem]" :dates="citasDates"
+                        @day-click="handleDateClick" :locale="spanishLocale" />
+                </div>
+
+                <IngresosEgresosWidget />
+
             </div>
-            <!-- Card que contiene el DatePicker -->
-            <div class="card flex justify-center mb-0">
-                <DatePicker v-model="selectedDate" 
-                    inline
-                    class="w-full sm:w-[50rem]" 
-                    :dates="citasDates"
-                    @day-click="handleDateClick"
-                    :locale="spanishLocale"
-                />
+
+
+            <div class="col-span-6 md:col-span-4 lg:col-span-3 xl:col-span-2">
+                <!--Sedes-->
+                <router-link to="/mantenimiento/sede">
+                    <Card class="mb-1">
+                        <template #content>
+                            <div class="flex items-center mb-0">
+                                <div class="col-span-4 flex items-center justify-center bg-blue-100 dark:bg-blue-400/10 rounded-border"
+                                    style="width: 3.5rem; height: 3.5rem">
+                                    <i class="pi pi-fw pi-building text-blue-500 !text-4xl"></i>
+                                </div>
+                                <div class="col-span-8 flex justify-center flex-col pl-4">
+                                    <span class="block text-lg font-bold">Sedes</span>
+                                    <span class="block text-2xl font-bold text-blue-500">05</span>
+                                </div>
+                            </div>
+                        </template>
+                    </Card>
+                </router-link>
+                <!--Citas-->
+                <Card class="mb-1">
+                    <template #content>
+                        <div class="flex items-center mb-0">
+                            <div class="col-span-4 flex items-center justify-center bg-cyan-100 dark:bg-cyan-400/10 rounded-border"
+                                style="width: 3.5rem; height: 3.5rem">
+                                <i class="pi pi-fw pi-calendar-clock text-cyan-500 !text-4xl"></i>
+                            </div>
+                            <div class="col-span-8 flex justify-center flex-col pl-4">
+                                <span class="block text-lg font-bold">Citas</span>
+                                <span class="block text-2xl font-bold text-cyan-500">11</span>
+                            </div>
+                        </div>
+                    </template>
+                </Card>
+                <!--Quiroprácticos-->
+                <Card class="mb-1">
+                    <template #content>
+                        <div class="flex items-center mb-0">
+                            <div class="col-span-4 flex items-center justify-center bg-blue-100 dark:bg-blue-400/10 rounded-border"
+                                style="width: 3.5rem; height: 3.5rem">
+                                <span
+                                    class="material-symbols-outlined text-blue-500 !text-5xl">medical_information</span>
+                            </div>
+                            <div class="col-span-8 flex justify-center flex-col pl-4">
+                                <span class="block text-lg font-bold">Quiroprácticos</span>
+                                <span class="block text-2xl font-bold text-blue-500">23</span>
+                            </div>
+                        </div>
+                    </template>
+                </Card>
+                <!--Pacientes-->
+                <Card class="mb-1">
+                    <template #content>
+                        <div class="flex items-center mb-0">
+                            <div class="col-span-4 flex items-center justify-center bg-cyan-100 dark:bg-cyan-400/10 rounded-border"
+                                style="width: 3.5rem; height: 3.5rem">
+                                <i class="pi pi-fw pi-user-plus text-cyan-500 !text-5xl"></i>
+                            </div>
+                            <div class="col-span-8 flex justify-center flex-col pl-4">
+                                <span class="block text-lg font-bold">Pacientes</span>
+                                <span class="block text-2xl font-bold text-cyan-500">190</span>
+                            </div>
+                        </div>
+                    </template>
+                </Card>
+                <!--Pagos-->
+                <Card class="mb-1">
+                    <template #content>
+                        <div class="flex items-center mb-0">
+                            <div class="col-span-4 flex items-center justify-center bg-blue-100 dark:bg-blue-400/10 rounded-border"
+                                style="width: 3.5rem; height: 3.5rem">
+                                <i class="pi pi pi-money-bill text-blue-500 !text-5xl"></i>
+                            </div>
+                            <div class="col-span-8 flex justify-center flex-col pl-4">
+                                <span class="block text-lg font-bold">Pagos</span>
+                                <span class="block text-2xl font-bold text-blue-500">23</span>
+                            </div>
+                        </div>
+                    </template>
+                </Card>
+                <!--Recetas-->
+                <Card class="mb-1">
+                    <template #content>
+                        <div class="flex items-center mb-0">
+                            <div class="col-span-4 flex items-center justify-center bg-cyan-100 dark:bg-cyan-400/10 rounded-border"
+                                style="width: 3.5rem; height: 3.5rem">
+                                <i class="pi pi-fw pi pi-file text-cyan-500 !text-5xl"></i>
+                            </div>
+                            <div class="col-span-8 flex justify-center flex-col pl-4">
+                                <span class="block text-lg font-bold">Reportes</span>
+                            </div>
+                        </div>
+                    </template>
+                </Card>
             </div>
-
-            <IngresosEgresosWidget/>
-
         </div>
 
-
-        <div class="col-span-6 md:col-span-4 lg:col-span-3 xl:col-span-2">
-            <!--Sedes-->
-            <Card class="mb-1">
-                <template #content>
-                <div class="flex items-center mb-0">
-                    <div class="col-span-4 flex items-center justify-center bg-blue-100 dark:bg-blue-400/10 rounded-border"
-                    style="width: 3.5rem; height: 3.5rem">
-                        <i class="pi pi-fw pi-building text-blue-500 !text-4xl"></i>
-                    </div>
-                    <div class="col-span-8 flex justify-center flex-col pl-4">
-                        <span class="block text-lg font-bold">Sedes</span>
-                        <span class="block text-2xl font-bold text-blue-500">05</span>
-                    </div>
-                </div>
-                </template>
-            </Card>
-            <!--Citas-->
-            <Card class="mb-1">
-                <template #content>
-                <div class="flex items-center mb-0">
-                    <div class="col-span-4 flex items-center justify-center bg-cyan-100 dark:bg-cyan-400/10 rounded-border"
-                    style="width: 3.5rem; height: 3.5rem">
-                        <i class="pi pi-fw pi-calendar-clock text-cyan-500 !text-4xl"></i>
-                    </div>
-                    <div class="col-span-8 flex justify-center flex-col pl-4">
-                        <span class="block text-lg font-bold">Citas</span>
-                        <span class="block text-2xl font-bold text-cyan-500">11</span>
-                    </div>
-                </div>
-                </template>
-            </Card>
-            <!--Quiroprácticos-->
-            <Card class="mb-1">
-                <template #content>
-                <div class="flex items-center mb-0">
-                    <div class="col-span-4 flex items-center justify-center bg-blue-100 dark:bg-blue-400/10 rounded-border"
-                    style="width: 3.5rem; height: 3.5rem">
-                        <span class="material-symbols-outlined text-blue-500 !text-5xl">medical_information</span>
-                    </div>
-                    <div class="col-span-8 flex justify-center flex-col pl-4">
-                        <span class="block text-lg font-bold">Quiroprácticos</span>
-                        <span class="block text-2xl font-bold text-blue-500">23</span>
-                    </div>
-                </div>
-                </template>
-            </Card>
-            <!--Pacientes-->
-            <Card class="mb-1">
-                <template #content>
-                <div class="flex items-center mb-0">
-                    <div class="col-span-4 flex items-center justify-center bg-cyan-100 dark:bg-cyan-400/10 rounded-border"
-                    style="width: 3.5rem; height: 3.5rem">
-                        <i class="pi pi-fw pi-user-plus text-cyan-500 !text-5xl"></i>
-                    </div>
-                    <div class="col-span-8 flex justify-center flex-col pl-4">
-                        <span class="block text-lg font-bold">Pacientes</span>
-                        <span class="block text-2xl font-bold text-cyan-500">190</span>
-                    </div>
-                </div>
-                </template>
-            </Card>
-            <!--Pagos-->
-            <Card class="mb-1">
-                <template #content>
-                <div class="flex items-center mb-0">
-                    <div class="col-span-4 flex items-center justify-center bg-blue-100 dark:bg-blue-400/10 rounded-border"
-                    style="width: 3.5rem; height: 3.5rem">
-                        <i class="pi pi pi-money-bill text-blue-500 !text-5xl"></i>
-                    </div>
-                    <div class="col-span-8 flex justify-center flex-col pl-4">
-                        <span class="block text-lg font-bold">Pagos</span>
-                        <span class="block text-2xl font-bold text-blue-500">23</span>
-                    </div>
-                </div>
-                </template>
-            </Card>
-            <!--Recetas-->
-            <Card class="mb-1">
-                <template #content>
-                <div class="flex items-center mb-0">
-                    <div class="col-span-4 flex items-center justify-center bg-cyan-100 dark:bg-cyan-400/10 rounded-border"
-                    style="width: 3.5rem; height: 3.5rem">
-                        <i class="pi pi-fw pi pi-file text-cyan-500 !text-5xl"></i>
-                    </div>
-                    <div class="col-span-8 flex justify-center flex-col pl-4">
-                        <span class="block text-lg font-bold">Reportes</span>
-                    </div>
-                </div>
-                </template>
-            </Card>
-        </div>
-    </div>
-
-    <!--
+        <!--
     <div class="grid grid-cols-12 gap-8">
         <StatsWidget />
 
@@ -279,5 +277,5 @@ onMounted(() => {
         </div>
     </div>
     -->
-</div>
+    </div>
 </template>
