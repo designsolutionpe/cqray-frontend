@@ -193,6 +193,14 @@ async function saveCita(){
     }
 }
 
+const viewCitaDialog = ref(false);
+const citaSeleccionada = ref({});
+
+function viewCita(cit) {
+    citaSeleccionada.value = { ...cit };
+    viewCitaDialog.value = true;
+}
+
 onMounted(()=>{
     cargarSedes();
     cargarDoctores();
@@ -259,6 +267,7 @@ onMounted(()=>{
                 </Column>
                 <Column :exportable="false" style="min-width: 12rem">
                     <template #body="slotProps">
+                        <Button icon="pi pi-eye" outlined rounded severity="info" class="mr-2" @click="viewCita(slotProps.data)" />
                         <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="editCita(slotProps.data)" />
                         <Button icon="pi pi-trash" outlined rounded severity="danger" @click="confirmDeleteCita(slotProps.data)" />
                     </template>

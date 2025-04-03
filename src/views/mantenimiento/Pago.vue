@@ -7,6 +7,7 @@ import { getSedes } from '@/service/mantenimiento/SedeService';
 import { FilterMatchMode } from '@primevue/core/api';
 import { useToast } from 'primevue/usetoast';
 import { onMounted, ref } from 'vue';
+import { useLayout } from '@/layout/composables/layout';
 
 const metodosPago = ref ([
     { label: "Transferencia", value: "Transferencia" },
@@ -115,6 +116,36 @@ async function savePago() {
     }
 }
 
+const selectedFile = ref(null);
+const previewSrc = ref(null);
+
+function onFileSelect(event) {
+    const file = event.files[0];
+
+    if (file) {
+        selectedFile.value = file;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            previewSrc.value = e.target.result;
+        };
+        reader.readAsDataURL(file);
+        toast.add({ severity: 'info', summary: 'Éxito', detail: 'Imagen seleccionada correctamente', life: 3000 });
+    }
+}
+
+function removeImage() {
+    //paciente.value.persona.foto = null;
+    selectedFile.value = null;
+    previewSrc.value = null;
+}
+
+function openWhatsApp() {
+    window.open('https://wa.me/51957309571', '_blank');
+}
+
+const { isDarkTheme } = useLayout();
+
 onMounted(() => {
     cargarSedes();
     cargarPagos();
@@ -124,7 +155,10 @@ onMounted(() => {
 
 <template>
     <div>
-        <div class="card">
+        <div class="grid grid-cols-12 gap-3">
+
+
+        <div class="card col-span-10">
             <Toolbar class="mb-6">
                 <template #start>
                     <Button label="Nuevo Método" icon="pi pi-plus" severity="secondary" class="mr-2" @click="openNew" />
@@ -174,6 +208,47 @@ onMounted(() => {
                     </template>
                 </Column>
             </DataTable>
+        </div>
+
+        <div class="card col-span-2">
+            <h5 class="m-0">Configuración de documentos</h5>
+            <br />
+            <h6 class="m-0">Logotipo para documentos</h6>
+            <div>
+                <label for="foto" class="block font-semi-bold mb-3">Tamaño recomendado 200 x 100</label>
+                <div class="flex items-center gap-4">
+                    <FileUpload mode="basic" name="foto" accept="image/*" chooseLabel="Subir imagen" 
+                    :maxFileSize="1000000" @select="onFileSelect" customUpload auto class="p-button-outlined"/>
+                    <div v-if="previewSrc" class="relative flex items-center">
+                        <img :src="previewSrc" alt="Foto seleccionada" class="w-32 h-32 rounded-lg shadow" />
+                        <Button icon="pi pi-trash" class="ml-2 p-2 rounded-full" severity="danger" @click="removeImage" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        </div>
+
+        <div class="card" :style="{backgroundColor: isDarkTheme ? '#ff784e' : '#ffffff',borderRadius: '8px'}">
+            <div class="grid grid-cols-12 gap-3">
+                <div class="col-span-5">
+                    <h2 class="p-text-center p-mb-2">Soporte inmediato</h2>
+                    <div class="p-d-flex p-ai-center" style="flex: 1; justify-content: center;">
+                        <Button label="Ingresar ahora" icon="pi pi-arrow-right" class="p-button-primary" 
+                        @click="openWhatsApp" />
+                    </div>
+                </div>
+                <div class="col-span-5">
+                    <p class="p-text-center p-mb-4">
+                        Nuestro equipo de especialistas podrá ayudarte ante cualquier inquietud 
+                        o requerimiento, no dudes en ponerte en contacto con nosotros.
+                    </p>
+                </div>
+                <div class="col-span-2">
+                    <img src="@/assets/mesa_ayuda.png" alt="Mesa de ayuda" 
+                    style="max-width: 100px; height: auto;" />
+                </div>
+            </div>
         </div>
 
         <Dialog v-model:visible="pagoDialog" :style="{ 'width': '650px' }" header="Método de pago" :modal="true">
