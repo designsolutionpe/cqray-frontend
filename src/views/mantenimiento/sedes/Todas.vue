@@ -10,6 +10,87 @@ import LOGO from '/ICORAY.ico';
 const { isDarkTheme } = useLayout();
 const chartData = ref(null);
 const chartOptions = ref(null);
+const chartShow = ref('paquetes')
+
+const documentStyle = getComputedStyle(document.documentElement);
+const datasetsData = {
+  paquetes: [
+    {
+      type: 'line',
+      tension: 0.3,
+      borderWidth: 3,
+      label: 'Paq. Completo',
+      borderColor: documentStyle.getPropertyValue('--primary-color'), // Color para ingresos
+      backgroundColor: documentStyle.getPropertyValue('--primary-color'), // Color para ingresos
+      data: [null], // Datos de ingresos,
+    },
+    {
+      type: 'line',
+      tension: 0.3,
+      borderWidth: 3,
+      label: 'Paq. Incompleto',
+      borderColor: documentStyle.getPropertyValue('--secondary-color'), // Color para ingresos
+      backgroundColor: documentStyle.getPropertyValue('--secondary-color'), // Color para ingresos
+      data: [null], // Datos de ingresos,
+    },
+    {
+      type: 'line',
+      tension: 0.3,
+      borderWidth: 3,
+      label: 'Paq. Mantenimiento',
+      borderColor: documentStyle.getPropertyValue('--p-slate-950'), // Color para ingresos
+      backgroundColor: documentStyle.getPropertyValue('--p-slate-950'), // Color para ingresos
+      data: [null], // Datos de ingresos,
+    },
+    {
+      type: 'line',
+      tension: 0.3,
+      borderWidth: 3,
+      label: 'Paq. por Sesiones',
+      borderColor: documentStyle.getPropertyValue('--p-gray-500'), // Color para ingresos
+      backgroundColor: documentStyle.getPropertyValue('--p-gray-500'), // Color para ingresos
+      data: [null], // Datos de ingresos,
+    },
+  ],
+  quiropracticos: [
+    {
+      type: 'line',
+      tension: 0.3,
+      borderWidth: 3,
+      label: 'Paq. Completo',
+      borderColor: documentStyle.getPropertyValue('--primary-color'), // Color para ingresos
+      backgroundColor: documentStyle.getPropertyValue('--primary-color'), // Color para ingresos
+      data: [null], // Datos de ingresos,
+    },
+    {
+      type: 'line',
+      tension: 0.3,
+      borderWidth: 3,
+      label: 'Paq. Incompleto',
+      borderColor: documentStyle.getPropertyValue('--secondary-color'), // Color para ingresos
+      backgroundColor: documentStyle.getPropertyValue('--secondary-color'), // Color para ingresos
+      data: [null], // Datos de ingresos,
+    },
+    {
+      type: 'line',
+      tension: 0.3,
+      borderWidth: 3,
+      label: 'Paq. Mantenimiento',
+      borderColor: documentStyle.getPropertyValue('--p-slate-950'), // Color para ingresos
+      backgroundColor: documentStyle.getPropertyValue('--p-slate-950'), // Color para ingresos
+      data: [null], // Datos de ingresos,
+    },
+    {
+      type: 'line',
+      tension: 0.3,
+      borderWidth: 3,
+      label: 'Paq. por Sesiones',
+      borderColor: documentStyle.getPropertyValue('--p-gray-500'), // Color para ingresos
+      backgroundColor: documentStyle.getPropertyValue('--p-gray-500'), // Color para ingresos
+      data: [null], // Datos de ingresos,
+    },
+  ]
+}
 
 const isLoading = ref(true)
 const isStatsLoading = ref(false)
@@ -17,47 +98,16 @@ const isStatsLoading = ref(false)
 const aSedes = ref([])
 
 function setChartData_Sedes() {
-  const documentStyle = getComputedStyle(document.documentElement);
   const labels = aSedes.value.map(e => e.nombre.split(' ')[1])
-
-  const commonOptions = {
-    type: 'line',
-    tension: 0.3,
-    borderWidth: 3
-  }
+  const datasets = datasetsData[chartShow.value].map(e => {
+    const d = Array(5).fill().map(e => Math.floor(Math.random() * 50))
+    e.data = [null, ...d]
+    return e
+  })
 
   return {
     labels, // Meses
-    datasets: [
-      {
-        label: 'Paq. Completo',
-        borderColor: documentStyle.getPropertyValue('--primary-color'), // Color para ingresos
-        backgroundColor: documentStyle.getPropertyValue('--primary-color'), // Color para ingresos
-        data: [null, 0, 12, 38, 30, 45], // Datos de ingresos,
-        ...commonOptions
-      },
-      {
-        label: 'Paq. Incompleto',
-        borderColor: documentStyle.getPropertyValue('--secondary-color'), // Color para ingresos
-        backgroundColor: documentStyle.getPropertyValue('--secondary-color'), // Color para ingresos
-        data: [null, 12, 4, 20, 15, 85], // Datos de ingresos,
-        ...commonOptions
-      },
-      {
-        label: 'Paq. Mantenimiento',
-        borderColor: documentStyle.getPropertyValue('--p-slate-950'), // Color para ingresos
-        backgroundColor: documentStyle.getPropertyValue('--p-slate-950'), // Color para ingresos
-        data: [null, 18, 30, 25, 40, 25], // Datos de ingresos,
-        ...commonOptions
-      },
-      {
-        label: 'Paq. por Sesiones',
-        borderColor: documentStyle.getPropertyValue('--p-gray-500'), // Color para ingresos
-        backgroundColor: documentStyle.getPropertyValue('--p-gray-500'), // Color para ingresos
-        data: [null, 10, 25, 47, 45, 44], // Datos de ingresos,
-        ...commonOptions
-      },
-    ]
+    datasets
   };
 }
 
@@ -107,18 +157,15 @@ const cargarSedes = async () => {
   isLoading.value = false
 };
 
-const checkIfNeeded = (item) => {
-  if (typeof item.empty != 'undefined') return false
-  else return true
-}
-
-watch([isDarkTheme, aSedes], () => {
+watch([isDarkTheme, aSedes, chartShow], () => {
+  console.log('on watch')
   chartData.value = setChartData_Sedes()
   chartOptions.value = setChartOptions()
 })
 
 onMounted(() => {
   cargarSedes()
+  console.log('on mounted')
   chartData.value = setChartData_Sedes()
   chartOptions.value = setChartOptions()
 })
@@ -144,6 +191,18 @@ onMounted(() => {
           alt="Persona usando un telefono">
       </div>
       <Chart type="line" :data="chartData" :options="chartOptions" class="h-80" />
+      <div class="grid grid-cols-4 gap-3">
+        <Button class="col-span-4 sm:col-span-1 chart-changer" :class="{ 'active': chartShow == 'paquetes' }"
+          @click="chartShow = 'paquetes'" :variant="chartShow != 'paquetes' ? 'text' : null" label="Paquetes"></Button>
+        <Button class="col-span-4 sm:col-span-1 chart-changer" :class="{ 'active': chartShow == 'quiropracticos' }"
+          @click="chartShow = 'quiropracticos'" :variant="chartShow != 'quiropracticos' ? 'text' : null"
+          label="Quiropracticos"></Button>
+        <Button class="col-span-4 sm:col-span-1 chart-changer" :class="{ 'active': chartShow == 'pacientes' }"
+          @click="chartShow = 'pacientes'" :variant="chartShow != 'pacientes' ? 'text' : null"
+          label="Pacientes"></Button>
+        <Button class="col-span-4 sm:col-span-1 chart-changer" :class="{ 'active': chartShow == 'pagos' }"
+          @click="chartShow = 'pagos'" :variant="chartShow != 'pagos' ? 'text' : null" label="Pagos"></Button>
+      </div>
     </div>
     <div class="card col-span-12 xl:col-span-5 xl:py-0">
       <h2 class="text-primary">Seleccione una sede:</h2>
@@ -172,5 +231,14 @@ onMounted(() => {
 .crm-whatsapp {
   background: #EA533C;
   border: 1px solid #2D2E93;
+}
+
+.chart-changer:not(.active) {
+  color: var(--secondary-color) !important;
+}
+
+.chart-changer:not(.active):hover {
+  background-color: var(--p-secondary-100) !important;
+  color: white !important;
 }
 </style>
