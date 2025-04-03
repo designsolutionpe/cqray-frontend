@@ -87,10 +87,10 @@ const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
             </div>
 
             <div class="hidden md:flex flex-col items-left">
-                <div class="font-semibold text-[#2D2E93] dark:text-white">
+                <div class="font-semibold text-primary dark:text-white">
                     SISTEMA ERP TOTAL
                 </div>
-                <div class="text-sm text-[#FE5933] dark:text-[#FE5933]-300/10">
+                <div class="text-sm text-secondary">
                     Gestión de Centros Quiroprácticos
                 </div>
             </div>
@@ -101,14 +101,6 @@ const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
                     <button type="button" class="layout-topbar-action" @click="toggleDarkMode">
                         <i :class="['pi', { 'pi-moon': isDarkTheme, 'pi-sun': !isDarkTheme }]"></i>
                     </button>
-                    <div class="relative">
-                        <button
-                            v-styleclass="{ selector: '@next', enterFromClass: 'hidden', enterActiveClass: 'animate-scalein', leaveToClass: 'hidden', leaveActiveClass: 'animate-fadeout', hideOnOutsideClick: true }"
-                            type="button" class="layout-topbar-action layout-topbar-action-highlight">
-                            <i class="pi pi-palette"></i>
-                        </button>
-                        <AppConfigurator />
-                    </div>
                 </div>
 
                 <button class="layout-topbar-menu-button layout-topbar-action"
@@ -120,8 +112,8 @@ const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
                     <div class="layout-topbar-menu-content">
 
                         <div class="flex flex-col items-center">
-                            <div class="font-semibold text-[#2D2E93] dark:text-white">{{ nombreCompleto }}</div>
-                            <div class="text-sm text-[#FE5933] dark:text-[#FE5933]-300/10">{{ userRole }}</div>
+                            <div class="font-semibold text-primary dark:text-white">{{ nombreCompleto }}</div>
+                            <div class="text-sm text-secondary">{{ userRole }}</div>
                         </div>
                         <button type="button" v-tooltip.bottom="'Perfil'" class="layout-topbar-action overflow-hidden"
                             @click="mostrarPerfil">

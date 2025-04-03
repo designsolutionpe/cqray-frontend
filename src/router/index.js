@@ -1,6 +1,6 @@
 import AppLayout from '@/layout/AppLayout.vue';
-import { createRouter, createWebHistory } from 'vue-router';
 import store from '@/store';
+import { createRouter, createWebHistory } from 'vue-router';
 
 const router = createRouter({
     history: createWebHistory(),
@@ -67,11 +67,23 @@ const router = createRouter({
                     //meta: { requiresAuth: true, roles: ['admin', 'user'] },
                 },
 
+                // {
+                //     path: '/mantenimiento/sede',
+                //     name: 'sede',
+                //     component: () => import('@/views/mantenimiento/Sede.vue'),
+                //     meta : { requiresAuth: true}
+                // },
                 {
-                    path: '/mantenimiento/sede',
-                    name: 'sede',
-                    component: () => import('@/views/mantenimiento/Sede.vue'),
-                    meta : { requiresAuth: true}
+                    path: '/mantenimiento/sedes/todas',
+                    name: 'sedes-todas',
+                    component: () => import('@/views/mantenimiento/sedes/Todas.vue'),
+                    meta : { requiresAuth: true }
+                },
+                {
+                    path: '/mantenimiento/sedes/anadir',
+                    name: 'sedes-agregar',
+                    component: () => import('@/views/mantenimiento/sedes/Agregar.vue'),
+                    meta : { requiresAuth: true }
                 },
                 {
                     path: '/mantenimiento/usuario',

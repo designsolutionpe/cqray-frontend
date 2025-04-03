@@ -150,11 +150,11 @@ onMounted(() => {
 
 <template>
     <div>
-        <div class="card grid grid-cols-12 gap-1">
+        <div class="card grid grid-cols-12 gap-1 lg:gap-y-6 xl:gap-4">
 
-            <div class="col-span-12 md:col-span-8 lg:col-span-9 xl:col-span-10">
+            <div class="col-span-12 md:col-span-8 lg:col-span-12 lg:order-2 xl:col-span-9 xl:order-none">
                 <div class="flex items-center mb-0">
-                    <span class="block text-2xl font-bold text-blue-500">Calendario de Citas</span>
+                    <span class="block text-2xl font-bold text-secondary">Calendario de Citas</span>
                 </div>
                 <!-- Card que contiene el DatePicker -->
                 <div class="card flex justify-center mb-0">
@@ -167,19 +167,20 @@ onMounted(() => {
             </div>
 
 
-            <div class="col-span-6 md:col-span-4 lg:col-span-3 xl:col-span-2">
+            <div
+                class="col-span-12 md:col-span-4 lg:col-span-12 lg:order-1 lg:flex lg:overflow-auto lg:gap-5 xl:col-span-3 xl:block">
                 <!--Sedes-->
-                <router-link to="/mantenimiento/sede">
+                <router-link to="/mantenimiento/sedes/todas">
                     <Card class="mb-1">
                         <template #content>
                             <div class="flex items-center mb-0">
-                                <div class="col-span-4 flex items-center justify-center bg-blue-100 dark:bg-blue-400/10 rounded-border"
+                                <div class="col-span-4 flex items-center justify-center bg-primary-50 dark:bg-primary-400/20 rounded-border"
                                     style="width: 3.5rem; height: 3.5rem">
-                                    <i class="pi pi-fw pi-building text-blue-500 !text-4xl"></i>
+                                    <i class="pi pi-fw pi-building text-primary-500 dark:text-white/90 !text-4xl"></i>
                                 </div>
                                 <div class="col-span-8 flex justify-center flex-col pl-4">
                                     <span class="block text-lg font-bold">Sedes</span>
-                                    <span class="block text-2xl font-bold text-blue-500">05</span>
+                                    <span class="block text-2xl font-bold text-primary dark:text-white/90">05</span>
                                 </div>
                             </div>
                         </template>
@@ -189,13 +190,14 @@ onMounted(() => {
                 <Card class="mb-1">
                     <template #content>
                         <div class="flex items-center mb-0">
-                            <div class="col-span-4 flex items-center justify-center bg-cyan-100 dark:bg-cyan-400/10 rounded-border"
+                            <div class="col-span-4 flex items-center justify-center bg-secondary-50 dark:bg-secondary-400/20 rounded-border"
                                 style="width: 3.5rem; height: 3.5rem">
-                                <i class="pi pi-fw pi-calendar-clock text-cyan-500 !text-4xl"></i>
+                                <i
+                                    class="pi pi-fw pi-calendar-clock text-secondary-500 dark:text-white/90 !text-4xl"></i>
                             </div>
                             <div class="col-span-8 flex justify-center flex-col pl-4">
                                 <span class="block text-lg font-bold">Citas</span>
-                                <span class="block text-2xl font-bold text-cyan-500">11</span>
+                                <span class="block text-2xl font-bold text-secondary dark:text-white/90">11</span>
                             </div>
                         </div>
                     </template>
@@ -204,14 +206,14 @@ onMounted(() => {
                 <Card class="mb-1">
                     <template #content>
                         <div class="flex items-center mb-0">
-                            <div class="col-span-4 flex items-center justify-center bg-blue-100 dark:bg-blue-400/10 rounded-border"
+                            <div class="col-span-4 flex items-center justify-center bg-primary-50 dark:bg-primary-400/20 rounded-border"
                                 style="width: 3.5rem; height: 3.5rem">
                                 <span
-                                    class="material-symbols-outlined text-blue-500 !text-5xl">medical_information</span>
+                                    class="material-symbols-outlined text-primary dark:text-white/90 !text-5xl">medical_information</span>
                             </div>
                             <div class="col-span-8 flex justify-center flex-col pl-4">
                                 <span class="block text-lg font-bold">Quiroprácticos</span>
-                                <span class="block text-2xl font-bold text-blue-500">23</span>
+                                <span class="block text-2xl font-bold text-primary dark:text-white/90">23</span>
                             </div>
                         </div>
                     </template>
@@ -220,13 +222,13 @@ onMounted(() => {
                 <Card class="mb-1">
                     <template #content>
                         <div class="flex items-center mb-0">
-                            <div class="col-span-4 flex items-center justify-center bg-cyan-100 dark:bg-cyan-400/10 rounded-border"
+                            <div class="col-span-4 flex items-center justify-center bg-secondary-50 dark:bg-secondary-400/20 rounded-border"
                                 style="width: 3.5rem; height: 3.5rem">
-                                <i class="pi pi-fw pi-user-plus text-cyan-500 !text-5xl"></i>
+                                <i class="pi pi-fw pi-user-plus text-secondary dark:text-white/90 !text-5xl"></i>
                             </div>
                             <div class="col-span-8 flex justify-center flex-col pl-4">
                                 <span class="block text-lg font-bold">Pacientes</span>
-                                <span class="block text-2xl font-bold text-cyan-500">190</span>
+                                <span class="block text-2xl font-bold text-secondary dark:text-white/90">190</span>
                             </div>
                         </div>
                     </template>
@@ -235,13 +237,13 @@ onMounted(() => {
                 <Card class="mb-1">
                     <template #content>
                         <div class="flex items-center mb-0">
-                            <div class="col-span-4 flex items-center justify-center bg-blue-100 dark:bg-blue-400/10 rounded-border"
+                            <div class="col-span-4 flex items-center justify-center bg-primary-50 dark:bg-primary-400/20 rounded-border"
                                 style="width: 3.5rem; height: 3.5rem">
-                                <i class="pi pi pi-money-bill text-blue-500 !text-5xl"></i>
+                                <i class="pi pi pi-money-bill text-primary dark:text-white/90 !text-5xl"></i>
                             </div>
                             <div class="col-span-8 flex justify-center flex-col pl-4">
                                 <span class="block text-lg font-bold">Pagos</span>
-                                <span class="block text-2xl font-bold text-blue-500">23</span>
+                                <span class="block text-2xl font-bold text-primary dark:text-white/90">23</span>
                             </div>
                         </div>
                     </template>
@@ -250,12 +252,13 @@ onMounted(() => {
                 <Card class="mb-1">
                     <template #content>
                         <div class="flex items-center mb-0">
-                            <div class="col-span-4 flex items-center justify-center bg-cyan-100 dark:bg-cyan-400/10 rounded-border"
+                            <div class="col-span-4 flex items-center justify-center bg-secondary-50 dark:bg-secondary-400/20 rounded-border"
                                 style="width: 3.5rem; height: 3.5rem">
-                                <i class="pi pi-fw pi pi-file text-cyan-500 !text-5xl"></i>
+                                <i class="pi pi-fw pi pi-file text-secondary dark:text-white/90 !text-5xl"></i>
                             </div>
                             <div class="col-span-8 flex justify-center flex-col pl-4">
                                 <span class="block text-lg font-bold">Reportes</span>
+                                <span class="block text-2xl font-bold text-secondary dark:text-white/90">11</span>
                             </div>
                         </div>
                     </template>

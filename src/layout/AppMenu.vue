@@ -54,9 +54,8 @@ const model = ref([
             {
                 label: 'Control sedes',
                 icon: 'pi pi-fw pi-building',
-                parentItemKey: 'sedes',
                 items: [
-                    { label: 'Todos los sedes', to: '/mantenimiento/sede' },
+                    { label: 'Todos los sedes', to: '/mantenimiento/sedes/todas' },
                     { label: 'Añadir sede', to: '#' },
                 ]
             },

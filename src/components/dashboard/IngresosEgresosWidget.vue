@@ -16,14 +16,14 @@ function setChartData() {
             {
                 type: 'bar',
                 label: 'Ingresos',
-                backgroundColor: documentStyle.getPropertyValue('--p-primary-400'), // Color para ingresos
+                backgroundColor: documentStyle.getPropertyValue('--secondary-color'), // Color para ingresos
                 data: [10000, 12000, 13000, 15000, 12000, 14000, 13000, 16000, 11000, 15000, 17000, 19000], // Datos de ingresos
                 barThickness: 32
             },
             {
                 type: 'bar',
                 label: 'Egresos',
-                backgroundColor: documentStyle.getPropertyValue('--p-primary-100'), // Color para egresos
+                backgroundColor: documentStyle.getPropertyValue('--primary-color'), // Color para egresos
                 data: [-5000, -6000, -7000, -8000, -7500, -6500, -6000, -8500, -7000, -8000, -9000, -9500], // Datos de egresos (valores negativos)
                 barThickness: 32
             }
@@ -79,7 +79,7 @@ onMounted(() => {
 
 <template>
     <div>
-        <div class="block text-2xl font-bold text-blue-500">Ingresos y egresos por sede</div>
+        <div class="block text-2xl font-bold text-secondary">Ingresos y egresos por sede</div>
         <Chart type="bar" :data="chartData" :options="chartOptions" class="h-80" />
     </div>
 </template>

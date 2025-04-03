@@ -21,15 +21,15 @@ const loginUserHandler = async () => {
 
     // Aquí se espera que el backend devuelva algo como un token de acceso
     if (response && response.token) {
-      store.dispatch('login', { 
-        isAuthenticated: true, 
+      store.dispatch('login', {
+        isAuthenticated: true,
         id: response.data.id,
         userRole: response.data.rol,
         token: response.token,
         nombre: response.data.persona.nombre,
         apellido: response.data.persona.apellido,
         foto: `${import.meta.env.VITE_BASE_URL}/storage/${response.data.persona.foto}`
-      });       
+      });
       isLoading.value = false
       router.push({ name: 'dashboard' });
     } else {
@@ -45,16 +45,16 @@ const loginUserHandler = async () => {
 
 <template>
 
-    <div class="fondo-ondas min-h-screen flex flex-col items-center justify-center">
-    
+  <div class="fondo-ondas min-h-screen flex flex-col items-center justify-center">
+
     <!-- Logo y título -->
     <div class="text-center mb-6">
-      <img src="/logo_ray2.png" alt="Logo" class="w-1/2 mx-auto mb-4"/>
+      <img src="/logo_ray2.png" alt="Logo" class="w-1/2 mx-auto mb-4" />
       <h1 class="text-3xl font-bold text-white">
         Iniciar sesión
       </h1>
     </div>
-    
+
     <!-- Tarjeta/formulario -->
     <div class="bg-white/90 rounded-lg p-6 w-full max-w-sm shadow-lg">
       <!-- Campo de usuario -->
@@ -66,7 +66,7 @@ const loginUserHandler = async () => {
           <i class="pi pi-user"></i>
         </InputGroupAddon>
         <InputText id="login1" v-model="login" type="text" placeholder="Ingrese su usuario" :disabled="isLoading"
-          class="w-full" required/>
+          class="w-full" required />
       </InputGroup>
 
       <!-- Campo de contraseña -->
@@ -78,19 +78,19 @@ const loginUserHandler = async () => {
           <i class="pi pi-lock"></i>
         </InputGroupAddon>
         <Password id="password1" v-model="password" placeholder="Ingrese su contraseña" required :disabled="isLoading"
-          :toggleMask="!isLoading" :feedback="false" class="w-full"/>
+          :toggleMask="!isLoading" :feedback="false" class="w-full" />
       </InputGroup>
 
       <!-- Recordarme y botón -->
       <div class="flex items-center justify-between mb-4">
         <div class="flex items-center space-x-2">
-          <Checkbox v-model="checked" id="rememberme1" binary :disabled="isLoading"/>
+          <Checkbox v-model="checked" id="rememberme1" binary :disabled="isLoading" />
           <label for="rememberme1" class="text-gray-700">
             Recordarme
           </label>
         </div>
       </div>
-      <Button label="Ingresar" class="w-full login-btn" @click="loginUserHandler" :loading="isLoading" />
+      <Button label="Ingresar" class="w-full bg-primary" @click="loginUserHandler" :loading="isLoading" />
     </div>
 
     <div class="mt-6 text-center text-white">
@@ -102,22 +102,17 @@ const loginUserHandler = async () => {
 </template>
 
 <style scoped>
-.pi-eye, .pi-eye-slash {
+.pi-eye,
+.pi-eye-slash {
   transform: scale(1.4);
   margin-right: 0.75rem;
 }
+
 .fondo-ondas {
   background-image: url('@/assets/gradient_2.jpg');
   background-repeat: no-repeat;
-  background-size: cover; /* o 'contain', depende de tu necesidad */
+  background-size: cover;
+  /* o 'contain', depende de tu necesidad */
   background-position: center;
 }
-
-.login-btn,
-.login-btn:not(:disabled):hover
-{
-  background-color: #2D2E93;
-  border-color: #2D2E93;
-}
-
 </style>

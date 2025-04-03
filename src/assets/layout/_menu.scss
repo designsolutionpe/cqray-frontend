@@ -97,6 +97,11 @@
                 color: var(--primary-color);
             }
 
+            &.active-route.dark
+            {
+                color: var(--secondary-color);
+            }
+
             &:hover {
                 background-color: var(--surface-hover);
             }
