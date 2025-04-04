@@ -111,7 +111,8 @@ onMounted(() => {
     <Preloader v-if="isLoading" />
     <div class="col-span-12 xl:col-span-7">
       <div
-        class="card crm-whatsapp col-span-12 flex flex-col gap-5 sm:grid sm:grid-rows-1 sm:grid-cols-6 items-center md:col-span-8">
+        class="card crm-whatsapp col-span-12 flex flex-col gap-5 sm:grid sm:grid-rows-1 sm:grid-cols-6 items-center md:col-span-8"
+        :class="{ 'dark': isDarkTheme }">
         <div class="sm:col-span-3">
           <p class="text-4xl font-bold text-white">CRM Whatsapp</p>
           <p class="text-lg lg:text-base text-white">Sistema integrador que responde mensajes de clientes por Whatsapp
@@ -149,7 +150,7 @@ onMounted(() => {
         class="flex flex-col gap-3 h-[40rem] md:h-auto xl:h-[40rem] overflow-y-auto md:flex-row md:overflow-x-auto xl:flex-col">
         <template v-for="(sede, i) in aSedes" :key="sede">
           <div v-if="!sede.empty"
-            class="grid grid-cols-2 grid-row-1 md:flex-shrink-0 items-center p-5 rounded-md odd:bg-gray-900 even:bg-primary"
+            class="grid grid-cols-2 grid-row-1 md:flex-shrink-0 items-center p-5 rounded-md dark:odd:bg-gray-700 dark:even:bg-primary-700 odd:bg-gray-900 even:bg-primary"
             @click="cargarSede(i)">
             <div class="col-span-2 sm:col-span-1">
               <p class="font-bold text-white text-2xl">{{ sede.nombre }}</p>
@@ -169,8 +170,12 @@ onMounted(() => {
 </template>
 <style scoped>
 .crm-whatsapp {
-  background: #EA533C;
-  border: 1px solid #2D2E93;
+  background: var(--secondary-color);
+  border: 1px solid var(--primary-color);
+
+  &.dark {
+    background-color: color-mix(in srgb, var(--p-secondary-500) calc(100% * 0.7), transparent);
+  }
 }
 
 .chart-changer:not(.active) {

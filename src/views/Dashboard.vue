@@ -1,9 +1,4 @@
 <script setup>
-import BestSellingWidget from '@/components/dashboard/BestSellingWidget.vue';
-import NotificationsWidget from '@/components/dashboard/NotificationsWidget.vue';
-import RecentSalesWidget from '@/components/dashboard/RecentSalesWidget.vue';
-import RevenueStreamWidget from '@/components/dashboard/RevenueStreamWidget.vue';
-import StatsWidget from '@/components/dashboard/StatsWidget.vue';
 import IngresosEgresosWidget from '@/components/dashboard/IngresosEgresosWidget.vue';
 import { useToast } from 'primevue/usetoast';
 import { onMounted, ref } from 'vue';
@@ -187,21 +182,23 @@ onMounted(() => {
                     </Card>
                 </router-link>
                 <!--Citas-->
-                <Card class="mb-1">
-                    <template #content>
-                        <div class="flex items-center mb-0">
-                            <div class="col-span-4 flex items-center justify-center bg-secondary-50 dark:bg-secondary-400/20 rounded-border"
-                                style="width: 3.5rem; height: 3.5rem">
-                                <i
-                                    class="pi pi-fw pi-calendar-clock text-secondary-500 dark:text-white/90 !text-4xl"></i>
+                <router-link to="/gestion/citas/todas">
+                    <Card class="mb-1">
+                        <template #content>
+                            <div class="flex items-center mb-0">
+                                <div class="col-span-4 flex items-center justify-center bg-secondary-50 dark:bg-secondary-400/20 rounded-border"
+                                    style="width: 3.5rem; height: 3.5rem">
+                                    <i
+                                        class="pi pi-fw pi-calendar-clock text-secondary-500 dark:text-white/90 !text-4xl"></i>
+                                </div>
+                                <div class="col-span-8 flex justify-center flex-col pl-4">
+                                    <span class="block text-lg font-bold">Citas</span>
+                                    <span class="block text-2xl font-bold text-secondary dark:text-white/90">11</span>
+                                </div>
                             </div>
-                            <div class="col-span-8 flex justify-center flex-col pl-4">
-                                <span class="block text-lg font-bold">Citas</span>
-                                <span class="block text-2xl font-bold text-secondary dark:text-white/90">11</span>
-                            </div>
-                        </div>
-                    </template>
-                </Card>
+                        </template>
+                    </Card>
+                </router-link>
                 <!--Quiroprácticos-->
                 <Card class="mb-1">
                     <template #content>

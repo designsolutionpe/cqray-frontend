@@ -16,9 +16,9 @@ const model = ref([
                 label: 'Agendamientos de Citas',
                 icon: 'material-symbols-outlined clinical_notes',
                 items: [
-                    { label: 'Todas las citas', to: '/gestion/cita' },
-                    { label: 'Añadir citas', to: '#' },
-                    { label: 'Calendario de citas', to: '#' },
+                    { label: 'Todas las citas', to: '/gestion/citas/todas' },
+                    { label: 'Añadir citas', to: '/gestion/citas/agregar' },
+                    { label: 'Calendario de citas', to: '/gestion/citas/calendario' },
                 ]
             },
             {

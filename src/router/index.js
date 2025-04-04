@@ -53,6 +53,27 @@ const router = createRouter({
                     //meta: { requiresAuth: true, roles: ['admin', 'user'] },
                 },
                 {
+                    path: '/gestion/citas/todas',
+                    name: 'citas-todas',
+                    component: () => import('@/views/gestion/citas/Todas.vue'),
+                    meta: { requiresAuth: true }
+                    //meta: { requiresAuth: true, roles: ['admin', 'user'] },
+                },
+                {
+                    path: '/gestion/citas/agregar',
+                    name: 'citas-agregar',
+                    component: () => import('@/views/gestion/citas/Agregar.vue'),
+                    meta: { requiresAuth: true }
+                    //meta: { requiresAuth: true, roles: ['admin', 'user'] },
+                },
+                {
+                    path: '/gestion/citas/calendario',
+                    name: 'citas-calendario',
+                    component: () => import('@/views/gestion/citas/Calendario.vue'),
+                    meta: { requiresAuth: true }
+                    //meta: { requiresAuth: true, roles: ['admin', 'user'] },
+                },
+                {
                     path: '/gestion/quiropractico',
                     name: 'quiropractico',
                     component: () => import('@/views/gestion/Quiropractico.vue'),
