@@ -56,7 +56,7 @@ const model = ref([
                 icon: 'pi pi-fw pi-building',
                 items: [
                     { label: 'Todos los sedes', to: '/mantenimiento/sedes/todas' },
-                    { label: 'Añadir sede', to: '#' },
+                    { label: 'Añadir sede', to: '/mantenimiento/sedes/agregar' },
                 ]
             },
             {

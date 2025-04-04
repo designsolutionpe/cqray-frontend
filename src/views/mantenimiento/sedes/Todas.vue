@@ -5,105 +5,41 @@ import Preloader from '@/components/Preloader.vue';
 import { useLayout } from '@/layout/composables/layout';
 import { getSedes } from '@/service/mantenimiento/SedeService';
 import { onMounted, ref, watch } from 'vue';
+import { charts } from './chart_data';
 import LOGO from '/ICORAY.ico';
 
 const { isDarkTheme } = useLayout();
 const chartData = ref(null);
 const chartOptions = ref(null);
-const chartShow = ref('paquetes')
 
-const documentStyle = getComputedStyle(document.documentElement);
-const datasetsData = {
-  paquetes: [
-    {
-      type: 'line',
-      tension: 0.3,
-      borderWidth: 3,
-      label: 'Paq. Completo',
-      borderColor: documentStyle.getPropertyValue('--primary-color'), // Color para ingresos
-      backgroundColor: documentStyle.getPropertyValue('--primary-color'), // Color para ingresos
-      data: [null], // Datos de ingresos,
-    },
-    {
-      type: 'line',
-      tension: 0.3,
-      borderWidth: 3,
-      label: 'Paq. Incompleto',
-      borderColor: documentStyle.getPropertyValue('--secondary-color'), // Color para ingresos
-      backgroundColor: documentStyle.getPropertyValue('--secondary-color'), // Color para ingresos
-      data: [null], // Datos de ingresos,
-    },
-    {
-      type: 'line',
-      tension: 0.3,
-      borderWidth: 3,
-      label: 'Paq. Mantenimiento',
-      borderColor: documentStyle.getPropertyValue('--p-slate-950'), // Color para ingresos
-      backgroundColor: documentStyle.getPropertyValue('--p-slate-950'), // Color para ingresos
-      data: [null], // Datos de ingresos,
-    },
-    {
-      type: 'line',
-      tension: 0.3,
-      borderWidth: 3,
-      label: 'Paq. por Sesiones',
-      borderColor: documentStyle.getPropertyValue('--p-gray-500'), // Color para ingresos
-      backgroundColor: documentStyle.getPropertyValue('--p-gray-500'), // Color para ingresos
-      data: [null], // Datos de ingresos,
-    },
-  ],
-  quiropracticos: [
-    {
-      type: 'line',
-      tension: 0.3,
-      borderWidth: 3,
-      label: 'Paq. Completo',
-      borderColor: documentStyle.getPropertyValue('--primary-color'), // Color para ingresos
-      backgroundColor: documentStyle.getPropertyValue('--primary-color'), // Color para ingresos
-      data: [null], // Datos de ingresos,
-    },
-    {
-      type: 'line',
-      tension: 0.3,
-      borderWidth: 3,
-      label: 'Paq. Incompleto',
-      borderColor: documentStyle.getPropertyValue('--secondary-color'), // Color para ingresos
-      backgroundColor: documentStyle.getPropertyValue('--secondary-color'), // Color para ingresos
-      data: [null], // Datos de ingresos,
-    },
-    {
-      type: 'line',
-      tension: 0.3,
-      borderWidth: 3,
-      label: 'Paq. Mantenimiento',
-      borderColor: documentStyle.getPropertyValue('--p-slate-950'), // Color para ingresos
-      backgroundColor: documentStyle.getPropertyValue('--p-slate-950'), // Color para ingresos
-      data: [null], // Datos de ingresos,
-    },
-    {
-      type: 'line',
-      tension: 0.3,
-      borderWidth: 3,
-      label: 'Paq. por Sesiones',
-      borderColor: documentStyle.getPropertyValue('--p-gray-500'), // Color para ingresos
-      backgroundColor: documentStyle.getPropertyValue('--p-gray-500'), // Color para ingresos
-      data: [null], // Datos de ingresos,
-    },
-  ]
-}
+const chartState = ref('sedes')
+const chartShow = ref('paquetes')
 
 const isLoading = ref(true)
 const isStatsLoading = ref(false)
 
 const aSedes = ref([])
+const aMonthsBySede = ref([])
+const nSelectedSede = ref(null)
 
-function setChartData_Sedes() {
-  const labels = aSedes.value.map(e => e.nombre.split(' ')[1])
-  const datasets = datasetsData[chartShow.value].map(e => {
-    const d = Array(5).fill().map(e => Math.floor(Math.random() * 50))
-    e.data = [null, ...d]
-    return e
-  })
+function setChartData() {
+  var labels, datasets = null;
+
+  if (chartState.value == 'sedes') {
+    labels = aSedes.value.map(e => e.nombre)
+    datasets = charts.datasets[chartShow.value].map(e => {
+      const d = Array(aSedes.value.length).fill().map(e => Math.floor(Math.random() * 50))
+      e.data = d
+      return e
+    })
+  } else if (chartState.value == 'sede') {
+    labels = aMonthsBySede.value
+    datasets = charts.datasets[chartShow.value].map(e => {
+      const d = Array(aMonthsBySede.value.length).fill().map(e => Math.floor(Math.random() * 50))
+      e.data = d
+      return e
+    })
+  }
 
   return {
     labels, // Meses
@@ -112,61 +48,60 @@ function setChartData_Sedes() {
 }
 
 function setChartOptions() {
-  const documentStyle = getComputedStyle(document.documentElement);
-  const borderColor = documentStyle.getPropertyValue('--surface-border');
-  const textMutedColor = documentStyle.getPropertyValue('--text-color-secondary');
+  var loadOptions = charts.options[chartShow.value]
 
-  return {
-    maintainAspectRatio: false,
-    aspectRatio: 1,
-    scales: {
-      x: {
-        stacked: true,
-        ticks: {
-          color: textMutedColor
-        },
-        grid: {
-          color: 'transparent',
-          borderColor: 'transparent'
-        }
-      },
-      y: {
-        stacked: false,
-        ticks: {
-          color: textMutedColor
-        },
-        grid: {
-          color: borderColor,
-          borderColor: 'transparent',
-          drawTicks: false
-        }
-      }
-    }
-  };
+  if (chartState.value == 'sede') {
+    const sedeName = aSedes.value[nSelectedSede.value].nombre
+    loadOptions.plugins.title.text = sedeName
+  } else {
+    loadOptions.plugins.title.text = "Todas las sedes"
+  }
+
+  return loadOptions
+}
+
+const changeChart = (show) => {
+  chartShow.value = show
+  chartState.value = 'sedes'
 }
 
 const cargarSedes = async () => {
   try {
     const sedes = await getSedes();
-    const empty = { nombre: '', empty: true }
-    aSedes.value = [empty, ...sedes, empty]
-    console.log(sedes, aSedes.value)
+    aSedes.value = sedes
   } catch (error) {
     console.error('Error al obtener las sedes:', error);
   }
   isLoading.value = false
 };
 
-watch([isDarkTheme, aSedes, chartShow], () => {
-  console.log('on watch')
-  chartData.value = setChartData_Sedes()
+const cargarSede = async (sedeID) => {
+  if (sedeID == nSelectedSede.value) return
+  try {
+    isStatsLoading.value = true
+    setTimeout(() => {
+      var quantityMonths = Math.floor(Math.random() * 12) + 1
+      if (quantityMonths < 5) quantityMonths = 5
+      const months = Array(quantityMonths).fill().map((m, i) => new Date(0, i + 1, 0).toLocaleDateString('es-PE', { month: 'long' }))
+      aMonthsBySede.value = months
+      chartState.value = 'sede'
+      nSelectedSede.value = sedeID
+      isStatsLoading.value = false
+    }, 3000)
+  }
+  catch (error) {
+    console.error('Error al obtener las sedes:', error);
+  }
+}
+
+watch([isDarkTheme, aSedes, aMonthsBySede, chartShow, chartState], () => {
+  chartData.value = setChartData()
   chartOptions.value = setChartOptions()
 })
 
 onMounted(() => {
   cargarSedes()
-  console.log('on mounted')
-  chartData.value = setChartData_Sedes()
+  chartData.value = setChartData()
   chartOptions.value = setChartOptions()
 })
 
@@ -190,18 +125,22 @@ onMounted(() => {
         <img class="sm:col-span-3 md:scale-150 md:translate-x-20 lg:scale-125 lg:translate-x-0" :src="FONO_BOT"
           alt="Persona usando un telefono">
       </div>
-      <Chart type="line" :data="chartData" :options="chartOptions" class="h-80" />
-      <div class="grid grid-cols-4 gap-3">
-        <Button class="col-span-4 sm:col-span-1 chart-changer" :class="{ 'active': chartShow == 'paquetes' }"
-          @click="chartShow = 'paquetes'" :variant="chartShow != 'paquetes' ? 'text' : null" label="Paquetes"></Button>
-        <Button class="col-span-4 sm:col-span-1 chart-changer" :class="{ 'active': chartShow == 'quiropracticos' }"
-          @click="chartShow = 'quiropracticos'" :variant="chartShow != 'quiropracticos' ? 'text' : null"
-          label="Quiropracticos"></Button>
-        <Button class="col-span-4 sm:col-span-1 chart-changer" :class="{ 'active': chartShow == 'pacientes' }"
-          @click="chartShow = 'pacientes'" :variant="chartShow != 'pacientes' ? 'text' : null"
-          label="Pacientes"></Button>
-        <Button class="col-span-4 sm:col-span-1 chart-changer" :class="{ 'active': chartShow == 'pagos' }"
-          @click="chartShow = 'pagos'" :variant="chartShow != 'pagos' ? 'text' : null" label="Pagos"></Button>
+      <div class="relative">
+        <Preloader v-if="isStatsLoading" />
+        <Chart type="line" :data="chartData" :options="chartOptions" class="h-80" />
+        <div class="grid grid-cols-4 gap-3 mt-5">
+          <Button class="col-span-4 sm:col-span-1 chart-changer" :class="{ 'active': chartShow == 'paquetes' }"
+            @click="changeChart('paquetes')" :variant="chartShow != 'paquetes' ? 'text' : null"
+            label="Paquetes"></Button>
+          <Button class="col-span-4 sm:col-span-1 chart-changer" :class="{ 'active': chartShow == 'quiropracticos' }"
+            @click="changeChart('quiropracticos')" :variant="chartShow != 'quiropracticos' ? 'text' : null"
+            label="Quiropracticos"></Button>
+          <Button class="col-span-4 sm:col-span-1 chart-changer" :class="{ 'active': chartShow == 'pacientes' }"
+            @click="changeChart('pacientes')" :variant="chartShow != 'pacientes' ? 'text' : null"
+            label="Pacientes"></Button>
+          <Button class="col-span-4 sm:col-span-1 chart-changer" :class="{ 'active': chartShow == 'pagos' }"
+            @click="changeChart('pagos')" :variant="chartShow != 'pagos' ? 'text' : null" label="Pagos"></Button>
+        </div>
       </div>
     </div>
     <div class="card col-span-12 xl:col-span-5 xl:py-0">
@@ -210,7 +149,8 @@ onMounted(() => {
         class="flex flex-col gap-3 h-[40rem] md:h-auto xl:h-[40rem] overflow-y-auto md:flex-row md:overflow-x-auto xl:flex-col">
         <template v-for="(sede, i) in aSedes" :key="sede">
           <div v-if="!sede.empty"
-            class="grid grid-cols-2 grid-row-1 md:flex-shrink-0 items-center p-5 rounded-md odd:bg-gray-900 even:bg-primary">
+            class="grid grid-cols-2 grid-row-1 md:flex-shrink-0 items-center p-5 rounded-md odd:bg-gray-900 even:bg-primary"
+            @click="cargarSede(i)">
             <div class="col-span-2 sm:col-span-1">
               <p class="font-bold text-white text-2xl">{{ sede.nombre }}</p>
               <p class="text-white flex items-center gap-x-2 text-lg sm:text-xl">
@@ -218,7 +158,7 @@ onMounted(() => {
                 <span>{{ `Sede ${sede.id}` }}</span>
               </p>
             </div>
-            <div class="hidden sm:block col-span-1 w-[100px] justify-self-end">
+            <div class="hidden sm:block col-span-1 w-[100px] lg:w-[80px] justify-self-end">
               <img class="w-full" :src="LOGO" alt="Logo">
             </div>
           </div>

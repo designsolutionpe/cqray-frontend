@@ -18,7 +18,7 @@ const router = createRouter({
                     path: 'perfil',
                     name: 'perfil',
                     component: () => import('@/views/sesion/Perfil.vue'),
-                    meta : { requiresAuth: true}
+                    meta: { requiresAuth: true }
                 },
             ]
         },
@@ -30,7 +30,7 @@ const router = createRouter({
                     path: 'pago',
                     name: 'pago',
                     component: () => import('@/views/mantenimiento/Pago.vue'),
-                    meta : { requiresAuth: true}
+                    meta: { requiresAuth: true }
                 },
             ]
         },
@@ -42,28 +42,28 @@ const router = createRouter({
                     path: '/',
                     name: 'dashboard',
                     component: () => import('@/views/Dashboard.vue'),
-                    meta : { requiresAuth: true}
+                    meta: { requiresAuth: true }
                     //meta: { requiresAuth: true, roles: ['admin', 'user'] },
                 },
                 {
                     path: '/gestion/cita',
                     name: 'cita',
                     component: () => import('@/views/gestion/Cita.vue'),
-                    meta : { requiresAuth: true}
+                    meta: { requiresAuth: true }
                     //meta: { requiresAuth: true, roles: ['admin', 'user'] },
                 },
                 {
                     path: '/gestion/quiropractico',
                     name: 'quiropractico',
                     component: () => import('@/views/gestion/Quiropractico.vue'),
-                    meta : { requiresAuth: true}
+                    meta: { requiresAuth: true }
                     //meta: { requiresAuth: true, roles: ['admin'] },
                 },
                 {
                     path: '/gestion/paciente',
                     name: 'paciente',
                     component: () => import('@/views/gestion/Paciente.vue'),
-                    meta : { requiresAuth: true}
+                    meta: { requiresAuth: true }
                     //meta: { requiresAuth: true, roles: ['admin', 'user'] },
                 },
 
@@ -77,25 +77,25 @@ const router = createRouter({
                     path: '/mantenimiento/sedes/todas',
                     name: 'sedes-todas',
                     component: () => import('@/views/mantenimiento/sedes/Todas.vue'),
-                    meta : { requiresAuth: true }
+                    meta: { requiresAuth: true }
                 },
                 {
-                    path: '/mantenimiento/sedes/anadir',
+                    path: '/mantenimiento/sedes/agregar',
                     name: 'sedes-agregar',
                     component: () => import('@/views/mantenimiento/sedes/Agregar.vue'),
-                    meta : { requiresAuth: true }
+                    meta: { requiresAuth: true }
                 },
                 {
                     path: '/mantenimiento/usuario',
                     name: 'usuario',
                     component: () => import('@/views/mantenimiento/Usuario.vue'),
-                    meta : { requiresAuth: true}
+                    meta: { requiresAuth: true }
                 },
                 {
                     path: '/mantenimiento/horario',
                     name: 'horario',
                     component: () => import('@/views/mantenimiento/Horario.vue'),
-                    meta : { requiresAuth: true}
+                    meta: { requiresAuth: true }
                 },
 
                 {
@@ -225,16 +225,16 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
     // Verificar si la ruta requiere autenticación
     if (to.meta.requiresAuth && !store.getters.isAuthenticated) {
-      next({ name: 'login' });  // Si no está autenticado, redirigir al login
+        next({ name: 'login' });  // Si no está autenticado, redirigir al login
     }
     // Verificar si la ruta requiere un rol específico
     else if (to.meta.roles && !to.meta.roles.includes(store.getters.userRole)) {
-      next({ name: 'accessDenied' });  // Si el rol no coincide, redirigir a acceso denegado
+        next({ name: 'accessDenied' });  // Si el rol no coincide, redirigir a acceso denegado
     }
     else {
-      next();  // Permitir la navegación si todo está bien
+        next();  // Permitir la navegación si todo está bien
     }
 });
-  
+
 
 export default router;
