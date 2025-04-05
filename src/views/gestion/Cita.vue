@@ -7,6 +7,7 @@ import { getSedes } from '@/service/mantenimiento/SedeService';
 import { getPacientes } from '@/service/gestion/PacienteService';
 import { getQuiropracticos } from '@/service/gestion/QuiropracticoService';
 import { getHorariosDisponibles } from '@/service/mantenimiento/HorarioService';
+import { formatDate } from '@/utils/Util.js';
 import { FilterMatchMode } from '@primevue/core/api';
 import { useToast } from 'primevue/usetoast';
 import { onMounted, ref } from 'vue';
@@ -57,11 +58,13 @@ const cargarDoctores = async () => {
     }
 };
 
+const isLinkChecked = ref(false);
 const pacientes = ref([]);
 const cargarPacientes = async () => {
     try {
         const response = await getPacientes();
         pacientes.value = response.map(paciente => ({
+            telefono: paciente.persona.telefono,
             label: `${paciente.persona.apellido} ${paciente.persona.nombre}`,
             value: paciente.id
         }));
@@ -70,9 +73,19 @@ const cargarPacientes = async () => {
     }
 };
 
+const telefonoPaciente = ref('');
+const nombrePaciente = ref('');
+const updateTelefono = () => {
+    const pacienteSeleccionado = pacientes.value.find(paciente => paciente.value === cita.value.id_paciente);
+    if (pacienteSeleccionado) {
+        telefonoPaciente.value = pacienteSeleccionado.telefono;
+        nombrePaciente.value = pacienteSeleccionado.label;
+    }
+};
+
 const horarios = ref([]);
 const cargarHorarios = async () => {
-    if (cita.value.id_doctor && cita.value.fecha_cita) {
+    if (cita.value.id_quiropractico && cita.value.fecha_cita) {
 
         const fechaSeleccionada = new Date(cita.value.fecha_cita + 'T00:00:00'); 
         let dia = fechaSeleccionada.getDay();
@@ -85,7 +98,7 @@ const cargarHorarios = async () => {
 
         try {
             const response = await getHorariosDisponibles(
-                cita.value.fecha_cita, cita.value.id_doctor, dia,
+                cita.value.fecha_cita, cita.value.id_quiropractico, dia,
                 cita.value.id_detalle_horario);
             horarios.value = response.map((horario) => ({
                 label: `${horario.hora_inicio} - ${horario.hora_fin}`,
@@ -104,6 +117,7 @@ const deleteCitaDialog = ref(false);
 const submitted = ref(false);
 const citas = ref([]);
 const cita = ref({});
+const citaSeleccionada = ref({});
 
 const cargarCitas = async () => {
     try {
@@ -121,6 +135,7 @@ function openNew(){
 
 function editCita(cit){
     cita.value = { ...cit };
+    updateTelefono();
     cargarHorarios();
     citaDialog.value = true;
 }
@@ -148,10 +163,15 @@ function hideDialog(){
     submitted.value = false;
 }
 
+const savedCitaDialog = ref(false);
+function openSavedDialog(cit) {
+    citaSeleccionada.value = { ...cit };
+    savedCitaDialog.value = true;
+}
 async function saveCita(){
     submitted.value = true;
 
-    if (!cita.value.id_doctor || !cita.value.id_paciente ||
+    if (!cita.value.id_quiropractico || !cita.value.id_paciente ||
         !cita.value.fecha_cita || cita.value.estado === null || cita.value.estado === undefined) {
         console.error('⛔ Error: Datos incompletos para guardar la cita.');
         return;
@@ -159,12 +179,12 @@ async function saveCita(){
 
     const payload = {
         // Datos de la Cita
-        id_quiropractico: cita.value.id_doctor,
+        id_quiropractico: cita.value.id_quiropractico,
         id_paciente: cita.value.id_paciente,
         id_detalle_horario: cita.value.id_detalle_horario,
         id_sede: cita.value.id_sede,
         fecha_cita: cita.value.fecha_cita,
-        estado: cita.value.estado, // 0: Pendiente, 1: Confirmado, 2: Atendido, 9: Cancelado
+        estado: cita.value.estado.id, // 0: Pendiente, 1: Confirmado, 2: Atendido, 9: Cancelado
         tipo_paciente: cita.value.tipo_paciente, // 1: Nuevo, 2: Reporte, 3: Plan, 4: Mantenimiento
 
         // Datos adicionales para la atención
@@ -184,6 +204,9 @@ async function saveCita(){
             toast.add({ severity: 'success', summary: 'Cita Creada', life: 3000 });
         }
         // Recargar las citas y cerrar el formulario
+        if (isLinkChecked.value){
+            openSavedDialog(cita.value);
+        }
         await cargarCitas();
         citaDialog.value = false;
         cita.value = {};
@@ -194,11 +217,35 @@ async function saveCita(){
 }
 
 const viewCitaDialog = ref(false);
-const citaSeleccionada = ref({});
 
 function viewCita(cit) {
     citaSeleccionada.value = { ...cit };
     viewCitaDialog.value = true;
+}
+
+function onVerEnlace(cit){
+
+    const telefono = telefonoPaciente.value.replace(/\D/g, ''); // Eliminar caracteres no numéricos
+    
+    // Podríamos tomar datos como la fecha y hora de la cita, y el nombre completo del paciente
+    const nomPaciente = nombrePaciente.value || 'Estimado/a';
+    const fecha = cit.fecha_cita ? formatDate(cit.fecha_cita) : 'la fecha programada';
+
+    const horarioSelecciodo = horarios.value.find((h) => h.value === cit?.id_detalle_horario);
+    const hora = horarioSelecciodo ? horarioSelecciodo.label : 'el turno seleccionado';
+
+    const sedeSeleccionada = sedes.value.find((s) => s.value === cit?.id_sede);
+    const nomSede = sedeSeleccionada ? sedeSeleccionada.label : 'una sede';
+
+    const mensaje = 
+        `¡Hola, ${nomPaciente}!\n\n` +
+        `Nos complace informarte que tu cita ha sido programada con éxito en la sede **${nomSede}**.\n\n` +
+        `Te esperamos el día **${fecha}** en el turno de **${hora}** para brindarte la mejor atención quiropráctica.\n\n` +
+        `Si tienes alguna duda o necesitas reprogramar tu cita, ¡no dudes en avisarnos!`;
+
+    // Generar el enlace de WhatsApp
+    const enlace = `https://api.whatsapp.com/send?phone=${telefono}&text=${encodeURIComponent(mensaje)}`;
+    window.open(enlace, '_blank');
 }
 
 onMounted(()=>{
@@ -251,7 +298,7 @@ onMounted(()=>{
                 </Column>
                 <Column header="Quiropráctico" sortable style="min-width: 10rem">
                     <template #body="slotProps">
-                        {{ slotProps.data.doctor.persona.apellido + ' ' + slotProps.data.doctor.persona.nombre }}
+                        {{ slotProps.data.quiropractico.persona.apellido + ' ' + slotProps.data.quiropractico.persona.nombre }}
                     </template>
                 </Column>
                 <Column field="fecha_cita" header="Fecha" sortable style="min-width: 5rem"></Column>
@@ -262,7 +309,7 @@ onMounted(()=>{
                 </Column>
                 <Column header="Estado" sortable style="min-width: 6rem">
                     <template #body="slotProps">
-                        {{ estadosCita.find(tipo => tipo.value === slotProps.data.estado)?.label || 'Desconocido'}}
+                        {{ estadosCita.find(tipo => tipo.value === slotProps.data.estado.id)?.label || 'Desconocido'}}
                     </template>
                 </Column>
                 <Column :exportable="false" style="min-width: 12rem">
@@ -283,14 +330,26 @@ onMounted(()=>{
                     <!-- Paciente -->
                     <div class="col-span-6">
                         <label for="id_paciente" class="block font-bold mb-3">Paciente</label>
-                        <Select id="id_paciente" v-model="cita.id_paciente" :options="pacientes"
+                        <Select id="id_paciente" v-model="cita.id_paciente" :options="pacientes" @change="updateTelefono"
                         optionLabel="label" filter optionValue="value" placeholder="Seleccione un paciente" fluid />
                     </div>
                     <!-- Doctor -->
                     <div class="col-span-6">
                         <label for="id_doctor" class="block font-bold mb-3">Quiropráctico</label>
-                        <Select id="id_doctor" v-model="cita.id_doctor" :options="doctores" @change="cargarHorarios"
+                        <Select id="id_doctor" v-model="cita.id_quiropractico" :options="doctores" @change="cargarHorarios"
                         optionLabel="label" optionValue="value" placeholder="Seleccione un quiropráctico" fluid />
+                    </div>
+                </div>
+
+                <div v-if="cita.id_paciente > 0" class="grid grid-cols-12 gap-3">
+                    <div class="col-span-4">
+                        <label for="telefono" class="block font-bold mb-3">Teléfono</label>
+                        <InputText id="telefono" type="text" :disabled="true" :value="telefonoPaciente" fluid />                        
+                    </div>
+
+                    <div class="col-span-4">
+                        <label for="whatsapp" class="block font-bold mb-3"> Link Whatsapp </label>
+                        <Checkbox v-model="isLinkChecked" inputId="whatsapp" binary />
                     </div>
                 </div>
 
@@ -300,7 +359,7 @@ onMounted(()=>{
                         <label for="fecha_cita" class="block font-bold mb-3">Fecha de la Cita</label>
                         <InputText id="fecha_cita" type="date" v-model="cita.fecha_cita" @change="cargarHorarios" fluid />
                     </div>
-                    <div class="col-span-4" v-if="cita.id_doctor && cita.fecha_cita">
+                    <div class="col-span-4" v-if="cita.id_quiropractico && cita.fecha_cita">
                         <label for="id_detalle_horario" class="block font-bold mb-3">Turno</label>
                         <Select id="id_detalle_horario" v-model="cita.id_detalle_horario" :options="horarios"
                         optionLabel="label" optionValue="value" placeholder="Seleccione el turno" fluid />
@@ -321,7 +380,7 @@ onMounted(()=>{
                 <div class="grid grid-cols-12 gap-3">
                     <div class="col-span-6">
                         <label for="estado" class="block font-bold mb-3">Estado Cita</label>
-                        <Select id="estado" v-model="cita.estado" :options="estadosCita"
+                        <Select id="estado" v-model="cita.estado.id" :options="estadosCita"
                         optionLabel="label" optionValue="value" placeholder="Seleccione el estado" fluid />
                     </div>
 
@@ -338,6 +397,19 @@ onMounted(()=>{
                 <Button label="Guardar" icon="pi pi-check" @click="saveCita" />
             </template>
         </Dialog>
+
+        <Dialog v-model:visible="savedCitaDialog" header="Se guardó cita correctamente" :modal="true" :style="{ 'width': '450px' }">
+            <div class="flex flex-column align-items-center justify-content-center gap-3">
+                <p class="text-center">
+                    ¡La cita se registró con éxito!
+                </p>
+                
+                <div class="flex gap-2 justify-content-center">
+                <Button label="Ver enlace" icon="pi pi-eye" class="p-button-outlined" @click="onVerEnlace(citaSeleccionada)"/>
+                <Button label="Ok" icon="pi pi-check" class="p-button-primary" @click="savedCitaDialog = false"/>
+            </div>
+        </div>
+    </Dialog>
 
         <Dialog v-model:visible="deleteCitaDialog" header="Confirmar" :modal="true" :style="{ 'width': '450px' }">
             <div class="flex items-center gap-4">
