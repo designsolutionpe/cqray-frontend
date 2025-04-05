@@ -49,28 +49,28 @@ const router = createRouter({
                     path: '/gestion/cita',
                     name: 'cita',
                     component: () => import('@/views/gestion/Cita.vue'),
-                    meta: { requiresAuth: true, roles: ['Superadministrador','Administrador'] }
+                    meta: { requiresAuth: true, roles: ['Superadministrador', 'Administrador'] }
                     //meta: { requiresAuth: true, roles: ['admin', 'user'] },
                 },
                 {
                     path: '/gestion/citas/todas',
                     name: 'citas-todas',
                     component: () => import('@/views/gestion/citas/Todas.vue'),
-                    meta: { requiresAuth: true,roles: ['Superadministrador','Administrador'] }
+                    meta: { requiresAuth: true, roles: ['Superadministrador', 'Administrador'] }
                     //meta: { requiresAuth: true, roles: ['admin', 'user'] },
                 },
                 {
                     path: '/gestion/citas/agregar',
                     name: 'citas-agregar',
                     component: () => import('@/views/gestion/citas/Agregar.vue'),
-                    meta: { requiresAuth: true,roles: ['Superadministrador','Administrador'] }
+                    meta: { requiresAuth: true, roles: ['Superadministrador', 'Administrador'] }
                     //meta: { requiresAuth: true, roles: ['admin', 'user'] },
                 },
                 {
                     path: '/gestion/citas/calendario',
                     name: 'citas-calendario',
                     component: () => import('@/views/gestion/citas/Calendario.vue'),
-                    meta: { requiresAuth: true,roles: ['Superadministrador','Administrador'] }
+                    meta: { requiresAuth: true, roles: ['Superadministrador', 'Administrador'] }
                     //meta: { requiresAuth: true, roles: ['admin', 'user'] },
                 },
                 {
@@ -84,7 +84,7 @@ const router = createRouter({
                     path: '/gestion/paciente',
                     name: 'paciente',
                     component: () => import('@/views/gestion/Paciente.vue'),
-                    meta: { requiresAuth: true,roles: ['Superadministrador','Administrador'] }
+                    meta: { requiresAuth: true, roles: ['Superadministrador', 'Administrador'] }
                     //meta: { requiresAuth: true, roles: ['admin', 'user'] },
                 },
 

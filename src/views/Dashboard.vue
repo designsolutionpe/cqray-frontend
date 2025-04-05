@@ -1,7 +1,8 @@
 <script setup>
 import IngresosEgresosWidget from '@/components/dashboard/IngresosEgresosWidget.vue';
 import { useToast } from 'primevue/usetoast';
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
+import { useStore } from 'vuex';
 
 /*
 const monthNames = [
@@ -136,6 +137,9 @@ const formatDate = (date) => {
     return `${year}-${month}-${day}`;
 };
 
+const store = useStore()
+const isSuperAdmin = computed(() => (store.getters.userRole == 'Superadministrador'))
+
 onMounted(() => {
     // Esto puede ser donde cargues los datos de citas desde una API o una base de datos.
     console.log("Calendario cargado");
@@ -165,7 +169,7 @@ onMounted(() => {
             <div
                 class="col-span-12 md:col-span-4 lg:col-span-12 lg:order-1 lg:flex lg:overflow-auto lg:gap-5 xl:col-span-3 xl:block">
                 <!--Sedes-->
-                <router-link to="/mantenimiento/sedes/todas">
+                <router-link v-if="isSuperAdmin" to="/mantenimiento/sedes/todas">
                     <Card class="mb-1">
                         <template #content>
                             <div class="flex items-center mb-0">

@@ -6,7 +6,7 @@ import AppMenuItem from './AppMenuItem.vue';
 const store = useStore();
 const userRole = computed(() => store.getters.userRole);
 
-const menuItems  = ref([
+const menuItems = ref([
     {
         label: 'Principal',
         items: [{ label: 'Tablero', icon: 'pi pi-fw pi-home', to: '/' }]
@@ -21,7 +21,7 @@ const menuItems  = ref([
                 items: [
                     { label: 'Todas las citas', to: '/gestion/citas/todas' },
                     { label: 'Añadir citas', to: '/gestion/citas/agregar' },
-                    { label: 'Calendario de citas', to: '/gestion/citas/calendario' },
+                    { label: 'Calendario de citas', to: '#' },
                 ]
             },
             {
@@ -417,12 +417,12 @@ const updateMenu = () => {
             }
             if (item.label === 'Gestion Clínica') {
                 item.items = item.items.filter(subitem => {
-                    return subitem.label === 'Agendamientos de Citas' 
-                    || subitem.label === 'Pacientes' || subitem.label === 'Quiroprácticos';
+                    return subitem.label === 'Agendamientos de Citas'
+                        || subitem.label === 'Pacientes' || subitem.label === 'Quiroprácticos';
                 });
                 return item;
             }
-            return null; 
+            return null;
         }).filter(item => item !== null);
     } else {
         filteredMenu.value = [];
