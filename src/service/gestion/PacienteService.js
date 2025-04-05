@@ -1,5 +1,15 @@
 import api from '@/service/Api';
 
+export const getPacienteEstados = async () => {
+    try {
+        const response = await api.get('/pacientes/estados')
+        return response.data
+    } catch (error) {
+        console.error('error en servicio "getPacienteEstados" al obtener estados de pacientes: ', error)
+        throw error
+    }
+}
+
 export const getPacientes = async () => {
     try {
         const response = await api.get('/pacientes');

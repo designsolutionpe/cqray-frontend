@@ -1,5 +1,15 @@
 import api from '@/service/Api';
 
+export const getCitaEstados = async () => {
+    try {
+        const response = await api.get('/citas/estados')
+        return response.data;
+    } catch (error) {
+        console.error('error en servicio "getCitaEstados" al obtener estados de cita: ', error)
+        throw error
+    }
+}
+
 export const getCitas = async () => {
     try {
         const response = await api.get('/citas');
