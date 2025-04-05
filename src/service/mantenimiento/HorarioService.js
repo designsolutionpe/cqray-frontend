@@ -2,7 +2,7 @@ import api from '@/service/Api';
 
 export const getHorariosMedico = async (id_doctor) => {
     try {
-        const response = await api.get(`/horarios/doctores/${id_doctor}`);
+        const response = await api.get(`/horarios/quiropracticos/${id_doctor}`);
         return response.data;
     } catch (error) {
         console.error('Error al obtener horarios del médico:', error);
@@ -10,12 +10,12 @@ export const getHorariosMedico = async (id_doctor) => {
     }
 };
 
-export const getHorariosDisponibles = async (fecha, id_doctor, dia, id_detalle_horario = null) => {
+export const getHorariosDisponibles = async (fecha, id_quiropractico, dia, id_detalle_horario = null) => {
     try {
         const response = await api.get('/horarios/disponibles', {
             params: {
                 fecha,
-                id_doctor,
+                id_quiropractico,
                 dia,
                 id_detalle_horario
             }

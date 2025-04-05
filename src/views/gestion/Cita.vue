@@ -159,7 +159,7 @@ async function saveCita(){
 
     const payload = {
         // Datos de la Cita
-        id_doctor: cita.value.id_doctor,
+        id_quiropractico: cita.value.id_doctor,
         id_paciente: cita.value.id_paciente,
         id_detalle_horario: cita.value.id_detalle_horario,
         id_sede: cita.value.id_sede,

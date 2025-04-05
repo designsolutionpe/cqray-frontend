@@ -2,7 +2,7 @@ import api from '@/service/Api';
 
 export const getQuiropracticos = async () => {
     try {
-        const response = await api.get('/doctores');
+        const response = await api.get('/quiropracticos');
         return response.data;
     } catch (error) {
         console.error('Error al obtener los quiropracticos:', error);
@@ -12,7 +12,7 @@ export const getQuiropracticos = async () => {
 
 export const createQuiropractico = async (data) => {
     try {
-        const response = await api.post('/doctores', data, {
+        const response = await api.post('/quiropracticos', data, {
             headers: {
                 'Content-Type': 'multipart/form-data'
             }
@@ -27,7 +27,7 @@ export const createQuiropractico = async (data) => {
 export const updateQuiropractico = async (id, data) =>{
     data.append('_method', 'PUT');
     try {
-        const response = await api.post(`/doctores/${id}`, data, {
+        const response = await api.post(`/quiropracticos/${id}`, data, {
             headers: {
                 'Content-Type': 'multipart/form-data'
             }
@@ -41,7 +41,7 @@ export const updateQuiropractico = async (id, data) =>{
 
 export const deleteQuiropractico = async (id) => {
     try {
-        const response = await api.delete(`/doctores/${id}`);
+        const response = await api.delete(`/quiropracticos/${id}`);
         return response.data;
     } catch (error) {
         console.error('Error al eliminar el quiropractico:', error);
