@@ -124,7 +124,7 @@ const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
                             <i v-else class="pi pi-user"></i>
                             <span>Perfil</span>
                         </button>
-                        <button type="button" class="layout-topbar-action" @click="mostrarAjustes">
+                        <button v-if="userRole === 'Superadministrador'" type="button" class="layout-topbar-action" @click="mostrarAjustes">
                             <i class="pi pi-cog"></i>
                             <span>Ajustes</span>
                         </button>

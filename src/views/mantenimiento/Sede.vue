@@ -231,7 +231,7 @@ onMounted(cargarSedes);
             </div>
             <template #footer>
                 <Button label="No" icon="pi pi-times" text @click="deleteSedeDialog = false" />
-                <Button label="Sí" icon="pi pi-check" @click="delSede" />
+                <Button label="Sí" icon="pi pi-check" severity="danger" @click="delSede" />
             </template>
         </Dialog>    
     </div>

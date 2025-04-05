@@ -1,9 +1,12 @@
 <script setup>
-import { ref } from 'vue';
-
+import { computed, ref } from 'vue';
+import { useStore } from 'vuex';
 import AppMenuItem from './AppMenuItem.vue';
 
-const model = ref([
+const store = useStore();
+const userRole = computed(() => store.getters.userRole);
+
+const menuItems  = ref([
     {
         label: 'Principal',
         items: [{ label: 'Tablero', icon: 'pi pi-fw pi-home', to: '/' }]
@@ -396,11 +399,43 @@ const model = ref([
     }
     */
 ]);
+
+const filteredMenu = ref([]);
+
+const updateMenu = () => {
+    // Inicializamos el menú vacío
+    filteredMenu.value = [];
+
+    // Verificamos si el rol es 'Superadministrador'
+    if (userRole.value === 'Superadministrador') {
+        filteredMenu.value = menuItems.value;
+    } else if (userRole.value === 'Administrador') {
+        // Si el rol es 'Administrador'
+        filteredMenu.value = menuItems.value.map(item => {
+            if (item.label === 'Principal') {
+                return item;
+            }
+            if (item.label === 'Gestion Clínica') {
+                item.items = item.items.filter(subitem => {
+                    return subitem.label === 'Agendamientos de Citas' 
+                    || subitem.label === 'Pacientes' || subitem.label === 'Quiroprácticos';
+                });
+                return item;
+            }
+            return null; 
+        }).filter(item => item !== null);
+    } else {
+        filteredMenu.value = [];
+    }
+};
+
+updateMenu();
+
 </script>
 
 <template>
     <ul class="layout-menu">
-        <template v-for="(item, i) in model" :key="item">
+        <template v-for="(item, i) in filteredMenu" :key="item">
             <app-menu-item v-if="!item.separator" :item="item" :index="i"></app-menu-item>
             <li v-if="item.separator" class="menu-separator"></li>
         </template>

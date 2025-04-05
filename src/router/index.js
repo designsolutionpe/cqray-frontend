@@ -30,7 +30,7 @@ const router = createRouter({
                     path: 'pago',
                     name: 'pago',
                     component: () => import('@/views/mantenimiento/Pago.vue'),
-                    meta: { requiresAuth: true }
+                    meta: { requiresAuth: true, roles: ['Superadministrador'] }
                 },
             ]
         },
@@ -49,42 +49,42 @@ const router = createRouter({
                     path: '/gestion/cita',
                     name: 'cita',
                     component: () => import('@/views/gestion/Cita.vue'),
-                    meta: { requiresAuth: true }
+                    meta: { requiresAuth: true, roles: ['Superadministrador','Administrador'] }
                     //meta: { requiresAuth: true, roles: ['admin', 'user'] },
                 },
                 {
                     path: '/gestion/citas/todas',
                     name: 'citas-todas',
                     component: () => import('@/views/gestion/citas/Todas.vue'),
-                    meta: { requiresAuth: true }
+                    meta: { requiresAuth: true,roles: ['Superadministrador','Administrador'] }
                     //meta: { requiresAuth: true, roles: ['admin', 'user'] },
                 },
                 {
                     path: '/gestion/citas/agregar',
                     name: 'citas-agregar',
                     component: () => import('@/views/gestion/citas/Agregar.vue'),
-                    meta: { requiresAuth: true }
+                    meta: { requiresAuth: true,roles: ['Superadministrador','Administrador'] }
                     //meta: { requiresAuth: true, roles: ['admin', 'user'] },
                 },
                 {
                     path: '/gestion/citas/calendario',
                     name: 'citas-calendario',
                     component: () => import('@/views/gestion/citas/Calendario.vue'),
-                    meta: { requiresAuth: true }
+                    meta: { requiresAuth: true,roles: ['Superadministrador','Administrador'] }
                     //meta: { requiresAuth: true, roles: ['admin', 'user'] },
                 },
                 {
                     path: '/gestion/quiropractico',
                     name: 'quiropractico',
                     component: () => import('@/views/gestion/Quiropractico.vue'),
-                    meta: { requiresAuth: true }
+                    meta: { requiresAuth: true, roles: ['Superadministrador'] }
                     //meta: { requiresAuth: true, roles: ['admin'] },
                 },
                 {
                     path: '/gestion/paciente',
                     name: 'paciente',
                     component: () => import('@/views/gestion/Paciente.vue'),
-                    meta: { requiresAuth: true }
+                    meta: { requiresAuth: true,roles: ['Superadministrador','Administrador'] }
                     //meta: { requiresAuth: true, roles: ['admin', 'user'] },
                 },
 
@@ -98,25 +98,25 @@ const router = createRouter({
                     path: '/mantenimiento/sedes/todas',
                     name: 'sedes-todas',
                     component: () => import('@/views/mantenimiento/sedes/Todas.vue'),
-                    meta: { requiresAuth: true }
+                    meta: { requiresAuth: true, roles: ['Superadministrador'] }
                 },
                 {
                     path: '/mantenimiento/sedes/agregar',
                     name: 'sedes-agregar',
                     component: () => import('@/views/mantenimiento/sedes/Agregar.vue'),
-                    meta: { requiresAuth: true }
+                    meta: { requiresAuth: true, roles: ['Superadministrador'] }
                 },
                 {
                     path: '/mantenimiento/usuario',
                     name: 'usuario',
                     component: () => import('@/views/mantenimiento/Usuario.vue'),
-                    meta: { requiresAuth: true }
+                    meta: { requiresAuth: true, roles: ['Superadministrador'] }
                 },
                 {
                     path: '/mantenimiento/horario',
                     name: 'horario',
                     component: () => import('@/views/mantenimiento/Horario.vue'),
-                    meta: { requiresAuth: true }
+                    meta: { requiresAuth: true, roles: ['Superadministrador'] }
                 },
 
                 {

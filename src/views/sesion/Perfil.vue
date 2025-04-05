@@ -9,6 +9,7 @@ import { useStore } from 'vuex';
 const sedes = ref([]);
 const store = useStore();
 const id = computed(() => store.getters.id);
+const userRole = computed(() => store.getters.userRole);
 const isLoading = ref(true)
 const bImageError = ref(false)
 
@@ -219,7 +220,9 @@ onMounted(() => {
                         <div class="col-span-12 md:col-span-6">
                             <label for="sede" class="block font-bold mb-2">Sede</label>
                             <Select id="sede" v-model="perfil.id_sede" :options="sedes" optionLabel="label"
-                                optionValue="value" placeholder="Selecciona una sede" fluid />
+                                optionValue="value" placeholder="Selecciona una sede" fluid
+                                :disabled="userRole === 'Administrador'" 
+                            />
                         </div>
                     </div>
                 </div>
