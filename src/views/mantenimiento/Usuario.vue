@@ -24,7 +24,8 @@ const generos = ref([
 const roles = ref([
     { label: "Superadministrador", value: "Superadministrador" },
     { label: "Administrador", value: "Administrador" },
-    { label: "Doctor", value: "Doctor" },
+    { label: "Quiropractico", value: "Quiropractico" },
+    { label: "CallCenter", value: "CallCenter" },
     { label: "Paciente", value: "Paciente" },
 ]);
 
@@ -85,7 +86,16 @@ function confirmDeleteUsuario(usu){
 }
 
 async function delUsuario(){
-
+    try {
+        await deleteUsuario(usuario.value.id);
+        deleteUsuarioDialog.value = false;
+        usuario.value = {};
+        toast.add({ severity: 'success', summary: 'Éxito', detail: 'Usuario eliminado', life: 3000 });
+        await cargarUsuarios();
+    } catch (error) {
+        console.error('Error al eliminar usuario:', error);
+        toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudo eliminar usuario', life: 3000 });
+    }
 }
 
 function hideDialog(){
@@ -257,7 +267,7 @@ onMounted( () => {
                         <div class="col-span-5">
                             <label for="clave" class="block font-bold mb-3">Clave</label>
                             <InputText id="clave" v-model="usuario.password" type="password" required="true" fluid />
-                            <small v-if="submitted && !usuario.clave" class="text-red-500">Clave es requerida.</small>
+                            <small v-if="submitted && !usuario.password" class="text-red-500">Clave es requerida.</small>
                         </div>
 
                         <!-- Campo Sede (Combo) -->
@@ -272,6 +282,17 @@ onMounted( () => {
                     <Button label="Guardar" icon="pi pi-check" @click="saveUsuario" />
                 </template>
             </Dialog>
+
+            <Dialog v-model:visible="deleteUsuarioDialog" :style="{ 'width': '450px' }" header="Confirmar" :modal="true">
+                <div class="flex items-center gap-4">
+                    <i class="pi pi-exclamation-triangle !text-3xl" />
+                    <p>¿Está seguro de que desea eliminar el usuario <strong>{{ usuario?.login }}</strong>?</p>
+                </div>
+                <template #footer>
+                    <Button label="No" icon="pi pi-times" text @click="deleteUsuarioDialog = false" />
+                    <Button label="Si" icon="pi pi-check" severity="danger" @click="delUsuario" />
+                </template>
+            </Dialog>    
         </div>
     </div>
 </template>
