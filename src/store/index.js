@@ -4,6 +4,7 @@ export default createStore({
   state: {
     isAuthenticated: !!localStorage.getItem('token'),
     id:localStorage.getItem('id') || null,
+    id_sede: localStorage.getItem('id_sede') || null,
     userRole: localStorage.getItem('userRole') || null,
     token: localStorage.getItem('token') || null,
     nombre: localStorage.getItem('nombre') || '',
@@ -12,9 +13,10 @@ export default createStore({
   },
 
   mutations: {
-    setAuth(state, { isAuthenticated, id, userRole, token, nombre, apellido , foto }) {
+    setAuth(state, { isAuthenticated, id, id_sede, userRole, token, nombre, apellido , foto }) {
       state.isAuthenticated = isAuthenticated;
       state.id = id;
+      state.id_sede = id_sede;
       state.userRole = userRole;
       state.token = token;
       state.nombre = nombre;
@@ -23,6 +25,7 @@ export default createStore({
       // Guardar en localStorage
       localStorage.setItem('token', token || '');
       localStorage.setItem('id', id || '');
+      localStorage.setItem('id_sede', id_sede || '');
       localStorage.setItem('userRole', userRole || '');
       localStorage.setItem('nombre', nombre || '');
       localStorage.setItem('apellido', apellido || '');
@@ -44,12 +47,14 @@ export default createStore({
       state.userRole = null;
       state.token = null;
       state.id = null;
+      state.id_sede = null;
       state.nombre = '';
       state.apellido = '';
       state.foto = ''
       // Limpiar localStorage
       localStorage.removeItem('token');
       localStorage.removeItem('id');
+      localStorage.removeItem('id_sede');
       localStorage.removeItem('userRole');
       localStorage.removeItem('nombre');
       localStorage.removeItem('apellido');
@@ -70,6 +75,7 @@ export default createStore({
   getters: {
     isAuthenticated: (state) => state.isAuthenticated,
     id: (state) => state.id,
+    id_sede: (state) => state.id_sede,
     userRole: (state) => state.userRole,
     token: (state) => state.token,
     nombre: (state) => state.nombre,

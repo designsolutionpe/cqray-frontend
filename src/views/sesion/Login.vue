@@ -24,6 +24,7 @@ const loginUserHandler = async () => {
       store.dispatch('login', {
         isAuthenticated: true,
         id: response.data.id,
+        id_sede: response.data.id_sede,
         userRole: response.data.rol,
         token: response.token,
         nombre: response.data.persona.nombre,

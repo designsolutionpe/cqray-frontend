@@ -12,10 +12,10 @@ import { useToast } from 'primevue/usetoast';
 import { onMounted, ref } from 'vue';
 
 const estadosCita = ref([
-    { label: 'Pendiente', value: 0 },
-    { label: 'Confirmado', value: 1 },
-    { label: 'Atendido', value: 2 },
-    { label: 'Cancelado', value: 9 },
+    { label: 'Pendiente', value: 1 },
+    { label: 'Confirmado', value: 2 },
+    { label: 'Atendido', value: 3 },
+    { label: 'Cancelado', value: 4 },
 ]);
 
 const tiposPaciente = ref([
