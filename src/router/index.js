@@ -55,7 +55,7 @@ const router = createRouter({
                 {
                     path: '/gestion/citas/todas',
                     name: 'citas-todas',
-                    component: () => import('@/views/gestion/Cita.vue'),
+                    component: () => import('@/views/gestion/citas/Todas.vue'),
                     meta: { requiresAuth: true }
                     //meta: { requiresAuth: true, roles: ['admin', 'user'] },
                 },
