@@ -6,7 +6,7 @@ import { getPacienteEstados } from '@/service/gestion/PacienteService'
 import { getSedes } from '@/service/mantenimiento/SedeService'
 import { FilterMatchMode } from '@primevue/core/api'
 import { useToast } from 'primevue'
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useStore } from 'vuex'
 
 const toast = useToast()
@@ -118,7 +118,6 @@ const cargarEstadoPaciente = async () => {
 const cargarCitas = async () => {
   try {
     const response = await getCitas()
-    console.log('citas', response)
     citasTable.value = response.map(cita => ({
       ...cita,
       fecha_cita: new Date(cita.fecha_cita),
@@ -141,7 +140,6 @@ const cargarCitas = async () => {
         horarioCompleto: `${cita.detalle_horario.hora_inicio} - ${cita.detalle_horario.hora_fin}`
       }
     }))
-    console.log('check', citasTable.value)
     isCitasLoading.value = false
   }
   catch (error) {
@@ -163,7 +161,6 @@ const formatDate = (date) => {
 }
 
 const verCita = (cita) => {
-  console.log(cita)
   citaSelected.value = {
     estado: cita.estado.id,
     paciente: {
@@ -261,7 +258,6 @@ const yesNoDialog = ref()
 
 const onShowDialog = (id) => {
   citaSelected.value = { id }
-  console.log(citaSelected.value)
   yesNoDialog.value.showDialog()
 }
 
@@ -288,16 +284,15 @@ const deleteCitaFn = async () => {
   }
 }
 
-watch([citaSelected], () => {
-  console.log('cita selected', citaSelected.value)
-})
+// watch([citaSelected], () => {
+//   console.log('cita selected', citaSelected.value)
+// })
 
 onMounted(() => {
   cargarSedes()
   cargarEstadoCita()
   cargarEstadoPaciente()
   cargarCitas()
-  console.log('id sede', id_sede.value)
 })
 
 </script>

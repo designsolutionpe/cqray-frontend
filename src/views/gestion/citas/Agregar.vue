@@ -75,7 +75,6 @@ const cargarPacientes = async () => {
   isPacientesLoading.value = true
   try {
     const response = await getPacientes()
-    console.log('pacientes', response)
     aPacientesSelect.value = response.map(d => ({
       label: `${d.persona.nombre} ${d.persona.apellido}`,
       value: d.id
@@ -104,7 +103,6 @@ const cargarQuiropracticos = async () => {
       fecha_cita: new Date().toISOString().split('T')[0]
     }
     await cargarHorarios()
-    console.log('quiropracticos', response)
 
   }
   catch (error) {
@@ -120,7 +118,6 @@ const cargarHorarios = async () => {
       oNuevaCita.value.id_quiropractico,
       new Date(oNuevaCita.value.fecha_cita).getDay()
     )
-    console.log('horarios', response)
     aHorariosSelect.value = response.map(d => ({
       label: `${d.hora_inicio} - ${d.hora_fin}`,
       value: d.id
@@ -137,7 +134,6 @@ const cargarEstadosCita = async () => {
   isEstadosCitaLoading.value = true
   try {
     const response = await getCitaEstados()
-    console.log('estados-cita', response)
     aEstadosCitaSelect.value = response.map(d => ({
       label: d.nombre,
       value: d.id
@@ -154,7 +150,6 @@ const cargarEstadosPaciente = async () => {
   isEstadosPacienteLoading.value = true
   try {
     const response = await getPacienteEstados()
-    console.log('estados-paciente', response)
     aEstadosPacienteSelect.value = response.map(d => ({
       label: d.nombre,
       value: d.id
@@ -171,7 +166,6 @@ const cargarSedes = async () => {
   isSedeLoading.value = true
   try {
     const response = await getSedes()
-    console.log('sedes', response)
     aSedesSelect.value = response.map(d => ({
       label: d.nombre,
       value: d.id
@@ -188,7 +182,6 @@ const enviarServidor = async () => {
   isPageLoading.value = true
   try {
     const response = await createCita(oNuevaCita.value)
-    console.log('Nueva cita', response)
     resetAllInputs()
     isPageLoading.value = false
     toast.add({
@@ -202,6 +195,14 @@ const enviarServidor = async () => {
   }
 }
 
+const enableSubmit = () => {
+  const ret = isPacientesLoading.value ||
+    isQuiropracticosLoading.value ||
+    isHorarioLoading.value ||
+    isEstadosCitaLoading.value ||
+    isEstadosPacienteLoading.value
+  return ret
+}
 // Vue Functions
 watch(
   [
@@ -213,20 +214,20 @@ watch(
   ],
   () => {
     if (
-      isPacientesLoading &&
-      isQuiropracticosLoading &&
-      isHorarioLoading &&
-      isEstadosCitaLoading &&
-      isEstadosPacienteLoading
+      !isPacientesLoading.value &&
+      !isQuiropracticosLoading.value &&
+      !isHorarioLoading.value &&
+      !isEstadosCitaLoading.value &&
+      !isEstadosPacienteLoading.value
     ) {
       isPageLoading.value = false
     }
   }
 )
 
-watch([oNuevaCita], () => {
-  console.log('checking post', oNuevaCita.value)
-})
+// watch([oNuevaCita], () => {
+//   console.log('checking post', oNuevaCita.value)
+// })
 
 watch([
   oPacienteSelected,
@@ -272,14 +273,14 @@ onMounted(() => {
       <div class="col-span-12" v-if="isSuperAdmin">
         <label for="sede" class="block font-bold mb-3">Sede</label>
         <Select id="sede" class="col-span-4 sm:col-span-3 w-full" v-model:model-value="nSedeSelected"
-          :options="aSedesSelect" option-label="label" option-value="value">
+          :options="aSedesSelect" option-label="label" option-value="value" :disabled="isSedeLoading">
         </Select>
       </div>
       <div class="col-span-12">
         <label for="paciente" class="block font-bold mb-3">Paciente</label>
         <div class="grid grid-cols-4 gap-4">
           <Select id="paciente" class="col-span-4 sm:col-span-3" v-model:model-value="oPacienteSelected"
-            :options="aPacientesSelect" option-label="label" option-value="value">
+            :options="aPacientesSelect" option-label="label" option-value="value" :disabled="isPacientesLoading">
           </Select>
           <Button disabled label="Agregar paciente" icon="pi pi-plus" variant='text'
             class="col-span-4 sm:col-span-1"></Button>
@@ -302,7 +303,8 @@ onMounted(() => {
       <div class="col-span-12">
         <label for="quiropractico" class="block font-bold mb-3">Quiropractico</label>
         <Select id="quiropractico" class="w-full" v-model:model-value="nQuiropracticoSelected"
-          :options="aQuiropracticosSelect" option-label="label" option-value="value">
+          :options="aQuiropracticosSelect" option-label="label" option-value="value"
+          :disabled="isQuiropracticosLoading">
         </Select>
       </div>
       <div class="col-span-12 grid grid-cols-4 gap-4">
@@ -325,16 +327,18 @@ onMounted(() => {
         <div class="col-span-4 md:col-span-2">
           <label for="estado_cita" class="block font-bold mb-3">Estado cita</label>
           <Select id="estado_cita" class="w-full" v-model:model-value="nEstadoCitaSelected"
-            :options="aEstadosCitaSelect" option-label="label" option-value="value"></Select>
+            :options="aEstadosCitaSelect" option-label="label" option-value="value"
+            :disabled="isEstadosCitaLoading"></Select>
         </div>
         <div class="col-span-4 md:col-span-2">
           <label for="estado_paciente" class="block font-bold mb-3">Estado paciente</label>
           <Select id="estado_paciente" class="w-full" v-model:model-value="nEstadoPacienteSelected"
-            :options="aEstadosPacienteSelect" option-label="label" option-value="value"></Select>
+            :options="aEstadosPacienteSelect" option-label="label" option-value="value"
+            :disabled="isEstadosPacienteLoading"></Select>
         </div>
       </div>
     </div>
     <Button label="Agregar" icon="pi pi-check" class="w-full md:w-auto mt-6" @click="enviarServidor"
-      :disabled="isPageLoading"></Button>
+      :disabled="enableSubmit()"></Button>
   </div>
 </template>
