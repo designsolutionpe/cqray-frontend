@@ -4,6 +4,8 @@ import { createPago } from '@/service/mantenimiento/PagoService';
 import { updatePago } from '@/service/mantenimiento/PagoService';
 import { deletePago } from '@/service/mantenimiento/PagoService';
 import { getSedes } from '@/service/mantenimiento/SedeService';
+import { getConfiguracion } from '@/service/mantenimiento/ConfiguracionService';
+import { updateConfiguracion } from '@/service/mantenimiento/ConfiguracionService';
 import { FilterMatchMode } from '@primevue/core/api';
 import { useToast } from 'primevue/usetoast';
 import { onMounted, ref } from 'vue';
@@ -37,6 +39,23 @@ const cargarSedes = async () => {
         }));
     } catch (error) {
         console.error('Error al obtener las sedes:', error);
+    }
+};
+
+const selectedFile = ref(null);
+const previewSrc = ref(null);
+const configuracion = ref({});
+const cargarConfiguracion = async () => {
+    try {
+        const response = await getConfiguracion();
+        configuracion.value = response[0];
+        if (configuracion.value.imagen1) {
+            previewSrc.value = `${import.meta.env.VITE_BASE_URL}/storage/${configuracion.value.imagen1}`;
+        } else {
+            previewSrc.value = null;
+        }
+    } catch (error) {
+        console.error('Error al obtener la configuración:', error);
     }
 };
 
@@ -116,9 +135,6 @@ async function savePago() {
     }
 }
 
-const selectedFile = ref(null);
-const previewSrc = ref(null);
-
 function onFileSelect(event) {
     const file = event.files[0];
 
@@ -135,9 +151,23 @@ function onFileSelect(event) {
 }
 
 function removeImage() {
-    //paciente.value.persona.foto = null;
+    configuracion.value.imagen1 = null;
     selectedFile.value = null;
     previewSrc.value = null;
+}
+
+async function saveConfiguracion(){
+    const formData = new FormData();
+    formData.append('imagen1', selectedFile.value);
+    formData.append('id', configuracion.value.id);
+    try {
+        await updateConfiguracion(configuracion.value.id,formData);
+        toast.add({ severity: 'success', summary: 'Éxito', detail: 'Imagen guardada correctamente', life: 3000 });
+        cargarConfiguracion();
+    } catch (error) {
+        console.error('Error al guardar imagen:', error);
+        toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudo guardar imagen', life: 3000 });
+    }
 }
 
 function openWhatsApp() {
@@ -149,6 +179,7 @@ const { isDarkTheme } = useLayout();
 onMounted(() => {
     cargarSedes();
     cargarPagos();
+    cargarConfiguracion();
 });
 
 </script>
@@ -158,7 +189,7 @@ onMounted(() => {
         <div class="grid grid-cols-12 gap-3">
 
 
-        <div class="card col-span-10">
+        <div class="card col-span-9">
             <Toolbar class="mb-6">
                 <template #start>
                     <Button label="Nuevo Método" icon="pi pi-plus" severity="secondary" class="mr-2" @click="openNew" />
@@ -210,19 +241,21 @@ onMounted(() => {
             </DataTable>
         </div>
 
-        <div class="card col-span-2">
+        <div class="card col-span-3 text-center">
             <h5 class="m-0">Configuración de documentos</h5>
             <br />
             <h6 class="m-0">Logotipo para documentos</h6>
+            <br />
             <div>
                 <label for="foto" class="block font-semi-bold mb-3">Tamaño recomendado 200 x 100</label>
-                <div class="flex items-center gap-4">
+                <div class="flex flex-col items-center gap-4">
                     <FileUpload mode="basic" name="foto" accept="image/*" chooseLabel="Subir imagen" 
                     :maxFileSize="1000000" @select="onFileSelect" customUpload auto class="p-button-outlined"/>
-                    <div v-if="previewSrc" class="relative flex items-center">
+                    <div v-if="previewSrc" class="relative flex items-center mt-4">
                         <img :src="previewSrc" alt="Foto seleccionada" class="w-32 h-32 rounded-lg shadow" />
                         <Button icon="pi pi-trash" class="ml-2 p-2 rounded-full" severity="danger" @click="removeImage" />
                     </div>
+                    <Button label="Guardar" icon="pi pi-check" @click="saveConfiguracion" />
                 </div>
             </div>
         </div>
