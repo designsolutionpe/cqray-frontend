@@ -1,10 +1,12 @@
 <script setup>
 import Preloader from '@/components/Preloader.vue';
+import YesNoDialog from '@/components/YesNoDialog.vue';
 import { createCita, getCitaEstados } from '@/service/gestion/CitaService';
 import { getPacienteEstados, getPacientes } from '@/service/gestion/PacienteService';
 import { getQuiropracticos } from '@/service/gestion/QuiropracticoService';
 import { getHorariosDisponibles } from '@/service/mantenimiento/HorarioService';
 import { getSedes } from '@/service/mantenimiento/SedeService';
+import { formatDate } from '@/utils/Util';
 import { useToast } from 'primevue';
 import { computed, onMounted, ref, watch } from 'vue';
 import { useStore } from 'vuex';
@@ -25,6 +27,19 @@ const toast = useToast()
 const store = useStore()
 const id_sede = computed(() => store.getters.id_sede)
 const isSuperAdmin = computed(() => (id_sede.value == null))
+const sendWhatsappDialog = ref()
+
+const oInvalidObj = ref({
+  paciente: false,
+  quiropractico: false,
+  numero: false,
+  fecha: false,
+  horario: false,
+  estado_cita: false,
+  estado_paciente: false,
+  observaciones: false,
+  sede: false
+})
 
 // Select Input Data
 const aPacientesSelect = ref()
@@ -42,9 +57,12 @@ const nEstadoCitaSelected = ref()
 const nEstadoPacienteSelected = ref()
 const nSedeSelected = ref()
 const oFechaSelected = ref(new Date())
-const sObservaciones = ref()
+const sObservaciones = ref('')
+const sNumeroPaciente = ref('')
+const bLinkWhatsapp = ref(false)
 
 const resetAllInputs = () => {
+  isPageLoading.value = true
   cargarPacientes()
   cargarQuiropracticos()
   cargarEstadosCita()
@@ -59,6 +77,7 @@ const isEstadosCitaLoading = ref(true)
 const isEstadosPacienteLoading = ref(true)
 const isSedeLoading = ref(true)
 const isPageLoading = ref(true)
+const isAbleToCreate = ref(false)
 
 // Retrieve Server Data
 
@@ -80,6 +99,7 @@ const cargarPacientes = async () => {
       value: d.id
     }))
     oPacienteSelected.value = response[0].id
+    sNumeroPaciente.value = response[0].persona.telefono
     isPacientesLoading.value = false
   }
   catch (error) {
@@ -170,7 +190,7 @@ const cargarSedes = async () => {
       label: d.nombre,
       value: d.id
     }))
-    nSedeSelected.value = response[0].id
+    nSedeSelected.value = aSedesSelect.value.find(s => s.value === parseInt(id_sede.value)) || null
     isSedeLoading.value = false
   }
   catch (error) {
@@ -183,6 +203,8 @@ const enviarServidor = async () => {
   try {
     const response = await createCita(oNuevaCita.value)
     resetAllInputs()
+    if (bLinkWhatsapp.value)
+      sendWhatsappDialog.value.showDialog()
     isPageLoading.value = false
     toast.add({
       severity: 'success',
@@ -195,12 +217,38 @@ const enviarServidor = async () => {
   }
 }
 
+const sendWhatsappMessage = () => {
+  const telefono = sNumeroPaciente.value.replace(/\D/g, ''); // Eliminar caracteres no numéricos
+
+  // Podríamos tomar datos como la fecha y hora de la cita, y el nombre completo del paciente
+  const paciente = aPacientesSelect.value.find(p => p.value === oPacienteSelected.value)
+  const nomPaciente = paciente.label || 'Estimado/a';
+  const fecha = oFechaSelected.value ? formatDate(oFechaSelected.value) : 'de la fecha programada';
+
+  const horarioSelecciodo = aHorariosSelect.value.find((h) => h.value === nHorarioSelected.value);
+  const hora = horarioSelecciodo ? horarioSelecciodo.label : 'seleccionado';
+
+  const sedeSeleccionada = aSedesSelect.value.find(s => s.value === nSedeSelected.value.value);
+  const nomSede = sedeSeleccionada ? sedeSeleccionada.label : 'consultada';
+
+  const mensaje =
+    `¡Hola, ${nomPaciente}!\n\n` +
+    `Nos complace informarte que tu cita ha sido programada con éxito en la **${nomSede}**.\n\n` +
+    `Te esperamos el día **${fecha}** en el turno horario **${hora}** para brindarte la mejor atención quiropráctica.\n\n` +
+    `Si tienes alguna duda o necesitas reprogramar tu cita, ¡no dudes en avisarnos!`;
+
+  // Generar el enlace de WhatsApp
+  const enlace = `https://api.whatsapp.com/send?phone=${telefono}&text=${encodeURIComponent(mensaje)}`;
+  window.open(enlace, '_blank');
+}
+
 const enableSubmit = () => {
   const ret = isPacientesLoading.value ||
     isQuiropracticosLoading.value ||
     isHorarioLoading.value ||
     isEstadosCitaLoading.value ||
-    isEstadosPacienteLoading.value
+    isEstadosPacienteLoading.value ||
+    isSedeLoading.value
   return ret
 }
 // Vue Functions
@@ -210,7 +258,8 @@ watch(
     isQuiropracticosLoading,
     isHorarioLoading,
     isEstadosCitaLoading,
-    isEstadosPacienteLoading
+    isEstadosPacienteLoading,
+    isSedeLoading
   ],
   () => {
     if (
@@ -218,7 +267,8 @@ watch(
       !isQuiropracticosLoading.value &&
       !isHorarioLoading.value &&
       !isEstadosCitaLoading.value &&
-      !isEstadosPacienteLoading.value
+      !isEstadosPacienteLoading.value &&
+      !isSedeLoading.value
     ) {
       isPageLoading.value = false
     }
@@ -247,7 +297,7 @@ watch([
     estado: nEstadoCitaSelected.value,
     tipo_paciente: nEstadoPacienteSelected.value,
     observaciones: sObservaciones.value,
-    id_sede: nSedeSelected.value ? nSedeSelected.value : id_sede.value
+    id_sede: nSedeSelected.value ? nSedeSelected.value.value : id_sede.value
   }
 })
 
@@ -260,8 +310,7 @@ onMounted(() => {
   cargarQuiropracticos()
   cargarEstadosCita()
   cargarEstadosPaciente()
-  if (isSuperAdmin.value)
-    cargarSedes()
+  cargarSedes()
 })
 
 </script>
@@ -273,14 +322,16 @@ onMounted(() => {
       <div class="col-span-12" v-if="isSuperAdmin">
         <label for="sede" class="block font-bold mb-3">Sede</label>
         <Select id="sede" class="col-span-4 sm:col-span-3 w-full" v-model:model-value="nSedeSelected"
-          :options="aSedesSelect" option-label="label" option-value="value" :disabled="isSedeLoading">
+          :options="aSedesSelect" option-label="label" option-value="value" :disabled="isSedeLoading"
+          :invalid="oInvalidObj['sede']">
         </Select>
       </div>
       <div class="col-span-12">
         <label for="paciente" class="block font-bold mb-3">Paciente</label>
         <div class="grid grid-cols-4 gap-4">
           <Select id="paciente" class="col-span-4 sm:col-span-3" v-model:model-value="oPacienteSelected"
-            :options="aPacientesSelect" option-label="label" option-value="value" :disabled="isPacientesLoading">
+            :options="aPacientesSelect" option-label="label" option-value="value" :disabled="isPacientesLoading"
+            :invalid="oInvalidObj['paciente']">
           </Select>
           <Button disabled label="Agregar paciente" icon="pi pi-plus" variant='text'
             class="col-span-4 sm:col-span-1"></Button>
@@ -293,9 +344,14 @@ onMounted(() => {
       <div class="col-span-12">
         <label for="number" class="block font-bold mb-3">Numero</label>
         <div class="grid grid-cols-4 gap-4 items-center">
-          <InputText disabled id="number" class="col-span-4 md:col-span-3"></InputText>
+          <!-- <InputText id="number" class="col-span-4 md:col-span-3" v-model:model-value="sNumeroPaciente"
+            :invalid="oInvalidObj['numero']"></InputText> -->
+          <InputMask id="number" class="col-span-4 md:col-span-3" v-model:model-value="sNumeroPaciente"
+            placeholder="999 999 999" mask="999 999 999" :invalid="oInvalidObj['numero']">
+          </InputMask>
           <div class="col-span-4 md:col-span-1">
-            <Checkbox disabled binary input-id="linkwsp" class="mr-3"></Checkbox>
+            <Checkbox binary input-id="linkwsp" class="mr-3" v-model:model-value="bLinkWhatsapp"
+              :disabled="sNumeroPaciente.length == 0"></Checkbox>
             <label for="linkwsp">Link WhatsApp</label>
           </div>
         </div>
@@ -303,42 +359,47 @@ onMounted(() => {
       <div class="col-span-12">
         <label for="quiropractico" class="block font-bold mb-3">Quiropractico</label>
         <Select id="quiropractico" class="w-full" v-model:model-value="nQuiropracticoSelected"
-          :options="aQuiropracticosSelect" option-label="label" option-value="value"
-          :disabled="isQuiropracticosLoading">
+          :options="aQuiropracticosSelect" option-label="label" option-value="value" :disabled="isQuiropracticosLoading"
+          :invalid="oInvalidObj['quiropractico']">
         </Select>
       </div>
       <div class="col-span-12 grid grid-cols-4 gap-4">
         <div class="col-span-4 md:col-span-2">
           <label for="fecha" class="block font-bold mb-3">Fecha</label>
-          <DatePicker id="fecha" class="col-span-3 w-full" v-model:model-value="oFechaSelected" date-format="yy/mm/dd">
+          <DatePicker id="fecha" class="col-span-3 w-full" v-model:model-value="oFechaSelected" date-format="yy/mm/dd"
+            :invalid="oInvalidObj['fecha']">
           </DatePicker>
         </div>
         <div class="col-span-4 md:col-span-2">
           <label for="horario" class="block font-bold mb-3">Horario</label>
           <Select id="horario" class="col-span-3 w-full" v-model:model-value="nHorarioSelected"
-            :options="aHorariosSelect" option-label="label" option-value="value" :disabled="isHorarioLoading"></Select>
+            :options="aHorariosSelect" option-label="label" option-value="value" :disabled="isHorarioLoading"
+            :invalid="oInvalidObj['horario']"></Select>
         </div>
       </div>
       <div class="col-span-12">
         <label for="observaciones" class="block font-bold mb-3">Observaciones</label>
-        <Textarea id="observaciones" class="w-full" v-model:model-value="sObservaciones"></Textarea>
+        <Textarea id="observaciones" class="w-full" v-model:model-value="sObservaciones"
+          :invalid="oInvalidObj['observaciones']"></Textarea>
       </div>
       <div class="col-span-12 grid grid-cols-4 gap-4">
         <div class="col-span-4 md:col-span-2">
           <label for="estado_cita" class="block font-bold mb-3">Estado cita</label>
           <Select id="estado_cita" class="w-full" v-model:model-value="nEstadoCitaSelected"
-            :options="aEstadosCitaSelect" option-label="label" option-value="value"
-            :disabled="isEstadosCitaLoading"></Select>
+            :options="aEstadosCitaSelect" option-label="label" option-value="value" :disabled="isEstadosCitaLoading"
+            :invalid="oInvalidObj['estado_cita']"></Select>
         </div>
         <div class="col-span-4 md:col-span-2">
           <label for="estado_paciente" class="block font-bold mb-3">Estado paciente</label>
           <Select id="estado_paciente" class="w-full" v-model:model-value="nEstadoPacienteSelected"
             :options="aEstadosPacienteSelect" option-label="label" option-value="value"
-            :disabled="isEstadosPacienteLoading"></Select>
+            :disabled="isEstadosPacienteLoading" :invalid="oInvalidObj['estado_paciente']"></Select>
         </div>
       </div>
     </div>
     <Button label="Agregar" icon="pi pi-check" class="w-full md:w-auto mt-6" @click="enviarServidor"
       :disabled="enableSubmit()"></Button>
+    <YesNoDialog ref="sendWhatsappDialog" v-on:affirmation="sendWhatsappMessage"
+      title="¿Desea notificar al paciente via Whatsapp?"></YesNoDialog>
   </div>
 </template>

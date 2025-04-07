@@ -3,6 +3,7 @@ import Preloader from '@/components/Preloader.vue'
 import YesNoDialog from '@/components/YesNoDialog.vue'
 import { deleteCita, getCitaEstados, getCitas, updateCita } from '@/service/gestion/CitaService'
 import { getPacienteEstados } from '@/service/gestion/PacienteService'
+import { getHorariosDisponibles } from '@/service/mantenimiento/HorarioService'
 import { getSedes } from '@/service/mantenimiento/SedeService'
 import { FilterMatchMode } from '@primevue/core/api'
 import { useToast } from 'primevue'
@@ -17,6 +18,8 @@ const isEstadoCitaLoading = ref(true)
 const isEstadoPacienteLoading = ref(true)
 const isCitasLoading = ref(true)
 const isCitaUpdateLoading = ref(false)
+const isLinkWhatsappActive = ref(false)
+
 const id_sede = computed(() => store.getters.id_sede)
 
 const citasTable = ref([])
@@ -28,6 +31,9 @@ const estadoCitaSelect = ref([
   { label: '---', value: null }
 ])
 const estadoPacienteSelect = ref([
+  { label: '---', value: null }
+])
+const horariosSelect = ref([
   { label: '---', value: null }
 ])
 
@@ -56,6 +62,9 @@ const citaSelected = ref({})
 const bCitaView = ref(false)
 const bCitaEdit = ref(false)
 const bCitaDelete = ref(false)
+
+const deleteDialog = ref()
+const sendWhatsappDialog = ref()
 
 const cargarSedes = async () => {
   try {
@@ -116,6 +125,7 @@ const cargarEstadoPaciente = async () => {
 }
 
 const cargarCitas = async () => {
+  isCitasLoading.value = true
   try {
     const response = await getCitas()
     citasTable.value = response.map(cita => ({
@@ -160,34 +170,7 @@ const formatDate = (date) => {
   });
 }
 
-const verCita = (cita) => {
-  citaSelected.value = {
-    estado: cita.estado.id,
-    paciente: {
-      id: cita.paciente.id,
-      estado: cita.tipo_paciente.id,
-      nombreCompleto: cita.paciente.persona.nombreCompleto,
-    },
-    quiropractico: {
-      id: cita.quiropractico.id,
-      nombreCompleto: cita.quiropractico.persona.nombreCompleto
-    },
-    fecha_cita: cita.fecha_cita,
-    horario: {
-      id: cita.detalle_horario.id,
-      inicio: cita.detalle_horario.hora_inicio,
-      fin: cita.detalle_horario.hora_fin,
-    },
-    observaciones: cita.observaciones
-  }
-  bCitaView.value = true
-}
-
-const editCita = async (cita) => {
-
-  // Cargar detalles horarios
-  bCitaView.value = true
-  bCitaEdit.value = true
+const updateCitaSelectedInfo = (cita) => {
   citaSelected.value = {
     id: cita.id,
     id_sede: cita.id_sede,
@@ -196,19 +179,55 @@ const editCita = async (cita) => {
       id: cita.paciente.id,
       estado: cita.tipo_paciente.id,
       nombreCompleto: cita.paciente.persona.nombreCompleto,
+      numero: cita.paciente.persona.telefono,
     },
     quiropractico: {
       id: cita.quiropractico.id,
       nombreCompleto: cita.quiropractico.persona.nombreCompleto
     },
     fecha_cita: cita.fecha_cita,
-    horario: {
-      id: cita.detalle_horario.id,
-      inicio: cita.detalle_horario.hora_inicio,
-      fin: cita.detalle_horario.hora_fin,
-    },
+    horario: cita.detalle_horario.id,
     observaciones: cita.observaciones
   }
+}
+
+const verCita = (cita) => {
+  updateCitaSelectedInfo(cita)
+  bCitaView.value = true
+}
+
+const editCita = async (cita) => {
+
+  // Cargar detalles horarios
+
+  try {
+    isCitaUpdateLoading.value = true
+    updateCitaSelectedInfo(cita)
+    bCitaView.value = true
+    const response = await getHorariosDisponibles(
+      cita.fecha_cita,
+      cita.quiropractico.id,
+      new Date(cita.fecha_cita).getDay(),
+      cita.detalle_horario.id
+    )
+    isCitaUpdateLoading.value = false
+    horariosSelect.value = response.map(e => ({
+      label: `${e.hora_inicio} - ${e.hora_fin}`,
+      value: e.id
+    }))
+    console.log('horarios', horariosSelect.value, citaSelected.value.horario)
+
+    bCitaEdit.value = true
+  }
+  catch (error) {
+    toast.add({
+      severity: 'error',
+      summary: 'Error de carga',
+      detail: 'Hubo un error obteniendo los horarios disponibles',
+      life: 3000
+    })
+  }
+
 
 }
 
@@ -225,7 +244,7 @@ const saveCita = async () => {
     const post = {
       id_paciente: citaSelected.value.paciente.id,
       id_quiropractico: citaSelected.value.quiropractico.id,
-      id_detalle_horario: citaSelected.value.horario.id,
+      id_detalle_horario: citaSelected.value.horario,
       id_sede: citaSelected.value.id_sede,
       fecha_cita: citaSelected.value.fecha_cita.toISOString().split('T')[0],
       estado: citaSelected.value.estado,
@@ -241,6 +260,8 @@ const saveCita = async () => {
       summary: 'La cita ha sido actualizada con exito',
       life: 5000
     })
+    if (isLinkWhatsappActive.value)
+      sendWhatsappDialog.value.showDialog()
   }
   catch (error) {
     isCitaUpdateLoading.value = false
@@ -254,11 +275,14 @@ const saveCita = async () => {
   }
 }
 
-const yesNoDialog = ref()
 
 const onShowDialog = (id) => {
   citaSelected.value = { id }
-  yesNoDialog.value.showDialog()
+  deleteDialog.value.showDialog()
+}
+
+const sendWhatsappMessage = () => {
+  alert('ENVIANDO MENSAJE')
 }
 
 const deleteCitaFn = async () => {
@@ -386,15 +410,11 @@ onMounted(() => {
       </Column>
     </DataTable>
   </div>
-  <Dialog v-model:visible="bCitaView" header="Informacion de cita" :modal="true" :draggable="false"
-    :closable="!bCitaEdit" class="w-4/5 lg:w-2/4 relative overflow-hidden">
+  <Dialog v-model:visible="bCitaView" :show-header="false" :modal="true" :draggable="false" :closable="!bCitaEdit"
+    class="w-4/5 lg:w-2/3 relative overflow-hidden">
     <Preloader v-if="isCitaUpdateLoading"></Preloader>
-    <div class="flex flex-col gap-6">
-      <div>
-        <label for="estado_cita" class="block mb-3">Estado de cita</label>
-        <Select id="estado_cita" fluid :disabled="!bCitaEdit" :options="estadoCitaSelect"
-          v-model:model-value="citaSelected.estado" option-label="label" option-value="value"></Select>
-      </div>
+    <div class="flex flex-col gap-6 pt-5">
+      <p class="text-2xl font-bold m-0">Informacion de paciente</p>
       <div>
         <label for="nombre_paciente" class="block font-bold mb-3">Nombre de paciente</label>
         <InputText id="nombre_paciente" v-model="citaSelected.paciente.nombreCompleto" fluid disabled>
@@ -406,28 +426,40 @@ onMounted(() => {
           v-model:model-value="citaSelected.paciente.estado" option-label="label" option-value="value"></Select>
       </div>
       <div>
+        <label for="numero_paciente" class="block font-bold mb-3">Numero</label>
+        <div class="grid grid-cols-4 gap-4 items-center">
+          <InputText disabled id="numero_paciente" class="col-span-4 md:col-span-3"
+            :class="{ 'md:col-span-4': !bCitaEdit }" v-model:model-value="citaSelected.paciente.numero"></InputText>
+          <div v-if="bCitaEdit" class="col-span-4 md:col-span-1">
+            <Checkbox binary input-id="linkwsp" class="mr-3" v-model:model-value="isLinkWhatsappActive">
+            </Checkbox>
+            <label for="linkwsp">Notificar WhatsApp</label>
+          </div>
+        </div>
+      </div>
+      <hr class="m-0">
+      <p class="text-2xl font-bold m-0">Informacion de cita</p>
+      <div>
+        <label for="estado_cita" class="block font-bold mb-3">Estado de cita</label>
+        <Select id="estado_cita" fluid :disabled="!bCitaEdit" :options="estadoCitaSelect"
+          v-model:model-value="citaSelected.estado" option-label="label" option-value="value"></Select>
+      </div>
+      <div>
         <label for="nombre_quiropractico" class="block font-bold mb-3">Atendido por quiropractico</label>
         <InputText id="nombre_quiropractico" v-model="citaSelected.quiropractico.nombreCompleto" fluid disabled>
         </InputText>
       </div>
-      <div>
-        <label for="fecha_cita" class="block font-bold mb-3">Fecha</label>
-        <DatePicker id="fecha_cita" fluid disabled v-model:model-value="citaSelected.fecha_cita">
-        </DatePicker>
-      </div>
 
       <div class="grid grid-cols-2 gap-5">
         <div class="col-span-2 md:col-span-1">
-          <label for="horario_inicio" class="block font-bold mb-3">Horario inicio</label>
-          <InputText id="horario_inicio" v-model:model-value="citaSelected.horario.inicio" fluid disabled></InputText>
-          <!-- <Select id="horario_inicio" fluid disabled v-model:model-value="citaSelected.horario.inicio"
-            :options="horarios.inicio" option-label="hora_inicio" option-value="id"></Select> -->
+          <label for="fecha_cita" class="block font-bold mb-3">Fecha</label>
+          <DatePicker id="fecha_cita" fluid :disabled="!bCitaEdit" v-model:model-value="citaSelected.fecha_cita">
+          </DatePicker>
         </div>
         <div class="col-span-2 md:col-span-1">
-          <label for="horario_fin" class="block font-bold mb-3">Horario fin</label>
-          <InputText id="horario_inicio" v-model:model-value="citaSelected.horario.fin" fluid disabled></InputText>
-          <!-- <Select id="horario_fin" fluid disabled v-model:model-value="citaSelected.horario.fin" :options="horarios.fin"
-            option-label="hora_fin" option-value="id"></Select> -->
+          <label for="horario" class="block font-bold mb-3">Horario</label>
+          <Select id="horario" :disabled="!bCitaEdit" fluid v-model:model-value="citaSelected.horario"
+            :options="horariosSelect" option-label="label" option-value="value"></Select>
         </div>
       </div>
 
@@ -437,12 +469,18 @@ onMounted(() => {
       </Textarea>
       </div>
 
+
       <div v-if="bCitaEdit" class="grid grid-cols-2 gap-5">
         <Button class="col-span-2 md:col-span-1" label="Cancelar" icon="pi pi-times" outlined
           @click="cancelEditCita()"></Button>
         <Button class="col-span-2 md:col-span-1" label="Guardar" icon="pi pi-check" @click="saveCita()"></Button>
       </div>
+      <div v-else>
+        <Button fluid @click="bCitaView = false" label="Cerrar" outlined></Button>
+      </div>
     </div>
   </Dialog>
-  <YesNoDialog ref="yesNoDialog" title="¿Deseas eliminar esta cita?" v-on:affirmation="deleteCitaFn"></YesNoDialog>
+  <YesNoDialog ref="sendWhatsappDialog" title="¿Desea notificar al paciente via Whatsapp?"
+    v-on:affirmation="sendWhatsappMessage"></YesNoDialog>
+  <YesNoDialog ref="deleteDialog" title="¿Deseas eliminar esta cita?" v-on:affirmation="deleteCitaFn"></YesNoDialog>
 </template>
