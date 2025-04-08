@@ -17,6 +17,7 @@ const oNuevaCita = ref({
   id_quiropractico: null,
   id_detalle_horario: null,
   id_sede: null,
+  historia_clinica: null,
   fecha_cita: null,
   estado: null,
   tipo_paciente: null,
@@ -56,10 +57,14 @@ const nHorarioSelected = ref()
 const nEstadoCitaSelected = ref()
 const nEstadoPacienteSelected = ref()
 const nSedeSelected = ref()
+const sHistorialClinica = ref('')
 const oFechaSelected = ref(new Date().toISOString().split('T')[0])
 const sObservaciones = ref('')
 const sNumeroPaciente = ref('')
 const bLinkWhatsapp = ref(false)
+
+const bActiveHistorial = ref(false)
+const bActiveNumero = ref(false)
 
 const resetAllInputs = async () => {
   isPageLoading.value = true
@@ -99,7 +104,14 @@ const cargarPacientes = async () => {
       value: d.id
     }))
     oPacienteSelected.value = response[0].id
+
+    if (response[0].persona.telefono)
+      bActiveNumero.value = true
+    if (response[0].historia_clinica)
+      bActiveHistorial.value = true
+
     sNumeroPaciente.value = response[0].persona.telefono
+    sHistorialClinica.value = response[0].historia_clinica
     isPacientesLoading.value = false
   }
   catch (error) {
@@ -303,7 +315,7 @@ watch(
 watch([
   oPacienteSelected,
   nQuiropracticoSelected,
-  nHorarioSelected,
+  sHistorialClinica,
   oFechaSelected,
   nEstadoCitaSelected,
   nEstadoPacienteSelected,
@@ -313,7 +325,8 @@ watch([
   oNuevaCita.value = {
     id_paciente: oPacienteSelected.value,
     id_quiropractico: nQuiropracticoSelected.value,
-    id_detalle_horario: nHorarioSelected.value,
+    id_detalle_horario: 1,
+    historia_clinica: sHistorialClinica.value,
     fecha_cita: oFechaSelected.value,
     estado: nEstadoCitaSelected.value,
     tipo_paciente: nEstadoPacienteSelected.value,
@@ -354,13 +367,16 @@ onMounted(() => {
             :options="aPacientesSelect" option-label="label" option-value="value" :disabled="isPacientesLoading"
             :invalid="oInvalidObj['paciente']">
           </Select>
-          <Button disabled label="Agregar paciente" icon="pi pi-plus" variant='text'
-            class="col-span-4 sm:col-span-1"></Button>
+          <router-link to="/gestion/paciente">
+            <Button label="Agregar paciente" icon="pi pi-plus" variant='text' class="col-span-4 sm:col-span-1"></Button>
+          </router-link>
         </div>
       </div>
       <div class="col-span-12">
         <label for="historia_clinica" class="block font-bold mb-3">Historia Clinica</label>
-        <InputText disabled id="historia_clinica" class="w-full"></InputText>
+        <InputText id="historia_clinica" class="w-full" v-model:model-value="sHistorialClinica" maxlength="20"
+          :disabled="bActiveHistorial">
+        </InputText>
       </div>
       <div class="col-span-12">
         <label for="number" class="block font-bold mb-3">Numero</label>
@@ -368,7 +384,7 @@ onMounted(() => {
           <!-- <InputText id="number" class="col-span-4 md:col-span-3" v-model:model-value="sNumeroPaciente"
             :invalid="oInvalidObj['numero']"></InputText> -->
           <InputMask id="number" class="col-span-4 md:col-span-3" v-model:model-value="sNumeroPaciente"
-            placeholder="999 999 999" mask="999 999 999" :invalid="oInvalidObj['numero']">
+            placeholder="999 999 999" mask="999 999 999" :invalid="oInvalidObj['numero']" :disabled="bActiveNumero">
           </InputMask>
           <div class="col-span-4 md:col-span-1">
             <Checkbox binary input-id="linkwsp" class="mr-3" v-model:model-value="bLinkWhatsapp"
@@ -385,7 +401,7 @@ onMounted(() => {
         </Select>
       </div>
       <div class="col-span-12 grid grid-cols-4 gap-4">
-        <div class="col-span-4 md:col-span-2">
+        <div class="col-span-4">
           <label for="fecha" class="block font-bold mb-3">Fecha</label>
           <!--
           <DatePicker id="fecha" class="col-span-3 w-full" v-model:model-value="oFechaSelected" date-format="yy/mm/dd"
@@ -394,12 +410,12 @@ onMounted(() => {
           -->
           <InputText id="fecha_cita" type="date" v-model:model-value="oFechaSelected" fluid />
         </div>
-        <div class="col-span-4 md:col-span-2">
+        <!-- <div class="col-span-4 md:col-span-2">
           <label for="horario" class="block font-bold mb-3">Horario</label>
           <Select id="horario" class="col-span-3 w-full" v-model:model-value="nHorarioSelected"
             :options="aHorariosSelect" option-label="label" option-value="value" :disabled="isHorarioLoading"
             :invalid="oInvalidObj['horario']"></Select>
-        </div>
+        </div> -->
       </div>
       <div class="col-span-12">
         <label for="observaciones" class="block font-bold mb-3">Observaciones</label>

@@ -130,7 +130,7 @@ const cargarCitas = async () => {
     const response = await getCitas()
     citasTable.value = response.map(cita => ({
       ...cita,
-      fecha_cita: new Date(cita.fecha_cita),
+      fecha_cita: new Date(cita.fecha_cita + 'T00:00:00'),
       paciente: {
         ...cita.paciente,
         persona: {
@@ -451,16 +451,16 @@ onMounted(() => {
       </div>
 
       <div class="grid grid-cols-2 gap-5">
-        <div class="col-span-2 md:col-span-1">
+        <div class="col-span-2">
           <label for="fecha_cita" class="block font-bold mb-3">Fecha</label>
           <DatePicker id="fecha_cita" fluid :disabled="!bCitaEdit" v-model:model-value="citaSelected.fecha_cita">
           </DatePicker>
         </div>
-        <div class="col-span-2 md:col-span-1">
+        <!-- <div class="col-span-2 md:col-span-1">
           <label for="horario" class="block font-bold mb-3">Horario</label>
           <Select id="horario" :disabled="!bCitaEdit" fluid v-model:model-value="citaSelected.horario"
             :options="horariosSelect" option-label="label" option-value="value"></Select>
-        </div>
+        </div> -->
       </div>
 
       <div>
