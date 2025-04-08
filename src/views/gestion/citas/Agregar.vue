@@ -56,7 +56,7 @@ const nHorarioSelected = ref()
 const nEstadoCitaSelected = ref()
 const nEstadoPacienteSelected = ref()
 const nSedeSelected = ref()
-const oFechaSelected = ref(new Date())
+const oFechaSelected = ref(new Date().toISOString().split('T')[0])
 const sObservaciones = ref('')
 const sNumeroPaciente = ref('')
 const bLinkWhatsapp = ref(false)
@@ -132,20 +132,31 @@ const cargarQuiropracticos = async () => {
 
 const cargarHorarios = async () => {
   isHorarioLoading.value = true
+
   try {
+
+    const fechaSeleccionada = new Date(oNuevaCita.value.fecha_cita + 'T00:00:00');
+    let dia = fechaSeleccionada.getDay();
+    if (dia === 0){
+      dia = 6;
+    } else {
+      dia -= 1;
+    }
+
     const response = await getHorariosDisponibles(
       oNuevaCita.value.fecha_cita,
       oNuevaCita.value.id_quiropractico,
-      new Date(oNuevaCita.value.fecha_cita).getDay()
+      dia
     )
+
     aHorariosSelect.value = response.map(d => ({
       label: `${d.hora_inicio} - ${d.hora_fin}`,
       value: d.id
     }))
     if (response.length > 0)
       nHorarioSelected.value = response[0].id
-    isHorarioLoading.value = false
-  }
+      isHorarioLoading.value = false
+    }
   catch (error) {
     handleServerError(error, 'Horarios')
   }
@@ -303,7 +314,7 @@ watch([
     id_paciente: oPacienteSelected.value,
     id_quiropractico: nQuiropracticoSelected.value,
     id_detalle_horario: nHorarioSelected.value,
-    fecha_cita: oFechaSelected.value.toISOString().split('T')[0],
+    fecha_cita: oFechaSelected.value,
     estado: nEstadoCitaSelected.value,
     tipo_paciente: nEstadoPacienteSelected.value,
     observaciones: sObservaciones.value,
@@ -376,9 +387,12 @@ onMounted(() => {
       <div class="col-span-12 grid grid-cols-4 gap-4">
         <div class="col-span-4 md:col-span-2">
           <label for="fecha" class="block font-bold mb-3">Fecha</label>
+          <!--
           <DatePicker id="fecha" class="col-span-3 w-full" v-model:model-value="oFechaSelected" date-format="yy/mm/dd"
             :invalid="oInvalidObj['fecha']">
           </DatePicker>
+          -->
+          <InputText id="fecha_cita" type="date" v-model:model-value="oFechaSelected" fluid />
         </div>
         <div class="col-span-4 md:col-span-2">
           <label for="horario" class="block font-bold mb-3">Horario</label>

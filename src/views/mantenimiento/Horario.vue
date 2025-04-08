@@ -48,7 +48,7 @@ async function saveHorario() {
     }
 
     const payload = {
-        id_doctor: id_doctor.value,
+        id_quiropractico: id_doctor.value,
         horarios: horarios.value.map((h, index) => {
             return {
                 dia: index, // 0 = lunes, 6 = domingo
@@ -58,6 +58,8 @@ async function saveHorario() {
             };
         })
     };
+
+    console.log("payload", payload);
 
     try {
         await upsertHorarios(payload);
