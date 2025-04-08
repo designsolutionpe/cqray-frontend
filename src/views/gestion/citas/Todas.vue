@@ -411,7 +411,7 @@ onMounted(() => {
     </DataTable>
   </div>
   <Dialog v-model:visible="bCitaView" :show-header="false" :modal="true" :draggable="false" :closable="!bCitaEdit"
-    class="w-4/5 lg:w-2/3 relative overflow-hidden">
+    class="w-4/5 lg:w-[650px] relative overflow-hidden">
     <Preloader v-if="isCitaUpdateLoading"></Preloader>
     <div class="flex flex-col gap-6 pt-5">
       <p class="text-2xl font-bold m-0">Informacion de paciente</p>

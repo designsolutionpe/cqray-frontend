@@ -204,21 +204,23 @@ onMounted(() => {
                     </Card>
                 </router-link>
                 <!--Quiroprácticos-->
-                <Card class="mb-1">
-                    <template #content>
-                        <div class="flex items-center mb-0">
-                            <div class="col-span-4 flex items-center justify-center bg-primary-50 dark:bg-primary-400/20 rounded-border"
-                                style="width: 3.5rem; height: 3.5rem">
-                                <span
-                                    class="material-symbols-outlined text-primary dark:text-white/90 !text-5xl">medical_information</span>
+                <router-link to="/gestion/quiropracticos/todos">
+                    <Card class="mb-1">
+                        <template #content>
+                            <div class="flex items-center mb-0">
+                                <div class="col-span-4 flex items-center justify-center bg-primary-50 dark:bg-primary-400/20 rounded-border"
+                                    style="width: 3.5rem; height: 3.5rem">
+                                    <span
+                                        class="material-symbols-outlined text-primary dark:text-white/90 !text-5xl">medical_information</span>
+                                </div>
+                                <div class="col-span-8 flex justify-center flex-col pl-4">
+                                    <span class="block text-lg font-bold">Quiroprácticos</span>
+                                    <span class="block text-2xl font-bold text-primary dark:text-white/90">23</span>
+                                </div>
                             </div>
-                            <div class="col-span-8 flex justify-center flex-col pl-4">
-                                <span class="block text-lg font-bold">Quiroprácticos</span>
-                                <span class="block text-2xl font-bold text-primary dark:text-white/90">23</span>
-                            </div>
-                        </div>
-                    </template>
-                </Card>
+                        </template>
+                    </Card>
+                </router-link>
                 <!--Pacientes-->
                 <Card class="mb-1">
                     <template #content>

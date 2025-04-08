@@ -61,12 +61,12 @@ const sObservaciones = ref('')
 const sNumeroPaciente = ref('')
 const bLinkWhatsapp = ref(false)
 
-const resetAllInputs = () => {
+const resetAllInputs = async () => {
   isPageLoading.value = true
-  cargarPacientes()
-  cargarQuiropracticos()
-  cargarEstadosCita()
-  cargarEstadosPaciente()
+  await cargarPacientes()
+  await cargarQuiropracticos()
+  await cargarEstadosCita()
+  await cargarEstadosPaciente()
 }
 
 // Loading State Variables
@@ -142,7 +142,8 @@ const cargarHorarios = async () => {
       label: `${d.hora_inicio} - ${d.hora_fin}`,
       value: d.id
     }))
-    nHorarioSelected.value = response[0].id
+    if (response.length > 0)
+      nHorarioSelected.value = response[0].id
     isHorarioLoading.value = false
   }
   catch (error) {
@@ -199,10 +200,19 @@ const cargarSedes = async () => {
 }
 
 const enviarServidor = async () => {
+  oInvalidObj.value['sede'] = false
+  if (
+    id_sede.value == null &&
+    oNuevaCita.value.id_sede == null &&
+    nSedeSelected.value == null
+  ) {
+    oInvalidObj.value['sede'] = true
+    return
+  }
   isPageLoading.value = true
   try {
     const response = await createCita(oNuevaCita.value)
-    resetAllInputs()
+    await resetAllInputs()
     if (bLinkWhatsapp.value)
       sendWhatsappDialog.value.showDialog()
     isPageLoading.value = false
@@ -297,7 +307,7 @@ watch([
     estado: nEstadoCitaSelected.value,
     tipo_paciente: nEstadoPacienteSelected.value,
     observaciones: sObservaciones.value,
-    id_sede: nSedeSelected.value ? nSedeSelected.value.value : id_sede.value
+    id_sede: id_sede.value ? id_sede.value : nSedeSelected.value
   }
 })
 
