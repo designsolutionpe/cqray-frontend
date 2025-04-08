@@ -19,6 +19,7 @@ const isEstadoPacienteLoading = ref(true)
 const isCitasLoading = ref(true)
 const isCitaUpdateLoading = ref(false)
 const isLinkWhatsappActive = ref(false)
+const sLinkWhatsappActive = ref('')
 
 const id_sede = computed(() => store.getters.id_sede)
 
@@ -187,7 +188,10 @@ const updateCitaSelectedInfo = (cita) => {
     },
     fecha_cita: cita.fecha_cita,
     horario: cita.detalle_horario.id,
-    observaciones: cita.observaciones
+    observaciones: cita.observaciones,
+    sede: {
+      nombre: cita.sede.nombre
+    }
   }
 }
 
@@ -282,7 +286,28 @@ const onShowDialog = (id) => {
 }
 
 const sendWhatsappMessage = () => {
-  alert('ENVIANDO MENSAJE')
+  const telefono = citaSelected.value.paciente.numero.replace(/\D/g, ''); // Eliminar caracteres no numéricos
+
+  // Podríamos tomar datos como la fecha y hora de la cita, y el nombre completo del paciente
+  const paciente = citaSelected.value.paciente.nombreCompleto
+  const nomPaciente = paciente.label || 'Estimado/a';
+  const fecha = citaSelected.value.fecha_cita ? formatDate(citaSelected.value.fecha_cita) : 'de la fecha programada';
+
+  const horarioSelecciodo = citaSelected.value.horario;
+  const hora = horarioSelecciodo ? horarioSelecciodo.label : 'seleccionado';
+
+  const sedeSeleccionada = citaSelected.value.sede.nombre;
+  const nomSede = sedeSeleccionada ? sedeSeleccionada : 'consultada';
+
+  const mensaje =
+    `¡Hola, ${nomPaciente}!\n\n` +
+    `Nos complace informarte que tu cita ha sido programada con éxito en la **${nomSede}**.\n\n` +
+    `Te esperamos el día **${fecha}** para brindarte la mejor atención quiropráctica.\n\n` +
+    `Si tienes alguna duda o necesitas reprogramar tu cita, ¡no dudes en avisarnos!`;
+
+  // Generar el enlace de WhatsApp
+  const enlace = `https://api.whatsapp.com/send?phone=${telefono}&text=${encodeURIComponent(mensaje)}`;
+  window.open(enlace, '_blank');
 }
 
 const deleteCitaFn = async () => {
@@ -439,6 +464,9 @@ onMounted(() => {
       </div>
       <hr class="m-0">
       <p class="text-2xl font-bold m-0">Informacion de cita</p>
+      <div>
+        <Button icon="pi pi-eye" severity="info" outlined label="Ir a whatsapp" @click="sendWhatsappMessage"></Button>
+      </div>
       <div>
         <label for="estado_cita" class="block font-bold mb-3">Estado de cita</label>
         <Select id="estado_cita" fluid :disabled="!bCitaEdit" :options="estadoCitaSelect"
