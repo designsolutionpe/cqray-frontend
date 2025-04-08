@@ -108,7 +108,24 @@ const router = createRouter({
                     meta: { requiresAuth: true, roles: ['Superadministrador', 'Administrador'] }
                     //meta: { requiresAuth: true, roles: ['admin', 'user'] },
                 },
-
+                {
+                    path: '/gestion/ventas/boleta',
+                    name: 'boleta',
+                    component: () => import('@/views/gestion/ventas/Boleta.vue'),
+                    meta: { requiresAuth: true, roles: ['Superadministrador', 'Administrador'] }
+                },
+                {
+                    path: '/gestion/ventas/factura',
+                    name: 'factura',
+                    component: () => import('@/views/gestion/ventas/Factura.vue'),
+                    meta: { requiresAuth: true, roles: ['Superadministrador', 'Administrador'] }
+                },
+                {
+                    path: '/gestion/ventas/notacredito',
+                    name: 'notacredito',
+                    component: () => import('@/views/gestion/ventas/NotaCredito.vue'),
+                    meta: { requiresAuth: true, roles: ['Superadministrador', 'Administrador'] }
+                },
                 // {
                 //     path: '/mantenimiento/sede',
                 //     name: 'sede',

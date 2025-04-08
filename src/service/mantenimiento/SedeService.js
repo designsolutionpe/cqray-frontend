@@ -38,7 +38,6 @@ export const createSede = async (data) => {
 
 // Actualizar una sede
 export const updateSede = async (id, data) => {
-
     data.append('_method', 'PUT');
     try {
         const response = await api.post(`/sedes/${id}`, data, {

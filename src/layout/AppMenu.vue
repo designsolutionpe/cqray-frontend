@@ -128,9 +128,9 @@ const menuItems = ref([
                 label: 'Realizar Ventas',
                 icon: 'pi pi-fw pi-dollar',
                 items: [
-                    { label: 'Boleta', to: '#' },
-                    { label: 'Factura', to: '#' },
-                    { label: 'Nota de crédito', to: '#' },
+                    { label: 'Boleta', to: '/gestion/ventas/boleta' },
+                    { label: 'Factura', to: '/gestion/ventas/factura' },
+                    { label: 'Nota de crédito', to: '/gestion/ventas/notacredito' },
                 ]
             },
             {
