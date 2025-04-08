@@ -33,8 +33,8 @@ const menuItems = ref([
                 label: 'Quiroprácticos',
                 icon: 'material-symbols-outlined medical_information',
                 items: [
-                    { label: 'Todos los quiroprácticos', to: '/gestion/quiropractico' },
-                    { label: 'Añadir quiroprácticos', to: '#' },
+                    { label: 'Todos los quiroprácticos', to: '/gestion/quiropracticos/todos' },
+                    { label: 'Añadir quiroprácticos', to: '/gestion/quiropracticos/agregar' },
                     { label: 'Historial atendidos', to: '#' },
                 ]
             },

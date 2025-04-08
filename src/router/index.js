@@ -77,7 +77,28 @@ const router = createRouter({
                     path: '/gestion/quiropractico',
                     name: 'quiropractico',
                     component: () => import('@/views/gestion/Quiropractico.vue'),
-                    meta: { requiresAuth: true, roles: ['Superadministrador'] }
+                    meta: { requiresAuth: true, roles: ['Superadministrador', 'Administrador'] }
+                    //meta: { requiresAuth: true, roles: ['admin'] },
+                },
+                {
+                    path: '/gestion/quiropracticos/todos',
+                    name: 'quiropracticos-todos',
+                    component: () => import('@/views/gestion/quiropracticos/Todos.vue'),
+                    meta: { requiresAuth: true, roles: ['Superadministrador', 'Administrador'] }
+                    //meta: { requiresAuth: true, roles: ['admin'] },
+                },
+                {
+                    path: '/gestion/quiropracticos/agregar',
+                    name: 'quiropracticos-agregar',
+                    component: () => import('@/views/gestion/quiropracticos/Agregar.vue'),
+                    meta: { requiresAuth: true, roles: ['Superadministrador', 'Administrador'] }
+                    //meta: { requiresAuth: true, roles: ['admin'] },
+                },
+                {
+                    path: '/gestion/quiropracticos/atendidos',
+                    name: 'quiropracticos-atendidos',
+                    component: () => import('@/views/gestion/quiropracticos/Atentidos.vue'),
+                    meta: { requiresAuth: true, roles: ['Superadministrador', 'Administrador'] }
                     //meta: { requiresAuth: true, roles: ['admin'] },
                 },
                 {
