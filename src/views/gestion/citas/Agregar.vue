@@ -137,7 +137,7 @@ const cargarHorarios = async () => {
 
     const fechaSeleccionada = new Date(oNuevaCita.value.fecha_cita + 'T00:00:00');
     let dia = fechaSeleccionada.getDay();
-    if (dia === 0){
+    if (dia === 0) {
       dia = 6;
     } else {
       dia -= 1;
@@ -155,8 +155,8 @@ const cargarHorarios = async () => {
     }))
     if (response.length > 0)
       nHorarioSelected.value = response[0].id
-      isHorarioLoading.value = false
-    }
+    isHorarioLoading.value = false
+  }
   catch (error) {
     handleServerError(error, 'Horarios')
   }

@@ -1,4 +1,7 @@
 <script setup>
+import Preloader from '@/components/Preloader.vue';
+import { createSede } from '@/service/mantenimiento/SedeService';
+import { handleServerError } from '@/utils/Util';
 import { useToast } from 'primevue';
 import { ref } from 'vue';
 
@@ -7,6 +10,7 @@ const selectedFile = ref(null);
 const sede = ref({})
 const previewSrc = ref(null);
 const submitted = ref(false);
+const isLoading = ref(false)
 
 function onFileSelect(event) {
   const file = event.files[0];
@@ -29,17 +33,57 @@ function removeImage() {
   previewSrc.value = null;
 }
 
-function saveSede() { }
+function resetInputs() {
+  submitted.value = false
+  removeImage()
+  sede.value = {}
+}
+
+async function saveSede() {
+  submitted.value = true
+
+  if (!sede.value.nombre) return
+
+  const formData = new FormData()
+  formData.append('nombre', sede.value.nombre)
+
+  const fields = {
+    direccion: sede.value.direccion || null,
+    telefono: sede.value.telefono || null,
+    email: sede.value.email || null,
+    foto: selectedFile.value || null
+  }
+
+  for (let key in fields) {
+    let value = fields[key]
+    if (value != null)
+      formData.append(key, value)
+  }
+
+  isLoading.value = true
+  try {
+    const response = await createSede(formData)
+    resetInputs()
+    toast.add({ severity: 'success', summary: 'Éxito', detail: 'La sede ha sido creada con exito', life: 3000 });
+    isLoading.value = false
+  }
+  catch (error) {
+    isLoading.value = false
+    handleServerError(error, 'Crear Sede', toast)
+  }
+
+}
 
 </script>
 <template>
-  <div class="card xl:w-1/2">
+  <div class="card xl:w-1/2 relative overflow-hidden">
+    <Preloader v-if="isLoading"></Preloader>
     <p class="text-3xl font-bold">Agregar nueva sede</p>
     <div class="grid grid-cols-12 gap-y-6 md:gap-6">
       <div class="col-span-12">
         <label for="nombre" class="block font-bold mb-3">Nombre</label>
         <InputText id="nombre" v-model.trim="sede.nombre" required="true" autofocus :invalid="submitted && !sede.nombre"
-          fluid />
+          fluid @input="submitted = false" />
         <small v-if="submitted && !sede.nombre" class="text-red-500">Nombre de sede es requerido.</small>
       </div>
       <div class="col-span-12">
