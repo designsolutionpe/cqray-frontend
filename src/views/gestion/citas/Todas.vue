@@ -221,11 +221,9 @@ const saveCita = async () => {
       tipo_paciente: citaSelected.value.paciente.estado,
       observaciones: citaSelected.value.observaciones
     }
-    console.log('CHECK UPDATE', post)
+    const response = await updateCita(citaSelected.value.id, post)
     if (isLinkWhatsappActive.value)
       sendWhatsappDialog.value.showDialog()
-    return
-    const response = await updateCita(citaSelected.value.id, post)
     await cargarCitas()
     isCitaUpdateLoading.value = false
     toast.add({

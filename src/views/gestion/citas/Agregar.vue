@@ -66,7 +66,7 @@ const sHistorialClinica = ref('')
 
 const dateNow = new Date()
 const oFechaSelected = ref(dateNow.toISOString().substring(0, 10))
-const oTiempoSelected = ref(dateNow.toTimeString().slice(0, 5))
+const oTiempoSelected = ref(dateNow)
 const sObservaciones = ref('')
 const sNumeroPaciente = ref('')
 const bLinkWhatsapp = ref(false)
@@ -263,8 +263,7 @@ const sendWhatsappMessage = () => {
   const fixFecha = new Date(oFechaSelected.value + 'T00:00:00')
   const fecha = fixFecha ? formatDate(fixFecha) : 'de la fecha programada';
 
-  const hora = typeof oTiempoSelected.value == 'object' ? new Date(oTiempoSelected.value).toTimeString().slice(0, 5) : oTiempoSelected.value
-
+  const hora = oTiempoSelected.value.toTimeString().slice(0, 5)
   // const horarioSelecciodo = aHorariosSelect.value.find((h) => h.value === nHorarioSelected.value);
   // const hora = horarioSelecciodo ? horarioSelecciodo.label : 'seleccionado';
 
@@ -338,7 +337,7 @@ watch([
   bActiveHistorial.value = (sHistorialClinica.value != null)
   bActiveNumero.value = (sNumeroPaciente.value != null)
 
-  console.log('FECHA', oFechaSelected.value)
+  console.log('FECHA', oFechaSelected.value, oTiempoSelected.value)
 
   oNuevaCita.value = {
     id_paciente: oPacienteSelected.value,
@@ -346,7 +345,7 @@ watch([
     // id_detalle_horario: 1,
     historia_clinica: sHistorialClinica.value,
     fecha_cita: oFechaSelected.value,
-    hora_cita: new Date(oTiempoSelected.value).toTimeString().slice(0, 5),
+    hora_cita: oTiempoSelected.value.toTimeString().slice(0, 5),
     estado: nEstadoCitaSelected.value,
     tipo_paciente: nEstadoPacienteSelected.value,
     observaciones: sObservaciones.value,
