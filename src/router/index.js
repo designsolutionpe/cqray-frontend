@@ -150,13 +150,14 @@ const router = createRouter({
                     component: () => import('@/views/mantenimiento/Usuario.vue'),
                     meta: { requiresAuth: true, roles: ['Superadministrador'] }
                 },
+                /*
                 {
                     path: '/mantenimiento/horario',
                     name: 'horario',
                     component: () => import('@/views/mantenimiento/Horario.vue'),
                     meta: { requiresAuth: true, roles: ['Superadministrador'] }
                 },
-
+                */
                 {
                     path: '/uikit/formlayout',
                     name: 'formlayout',

@@ -70,11 +70,13 @@ const menuItems = ref([
                     { label: 'Añadir usuario', to: '#' },
                 ]
             },
+            /*
             {
                 label: 'Horario',
                 icon: 'pi pi-calendar-plus',
                 to: '/mantenimiento/horario'
             },
+            */
             {
                 label: 'Control pacientes',
                 icon: 'pi pi-fw pi-plus-circle',
