@@ -166,6 +166,7 @@ const crearPaciente = async () => {
     })
   }
   catch (error) {
+    isPageLoading.value = false
     handleServerError(error, 'Crear paciente', toast)
   }
 

@@ -249,6 +249,7 @@ const enviarServidor = async () => {
     })
   }
   catch (error) {
+    isPageLoading.value = false
     handleServerError(error, 'Agregar nueva cita')
   }
 }
@@ -386,7 +387,7 @@ onMounted(() => {
             :options="aPacientesSelect" option-label="label" option-value="value" :disabled="isPacientesLoading"
             :invalid="oInvalidObj['paciente']" filter>
           </Select>
-          <router-link to="/gestion/paciente">
+          <router-link to="/gestion/pacientes/agregar">
             <Button label="Agregar paciente" icon="pi pi-plus" variant='text' class="col-span-4 sm:col-span-1"></Button>
           </router-link>
         </div>
