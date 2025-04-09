@@ -418,7 +418,7 @@ const updateMenu = () => {
             if (item.label === 'Gestion Clínica') {
                 item.items = item.items.filter(subitem => {
                     return subitem.label === 'Agendamientos de Citas'
-                        || subitem.label === 'Pacientes' || subitem.label === 'Quiroprácticos';
+                        || subitem.label === 'Pacientes';
                 });
                 return item;
             }

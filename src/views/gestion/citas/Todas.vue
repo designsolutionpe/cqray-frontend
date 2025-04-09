@@ -3,7 +3,6 @@ import Preloader from '@/components/Preloader.vue'
 import YesNoDialog from '@/components/YesNoDialog.vue'
 import { deleteCita, getCitaEstados, getCitas, updateCita } from '@/service/gestion/CitaService'
 import { getPacienteEstados } from '@/service/gestion/PacienteService'
-import { getHorariosDisponibles } from '@/service/mantenimiento/HorarioService'
 import { getSedes } from '@/service/mantenimiento/SedeService'
 import { formatDate } from '@/utils/Util'
 import { FilterMatchMode } from '@primevue/core/api'
@@ -23,6 +22,7 @@ const isLinkWhatsappActive = ref(false)
 const sLinkWhatsappActive = ref('')
 
 const id_sede = computed(() => store.getters.id_sede)
+const id_usuario = computed(() => store.getters.id)
 
 const citasTable = ref([])
 
@@ -133,28 +133,19 @@ const cargarCitas = async () => {
     citasTable.value = response.map(cita => ({
       ...cita,
       fecha_cita: new Date(cita.fecha_cita + 'T00:00:00'),
+      hora_cita: new Date(cita.fecha_cita + 'T' + cita.hora_cita),
       paciente: {
         ...cita.paciente,
         persona: {
           ...cita.paciente.persona,
           nombreCompleto: `${cita.paciente.persona.apellido} ${cita.paciente.persona.nombre}`
         }
-      },
-      quiropractico: {
-        ...cita.quiropractico,
-        persona: {
-          ...cita.quiropractico.persona,
-          nombreCompleto: `${cita.quiropractico.persona.apellido} ${cita.quiropractico.persona.nombre}`
-        }
-      },
-      detalle_horario: {
-        ...cita.detalle_horario,
-        horarioCompleto: `${cita.detalle_horario.hora_inicio} - ${cita.detalle_horario.hora_fin}`
       }
     }))
     isCitasLoading.value = false
   }
   catch (error) {
+    console.error(error)
     toast.add({
       severity: 'error',
       summary: 'Error de carga',
@@ -175,12 +166,9 @@ const updateCitaSelectedInfo = (cita) => {
       nombreCompleto: cita.paciente.persona.nombreCompleto,
       numero: cita.paciente.persona.telefono,
     },
-    quiropractico: {
-      id: cita.quiropractico.id,
-      nombreCompleto: cita.quiropractico.persona.nombreCompleto
-    },
+    quiropractico: `Quiropractico - ${cita.sede.nombre.split(' ')[1]}`,
     fecha_cita: cita.fecha_cita,
-    horario: cita.detalle_horario.id,
+    hora_cita: cita.hora_cita,
     observaciones: cita.observaciones,
     sede: {
       nombre: cita.sede.nombre
@@ -198,22 +186,8 @@ const editCita = async (cita) => {
   // Cargar detalles horarios
 
   try {
-    isCitaUpdateLoading.value = true
     updateCitaSelectedInfo(cita)
     bCitaView.value = true
-    const response = await getHorariosDisponibles(
-      cita.fecha_cita,
-      cita.quiropractico.id,
-      new Date(cita.fecha_cita).getDay(),
-      cita.detalle_horario.id
-    )
-    isCitaUpdateLoading.value = false
-    horariosSelect.value = response.map(e => ({
-      label: `${e.hora_inicio} - ${e.hora_fin}`,
-      value: e.id
-    }))
-    console.log('horarios', horariosSelect.value, citaSelected.value.horario)
-
     bCitaEdit.value = true
   }
   catch (error) {
@@ -239,14 +213,18 @@ const saveCita = async () => {
   try {
     const post = {
       id_paciente: citaSelected.value.paciente.id,
-      id_quiropractico: citaSelected.value.quiropractico.id,
-      id_detalle_horario: citaSelected.value.horario,
       id_sede: citaSelected.value.id_sede,
+      id_usuario: id_usuario.value,
       fecha_cita: citaSelected.value.fecha_cita.toISOString().split('T')[0],
+      hora_cita: citaSelected.value.hora_cita.toTimeString().slice(0, 5),
       estado: citaSelected.value.estado,
       tipo_paciente: citaSelected.value.paciente.estado,
       observaciones: citaSelected.value.observaciones
     }
+    console.log('CHECK UPDATE', post)
+    if (isLinkWhatsappActive.value)
+      sendWhatsappDialog.value.showDialog()
+    return
     const response = await updateCita(citaSelected.value.id, post)
     await cargarCitas()
     isCitaUpdateLoading.value = false
@@ -255,8 +233,6 @@ const saveCita = async () => {
       summary: 'La cita ha sido actualizada con exito',
       life: 5000
     })
-    if (isLinkWhatsappActive.value)
-      sendWhatsappDialog.value.showDialog()
     cancelEditCita()
   }
   catch (error) {
@@ -279,25 +255,27 @@ const onShowDialog = (id) => {
 
 const sendWhatsappMessage = () => {
   console.log('test', citaSelected.value)
-  const telefono = citaSelected.value.paciente.numero.replace(/\D/g, ''); // Eliminar caracteres no numéricos
+  const info = citaSelected.value
+  const telefono = info.paciente.numero.replace(/\D/g, ''); // Eliminar caracteres no numéricos
 
   // Podríamos tomar datos como la fecha y hora de la cita, y el nombre completo del paciente
-  const paciente = citaSelected.value.paciente.nombreCompleto
-  const nomPaciente = paciente.label || 'Estimado/a';
+  const paciente = info.paciente.nombreCompleto
+  const nomPaciente = paciente || 'Estimado/a';
 
-  const fecha = citaSelected.value.fecha_cita ? formatDate(citaSelected.value.fecha_cita) : 'de la fecha programada';
+  const fecha = info.fecha_cita ? formatDate(info.fecha_cita) : 'la fecha programada';
+  const hora = info.hora_cita ? info.hora_cita.toTimeString().slice(0, 5) : 'a la hora acordada'
 
   // const horarioSelecciodo = citaSelected.value.horario;
   // const hora = horarioSelecciodo ? horarioSelecciodo.label : 'seleccionado';
 
-  const sedeSeleccionada = citaSelected.value.sede.nombre;
-  const nomSede = sedeSeleccionada ? sedeSeleccionada : 'consultada';
+  const sedeSeleccionada = info.sede.nombre;
+  const nomSede = sedeSeleccionada ? sedeSeleccionada : 'sede consultada';
 
   const mensaje =
-    `¡Hola, ${nomPaciente}!\n\n` +
-    `Nos complace informarte que tu cita ha sido programada con éxito en la **${nomSede}**.\n\n` +
-    `Te esperamos el día **${fecha}** para brindarte la mejor atención quiropráctica.\n\n` +
-    `Si tienes alguna duda o necesitas reprogramar tu cita, ¡no dudes en avisarnos!`;
+    `¡${nomPaciente}!\n\n` +
+    `Esperemos estes teniendo un buen dia, te recordamos que tienes una cita *${fecha} ${hora}* en la *${nomSede}*.\n\n` +
+    `Para brindarte la mejor atención quiropráctica.\n\n` +
+    `Por favor confirme su asistencia por este medio, de igual forma si tiene alguna duda o requiere reprogramar no dude en avisarnos.`;
 
   // Generar el enlace de WhatsApp
   const enlace = `https://api.whatsapp.com/send?phone=${telefono}&text=${encodeURIComponent(mensaje)}`;
@@ -340,21 +318,17 @@ onMounted(() => {
 
 </script>
 <template>
-  <div class="card">
+  <div class="card relative overflow-hidden">
+    <Preloader v-if="isCitasLoading"></Preloader>
     <p class="text-2xl font-bold text-secondary">Todas las citas</p>
     <DataTable v-model:filters="filters" :value="citasTable" removable-sort table-style="min-width: 50rem"
-      :loading="isCitasLoading" filter-display="row" data-key="id" paginator show-gridlines :rows="10"
+      filter-display="row" data-key="id" paginator show-gridlines :rows="10"
       paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
       currentPageReportTemplate="Mostrando {first} de {last} - {totalRecords} citas">
 
       <!-- Header -->
       <template #header>
         <Button label="Borrar filtros" icon="pi pi-filter-slash" @click="resetFilters()" outlined></Button>
-      </template>
-
-      <!-- Loading Message -->
-      <template #loading class="relative">
-        <Preloader is-transparent></Preloader>
       </template>
 
       <!-- ID -->
@@ -376,15 +350,6 @@ onMounted(() => {
         <template #filter="{ filterModel, filterCallback }">
           <InputText v-model="filterModel.value" type="text" @input="filterCallback()"
             placeholder="Filtrar por paciente" />
-        </template>
-      </Column>
-
-      <!-- Quiropractico -->
-      <Column field="quiropractico.persona.nombreCompleto" header="Quiropractico" :show-filter-menu="false" sortable
-        style="min-width: 10rem;">
-        <template #filter="{ filterModel, filterCallback }">
-          <InputText v-model="filterModel.value" type="text" @input="filterCallback()"
-            placeholder="Filtrar por quiropractico" />
         </template>
       </Column>
 
@@ -467,23 +432,24 @@ onMounted(() => {
           v-model:model-value="citaSelected.estado" option-label="label" option-value="value"></Select>
       </div>
       <div>
-        <label for="nombre_quiropractico" class="block font-bold mb-3">Atendido por quiropractico</label>
-        <InputText id="nombre_quiropractico" v-model="citaSelected.quiropractico.nombreCompleto" fluid disabled>
+        <label for="nombre_quiropractico" class="block font-bold mb-3">Atendido por</label>
+        <InputText id="nombre_quiropractico" v-model="citaSelected.quiropractico" fluid disabled>
         </InputText>
       </div>
 
       <div class="grid grid-cols-2 gap-5">
-        <div class="col-span-2">
+        <div class="col-span-2 md:col-span-1">
           <label for="fecha_cita" class="block font-bold mb-3">Fecha</label>
           <DatePicker id="fecha_cita" fluid :disabled="!bCitaEdit" v-model:model-value="citaSelected.fecha_cita"
             date-format="dd/mm/yy">
           </DatePicker>
         </div>
-        <!-- <div class="col-span-2 md:col-span-1">
-          <label for="horario" class="block font-bold mb-3">Horario</label>
-          <Select id="horario" :disabled="!bCitaEdit" fluid v-model:model-value="citaSelected.horario"
-            :options="horariosSelect" option-label="label" option-value="value"></Select>
-        </div> -->
+        <div class="col-span-2 md:col-span-1">
+          <label for="hora_cita" class="block font-bold mb-3">Hora</label>
+          <DatePicker id="hora_cita" class="w-full" fluid :disabled="!bCitaEdit"
+            v-model:model-value="citaSelected.hora_cita" time-only hour-format="12">
+          </DatePicker>
+        </div>
       </div>
 
       <div>
