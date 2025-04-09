@@ -81,7 +81,7 @@ const cargarPacientes = async () => {
         ...p,
         persona: {
           ...p.persona,
-          fecha_nacimiento: p.persona.fecha_nacimiento ? p.persona.fecha_nacimiento : null
+          fecha_nacimiento: p.persona.fecha_nacimiento ? new Date(p.persona.fecha_nacimiento + 'T00:00:00') : null
         }
       }))
     console.log(aPacientes.value, 'PACIENTES')
@@ -128,10 +128,12 @@ const initFilters = () => {
   oFilters.value = {
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
     'persona.tipo_documento': { value: null, matchMode: FilterMatchMode.EQUALS },
+    'persona.numero_documento': { value: null, matchMode: FilterMatchMode.CONTAINS },
     'persona.apellido': { value: null, matchMode: FilterMatchMode.CONTAINS },
     'persona.nombre': { value: null, matchMode: FilterMatchMode.CONTAINS },
     'persona.genero': { value: null, matchMode: FilterMatchMode.EQUALS },
     'persona.fecha_nacimiento': { value: null, matchMode: FilterMatchMode.DATE_IS },
+    'estado.nombre': { value: null, matchMode: FilterMatchMode.EQUALS },
     'historia_clinica': { value: null, matchMode: FilterMatchMode.CONTAINS }
   }
 }
@@ -303,7 +305,7 @@ onMounted(() => {
       </template>
 
       <!-- ID -->
-      <Column field="id" header="#" sortable style="min-width: 3rem"></Column>
+      <!-- <Column field="id" header="#" sortable style="min-width: 3rem"></Column> -->
 
       <!-- Tipo Documento -->
       <Column field="persona.tipo_documento" header="Tipo Documento" :show-filter-menu="false" sortable
@@ -312,6 +314,15 @@ onMounted(() => {
           <Select v-model:model-value="filterModel.value" @change="filterCallback()" option-label="label"
             option-value="label" :options="aTipoDocumentoSelect" placeholder="Filtrar por Tipo Documento"
             style="min-width: 16rem;"></Select>
+        </template>
+      </Column>
+
+      <!-- Numero Documento -->
+      <Column field="persona.numero_documento" header="Numero Documento" :show-filter-menu="false" sortable
+        style="min-width: 10rem;">
+        <template #filter="{ filterModel, filterCallback }">
+          <InputText v-model="filterModel.value" type="text" @input="filterCallback()"
+            placeholder="Filtrar por documento" />
         </template>
       </Column>
 
@@ -349,6 +360,14 @@ onMounted(() => {
           <DatePicker v-model="filterModel.value" :manual-input="false" @value-change="filterCallback()"
             placeholder="Filtrar por Fecha Nacimiento" date-format="dd/mm/yy">
           </DatePicker>
+        </template>
+      </Column>
+
+      <!-- Estado -->
+      <Column field="estado.nombre" header="Estado" :show-filter-menu="false" sortable style="min-width: 8rem">
+        <template #filter="{ filterModel, filterCallback }">
+          <Select v-model:model-value="filterModel.value" @change="filterCallback()" option-label="label"
+            option-value="label" :options="aEstadoPacienteSelect" placeholder="Filtrar por estado"></Select>
         </template>
       </Column>
 

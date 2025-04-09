@@ -38,6 +38,12 @@ const estadoPacienteSelect = ref([
 const horariosSelect = ref([
   { label: '---', value: null }
 ])
+const aTipoDocumento = ref([
+  { label: "DNI" },
+  { label: "Carnet de extranjeria" },
+  { label: "RUC" },
+  { label: "Otro" },
+])
 
 const sedeSelected = ref(null)
 const estadoCitaSelected = ref(null)
@@ -50,8 +56,13 @@ const initFilters = () => {
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
     'sede.nombre': { value: sedeSelected, matchMode: FilterMatchMode.EQUALS },
     'paciente.persona.nombreCompleto': { value: null, matchMode: FilterMatchMode.CONTAINS },
+    'paciente.persona.tipo_documento': { value: null, matchMode: FilterMatchMode.EQUALS },
+    'paciente.persona.numero_documento': { value: null, matchMode: FilterMatchMode.CONTAINS },
+    'paciente.historia_clinica': { value: null, matchMode: FilterMatchMode.CONTAINS },
     'quiropractico.persona.nombreCompleto': { value: null, matchMode: FilterMatchMode.CONTAINS },
     fecha_cita: { value: null, matchMode: FilterMatchMode.DATE_IS },
+    hora_cita: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+    'paciente.persona.edad': { value: null, matchMode: FilterMatchMode.CONTAINS },
     'tipo_paciente.nombre': { value: null, matchMode: FilterMatchMode.EQUALS },
     'estado.nombre': { value: null, matchMode: FilterMatchMode.EQUALS },
   }
@@ -134,12 +145,13 @@ const cargarCitas = async () => {
     citasTable.value = response.map(cita => ({
       ...cita,
       fecha_cita: new Date(cita.fecha_cita + 'T00:00:00'),
-      hora_cita: new Date(cita.fecha_cita + 'T' + cita.hora_cita),
+      hora_cita: cita.hora_cita ? new Date(cita.fecha_cita + 'T' + cita.hora_cita).toLocaleTimeString('es-PE', { hour12: true }) : null,
       paciente: {
         ...cita.paciente,
         persona: {
           ...cita.paciente.persona,
-          nombreCompleto: `${cita.paciente.persona.apellido} ${cita.paciente.persona.nombre}`
+          nombreCompleto: `${cita.paciente.persona.apellido} ${cita.paciente.persona.nombre}`,
+          edad: new Date().getYear() - new Date(cita.paciente.persona.fecha_nacimiento + 'T00:00:00').getYear()
         }
       }
     }))
@@ -166,6 +178,7 @@ const updateCitaSelectedInfo = (cita) => {
       estado: cita.tipo_paciente.id,
       nombreCompleto: cita.paciente.persona.nombreCompleto,
       numero: cita.paciente.persona.telefono,
+      edad: new Date().getYear() - new Date(cita.paciente.persona.fecha_nacimiento + 'T00:00:00').getYear()
     },
     quiropractico: `Quiropractico - ${cita.sede.nombre.split(' ')[1]}`,
     fecha_cita: cita.fecha_cita,
@@ -262,7 +275,8 @@ const sendWhatsappMessage = () => {
   const nomPaciente = paciente || 'Estimado/a';
 
   const fecha = info.fecha_cita ? formatDate(info.fecha_cita) : 'la fecha programada';
-  const hora = info.hora_cita ? info.hora_cita.toTimeString().slice(0, 5) : 'a la hora acordada'
+  console.log('VERIFICAR', info.hora_cita)
+  const hora = typeof info.hora_cita != 'string' ? info.hora_cita.toLocaleTimeString('es-PE', { hour12: true }) : info.hora_cita
 
   // const horarioSelecciodo = citaSelected.value.horario;
   // const hora = horarioSelecciodo ? horarioSelecciodo.label : 'seleccionado';
@@ -324,7 +338,7 @@ onMounted(() => {
       filter-display="row" data-key="id" paginator show-gridlines :rows="10"
       paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
       currentPageReportTemplate="Mostrando {first} de {last} - {totalRecords} citas"
-      :global-filter-fields="['id', 'sede.nombre', 'paciente.persona.nombreCompleto', 'paciente.historia_clinica']">
+      :global-filter-fields="['paciente.persona.tipo_documento', 'paciente.persona.numero_documento', 'sede.nombre', 'paciente.persona.nombreCompleto', 'paciente.persona.edad', 'paciente.historia_clinica']">
 
       <!-- Header -->
       <template #header>
@@ -340,7 +354,7 @@ onMounted(() => {
       </template>
 
       <!-- ID -->
-      <Column field="id" header="#" sortable style="min-width: 3rem;"></Column>
+      <!-- <Column field="id" header="#" sortable style="min-width: 3rem;"></Column> -->
 
       <!-- Sede -->
       <Column filterField="sede.nombre" field="sede.nombre" header="Sede" :show-filter-menu="false" sortable
@@ -349,6 +363,24 @@ onMounted(() => {
           <InputText v-if="id_sede != null" v-model="filterModel.value" disabled></InputText>
           <Select v-else v-model="filterModel.value" @change="filterCallback()" :options="sedesSelect"
             option-label="label" option-value="label" placeholder="Selecciona sede"></Select>
+        </template>
+      </Column>
+
+      <!-- DNI -->
+      <Column field="paciente.persona.tipo_documento" header="Tipo Documento" :show-filter-menu="false" sortable
+        style="min-width: 10rem;">
+        <template #filter="{ filterModel, filterCallback }">
+          <Select v-model="filterModel.value" @change="filterCallback()" option-label="label" option-value="label"
+            :options="aTipoDocumento" placeholder="Filtrar por Tipo Documento"></Select>
+        </template>
+      </Column>
+
+      <!-- Numero Documento -->
+      <Column field="paciente.persona.numero_documento" header="Numero Documento" :show-filter-menu="false" sortable
+        style="min-width: 10rem;">
+        <template #filter="{ filterModel, filterCallback }">
+          <InputText v-model="filterModel.value" type="text" @input="filterCallback()"
+            placeholder="Filtrar por documento" />
         </template>
       </Column>
 
@@ -361,8 +393,18 @@ onMounted(() => {
         </template>
       </Column>
 
+
+      <!-- Historial Cita -->
+      <Column field="paciente.historia_clinica" header="Historia Clinica" :show-filter-menu="false" sortable
+        style="min-width: 10rem;">
+        <template #filter="{ filterModel, filterCallback }">
+          <InputText v-model="filterModel.value" type="text" @input="filterCallback()"
+            placeholder="Filtrar por historia" />
+        </template>
+      </Column>
+
       <!-- Fecha cita -->
-      <Column field="fecha_cita" header="Fecha" :show-filter-menu="false" sortable style="min-width: 15rem;">
+      <Column field="fecha_cita" header="Fecha Cita" :show-filter-menu="false" sortable style="min-width: 15rem;">
         <template #body="citaItem">
           {{ formatDate(citaItem.data.fecha_cita) }}
         </template>
@@ -370,6 +412,23 @@ onMounted(() => {
           <DatePicker v-model="filterModel.value" :manual-input="false" @value-change="filterCallback()"
             placeholder="Filtrar por fecha">
           </DatePicker>
+        </template>
+      </Column>
+
+      <!-- Hora Cita -->
+      <Column field="hora_cita" header="Fecha Hora" :show-filter-menu="false" sortable style="min-width: 10rem;">
+        <template #body="citaItem">
+          <div>{{ citaItem.data.hora_cita }}</div>
+        </template>
+        <template #filter="{ filterModel, filterCallback }">
+          <InputText v-model="filterModel.value" type="text" @input="filterCallback()" placeholder="Filtrar por hora" />
+        </template>
+      </Column>
+
+      <!-- Edad -->
+      <Column field="paciente.persona.edad" header="Edad" :show-filter-menu="false" sortable style="min-width: 10rem;">
+        <template #filter="{ filterModel, filterCallback }">
+          <InputText v-model="filterModel.value" type="text" @input="filterCallback()" placeholder="Filtrar por edad" />
         </template>
       </Column>
 

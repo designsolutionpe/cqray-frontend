@@ -264,7 +264,7 @@ const sendWhatsappMessage = () => {
   const fixFecha = new Date(oFechaSelected.value + 'T00:00:00')
   const fecha = fixFecha ? formatDate(fixFecha) : 'de la fecha programada';
 
-  const hora = oTiempoSelected.value.toTimeString().slice(0, 5)
+  const hora = oTiempoSelected.value.toLocaleTimeString('es-PE', { hour12: true })
   // const horarioSelecciodo = aHorariosSelect.value.find((h) => h.value === nHorarioSelected.value);
   // const hora = horarioSelecciodo ? horarioSelecciodo.label : 'seleccionado';
 
