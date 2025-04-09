@@ -5,6 +5,7 @@ import { deleteCita, getCitaEstados, getCitas, updateCita } from '@/service/gest
 import { getPacienteEstados } from '@/service/gestion/PacienteService'
 import { getHorariosDisponibles } from '@/service/mantenimiento/HorarioService'
 import { getSedes } from '@/service/mantenimiento/SedeService'
+import { formatDate } from '@/utils/Util'
 import { FilterMatchMode } from '@primevue/core/api'
 import { useToast } from 'primevue'
 import { computed, onMounted, ref } from 'vue'
@@ -163,14 +164,6 @@ const cargarCitas = async () => {
   }
 }
 
-const formatDate = (date) => {
-  return date.toLocaleDateString('en-US', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric'
-  });
-}
-
 const updateCitaSelectedInfo = (cita) => {
   citaSelected.value = {
     id: cita.id,
@@ -236,7 +229,6 @@ const editCita = async (cita) => {
 }
 
 const cancelEditCita = () => {
-  citaSelected.value = {}
   bCitaEdit.value = false
   bCitaView.value = false
 }
@@ -258,7 +250,6 @@ const saveCita = async () => {
     const response = await updateCita(citaSelected.value.id, post)
     await cargarCitas()
     isCitaUpdateLoading.value = false
-    cancelEditCita()
     toast.add({
       severity: 'success',
       summary: 'La cita ha sido actualizada con exito',
@@ -266,6 +257,7 @@ const saveCita = async () => {
     })
     if (isLinkWhatsappActive.value)
       sendWhatsappDialog.value.showDialog()
+    cancelEditCita()
   }
   catch (error) {
     isCitaUpdateLoading.value = false
@@ -286,15 +278,17 @@ const onShowDialog = (id) => {
 }
 
 const sendWhatsappMessage = () => {
+  console.log('test', citaSelected.value)
   const telefono = citaSelected.value.paciente.numero.replace(/\D/g, ''); // Eliminar caracteres no numéricos
 
   // Podríamos tomar datos como la fecha y hora de la cita, y el nombre completo del paciente
   const paciente = citaSelected.value.paciente.nombreCompleto
   const nomPaciente = paciente.label || 'Estimado/a';
+
   const fecha = citaSelected.value.fecha_cita ? formatDate(citaSelected.value.fecha_cita) : 'de la fecha programada';
 
-  const horarioSelecciodo = citaSelected.value.horario;
-  const hora = horarioSelecciodo ? horarioSelecciodo.label : 'seleccionado';
+  // const horarioSelecciodo = citaSelected.value.horario;
+  // const hora = horarioSelecciodo ? horarioSelecciodo.label : 'seleccionado';
 
   const sedeSeleccionada = citaSelected.value.sede.nombre;
   const nomSede = sedeSeleccionada ? sedeSeleccionada : 'consultada';
@@ -481,7 +475,8 @@ onMounted(() => {
       <div class="grid grid-cols-2 gap-5">
         <div class="col-span-2">
           <label for="fecha_cita" class="block font-bold mb-3">Fecha</label>
-          <DatePicker id="fecha_cita" fluid :disabled="!bCitaEdit" v-model:model-value="citaSelected.fecha_cita">
+          <DatePicker id="fecha_cita" fluid :disabled="!bCitaEdit" v-model:model-value="citaSelected.fecha_cita"
+            date-format="dd/mm/yy">
           </DatePicker>
         </div>
         <!-- <div class="col-span-2 md:col-span-1">
