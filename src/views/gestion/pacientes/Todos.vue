@@ -81,7 +81,7 @@ const cargarPacientes = async () => {
         ...p,
         persona: {
           ...p.persona,
-          fecha_nacimiento: p.persona.fecha_nacimiento ? new Date(p.persona.fecha_nacimiento + 'T00:00:00') : null
+          fecha_nacimiento: new Date(p.persona.fecha_nacimiento + 'T00:00:00')
         }
       }))
     console.log(aPacientes.value, 'PACIENTES')
@@ -149,13 +149,13 @@ const updatePacienteInfo = (paciente) => {
     nombre: paciente.persona.nombre,
     apellido: paciente.persona.apellido,
     genero: paciente.persona.genero,
-    fecha_nacimiento: paciente.persona.fecha_nacimiento,
+    fecha_nacimiento: paciente.persona.fecha_nacimiento.toISOString().substring(0, 10),
     direccion: paciente.persona.direccion,
     telefono: paciente.persona.telefono,
     email: paciente.persona.email,
     id_sede: paciente.id_sede,
     historia_clinica: paciente.historia_clinica,
-    estado: paciente.estado
+    estado: paciente.estado.id
   }
 }
 
@@ -354,7 +354,7 @@ onMounted(() => {
       <Column field="persona.fecha_nacimiento" header="Fecha Nacimiento" :show-filter-menu="false" sortable
         style="min-width: 15rem;">
         <template #body="pacienteItem">
-          {{ pacienteItem.data.persona.fecha_nacimiento ? formatDate(pacienteItem.data.persona.fecha_nacimiento) : '' }}
+          {{ formatDate(pacienteItem.data.persona.fecha_nacimiento) }}
         </template>
         <template #filter="{ filterModel, filterCallback }">
           <DatePicker v-model="filterModel.value" :manual-input="false" @value-change="filterCallback()"
