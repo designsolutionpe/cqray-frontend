@@ -77,14 +77,14 @@ const router = createRouter({
                     path: '/gestion/quiropractico',
                     name: 'quiropractico',
                     component: () => import('@/views/gestion/Quiropractico.vue'),
-                    meta: { requiresAuth: true, roles: ['Superadministrador', 'Administrador'] }
+                    meta: { requiresAuth: true, roles: [] }
                     //meta: { requiresAuth: true, roles: ['admin'] },
                 },
                 {
                     path: '/gestion/quiropracticos/todos',
                     name: 'quiropracticos-todos',
                     component: () => import('@/views/gestion/quiropracticos/Todos.vue'),
-                    meta: { requiresAuth: true, roles: ['Superadministrador', 'Administrador'] }
+                    meta: { requiresAuth: true, roles: [] }
                     //meta: { requiresAuth: true, roles: ['admin'] },
                 },
                 {

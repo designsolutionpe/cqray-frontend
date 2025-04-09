@@ -14,11 +14,13 @@ import { useStore } from 'vuex';
 // Global Data
 const oNuevaCita = ref({
   id_paciente: null,
-  id_quiropractico: null,
-  id_detalle_horario: null,
+  // id_quiropractico: null,
+  // id_detalle_horario: null,
   id_sede: null,
+  id_usuario: null,
   historia_clinica: null,
   fecha_cita: null,
+  hora_cira: null,
   estado: null,
   tipo_paciente: null,
   observaciones: null
@@ -27,15 +29,17 @@ const oNuevaCita = ref({
 const toast = useToast()
 const store = useStore()
 const id_sede = computed(() => store.getters.id_sede)
+const id_usuario = computed(() => store.getters.id)
 const isSuperAdmin = computed(() => (id_sede.value == null))
 const sendWhatsappDialog = ref()
 
 const oInvalidObj = ref({
   paciente: false,
-  quiropractico: false,
+  // quiropractico: false,
   numero: false,
   fecha: false,
-  horario: false,
+  hora: false,
+  // horario: false,
   estado_cita: false,
   estado_paciente: false,
   observaciones: false,
@@ -44,7 +48,7 @@ const oInvalidObj = ref({
 
 // Select Input Data
 const aPacientesSelect = ref()
-const aQuiropracticosSelect = ref()
+// const aQuiropracticosSelect = ref()
 const aHorariosSelect = ref()
 const aEstadosCitaSelect = ref()
 const aEstadosPacienteSelect = ref()
@@ -53,13 +57,16 @@ const aSedesSelect = ref()
 // Selected Data
 const aPacientes = ref([])
 const oPacienteSelected = ref()
-const nQuiropracticoSelected = ref()
-const nHorarioSelected = ref()
+// const nQuiropracticoSelected = ref()
+// const nHorarioSelected = ref()
 const nEstadoCitaSelected = ref()
 const nEstadoPacienteSelected = ref()
 const nSedeSelected = ref()
 const sHistorialClinica = ref('')
-const oFechaSelected = ref(new Date().toISOString().split('T')[0])
+
+const dateNow = new Date()
+const oFechaSelected = ref(dateNow.toISOString().substring(0, 10))
+const oTiempoSelected = ref(dateNow.toTimeString().slice(0, 5))
 const sObservaciones = ref('')
 const sNumeroPaciente = ref('')
 const bLinkWhatsapp = ref(false)
@@ -67,17 +74,17 @@ const bLinkWhatsapp = ref(false)
 const bActiveHistorial = ref(false)
 const bActiveNumero = ref(false)
 
-const resetAllInputs = async () => {
-  isPageLoading.value = true
-  await cargarPacientes()
-  await cargarQuiropracticos()
-  await cargarEstadosCita()
-  await cargarEstadosPaciente()
+const resetAllInputs = () => {
+  cargarPacientes()
+  // await cargarQuiropracticos()
+  cargarEstadosCita()
+  cargarEstadosPaciente()
+  bLinkWhatsapp.value = false
 }
 
 // Loading State Variables
 const isPacientesLoading = ref(true)
-const isQuiropracticosLoading = ref(true)
+// const isQuiropracticosLoading = ref(true)
 const isHorarioLoading = ref(true)
 const isEstadosCitaLoading = ref(true)
 const isEstadosPacienteLoading = ref(true)
@@ -211,7 +218,7 @@ const cargarSedes = async () => {
       label: d.nombre,
       value: d.id
     }))
-    nSedeSelected.value = aSedesSelect.value.find(s => s.value === parseInt(id_sede.value)) || null
+    nSedeSelected.value = aSedesSelect.value.find(s => s.value == parseInt(id_sede.value)).value || null
     isSedeLoading.value = false
   }
   catch (error) {
@@ -232,10 +239,9 @@ const enviarServidor = async () => {
   isPageLoading.value = true
   try {
     const response = await createCita(oNuevaCita.value)
-    await resetAllInputs()
     if (bLinkWhatsapp.value)
       sendWhatsappDialog.value.showDialog()
-    isPageLoading.value = false
+    resetAllInputs()
     toast.add({
       severity: 'success',
       summary: "Se ha creado la cita con exito",
@@ -257,17 +263,19 @@ const sendWhatsappMessage = () => {
   const fixFecha = new Date(oFechaSelected.value + 'T00:00:00')
   const fecha = fixFecha ? formatDate(fixFecha) : 'de la fecha programada';
 
+  const hora = typeof oTiempoSelected.value == 'object' ? new Date(oTiempoSelected.value).toTimeString().slice(0, 5) : oTiempoSelected.value
+
   // const horarioSelecciodo = aHorariosSelect.value.find((h) => h.value === nHorarioSelected.value);
   // const hora = horarioSelecciodo ? horarioSelecciodo.label : 'seleccionado';
 
-  const sedeSeleccionada = aSedesSelect.value.find(s => s.value === nSedeSelected.value.value);
+  const sedeSeleccionada = aSedesSelect.value.find(s => s.value === nSedeSelected.value);
   const nomSede = sedeSeleccionada ? sedeSeleccionada.label : 'consultada';
 
   const mensaje =
-    `¡Hola, ${nomPaciente}!\n\n` +
-    `Nos complace informarte que tu cita ha sido programada con éxito en la **${nomSede}**.\n\n` +
-    `Te esperamos el día **${fecha}** para brindarte la mejor atención quiropráctica.\n\n` +
-    `Si tienes alguna duda o necesitas reprogramar tu cita, ¡no dudes en avisarnos!`;
+    `¡${nomPaciente}!\n\n` +
+    `Esperemos estes teniendo un buen dia, te recordamos que tienes una cita *${fecha} ${hora}* en la *${nomSede}*.\n\n` +
+    `Para brindarte la mejor atención quiropráctica.\n\n` +
+    `Por favor confirme su asistencia por este medio, de igual forma si tiene alguna duda o requiere reprogramar no dude en avisarnos.`;
 
   // Generar el enlace de WhatsApp
   const enlace = `https://api.whatsapp.com/send?phone=${telefono}&text=${encodeURIComponent(mensaje)}`;
@@ -276,7 +284,7 @@ const sendWhatsappMessage = () => {
 
 const enableSubmit = () => {
   const ret = isPacientesLoading.value ||
-    isQuiropracticosLoading.value ||
+    // isQuiropracticosLoading.value ||
     // isHorarioLoading.value ||
     isEstadosCitaLoading.value ||
     isEstadosPacienteLoading.value ||
@@ -287,7 +295,7 @@ const enableSubmit = () => {
 watch(
   [
     isPacientesLoading,
-    isQuiropracticosLoading,
+    // isQuiropracticosLoading,
     // isHorarioLoading,
     isEstadosCitaLoading,
     isEstadosPacienteLoading,
@@ -296,14 +304,15 @@ watch(
   () => {
     if (
       !isPacientesLoading.value &&
-      !isQuiropracticosLoading.value &&
+      // !isQuiropracticosLoading.value &&
       // !isHorarioLoading.value &&
       !isEstadosCitaLoading.value &&
       !isEstadosPacienteLoading.value &&
       !isSedeLoading.value
     ) {
       isPageLoading.value = false
-    }
+    } else
+      isPageLoading.value = true
   }
 )
 
@@ -313,9 +322,10 @@ watch(
 
 watch([
   oPacienteSelected,
-  nQuiropracticoSelected,
+  // nQuiropracticoSelected,
   sHistorialClinica,
   oFechaSelected,
+  oTiempoSelected,
   nEstadoCitaSelected,
   nEstadoPacienteSelected,
   sObservaciones,
@@ -332,14 +342,16 @@ watch([
 
   oNuevaCita.value = {
     id_paciente: oPacienteSelected.value,
-    id_quiropractico: nQuiropracticoSelected.value,
-    id_detalle_horario: 1,
+    // id_quiropractico: nQuiropracticoSelected.value,
+    // id_detalle_horario: 1,
     historia_clinica: sHistorialClinica.value,
     fecha_cita: oFechaSelected.value,
+    hora_cita: new Date(oTiempoSelected.value).toTimeString().slice(0, 5),
     estado: nEstadoCitaSelected.value,
     tipo_paciente: nEstadoPacienteSelected.value,
     observaciones: sObservaciones.value,
-    id_sede: id_sede.value ? id_sede.value : nSedeSelected.value
+    id_sede: nSedeSelected.value,
+    id_usuario: id_usuario.value
   }
 })
 
@@ -349,7 +361,7 @@ watch([
 
 onMounted(() => {
   cargarPacientes()
-  cargarQuiropracticos()
+  // cargarQuiropracticos()
   cargarEstadosCita()
   cargarEstadosPaciente()
   cargarSedes()
@@ -359,9 +371,9 @@ onMounted(() => {
 <template>
   <div class="card xl:w-4/5 relative overflow-hidden">
     <Preloader v-if="isPageLoading"></Preloader>
-    <p class="text-3xl font-bold">Agregar nueva cita</p>
+    <p class="text-3xl font-bold text-secondary">Agregar nueva cita</p>
     <div class="grid grid-cols-12 gap-y-6 md:gap-6">
-      <div class="col-span-12" v-if="isSuperAdmin">
+      <div class="col-span-12">
         <label for="sede" class="block font-bold mb-3">Sede</label>
         <Select id="sede" class="col-span-4 sm:col-span-3 w-full" v-model:model-value="nSedeSelected"
           :options="aSedesSelect" option-label="label" option-value="value" :disabled="isSedeLoading"
@@ -401,29 +413,32 @@ onMounted(() => {
           </div>
         </div>
       </div>
-      <div class="col-span-12">
+      <!-- <div class="col-span-12">
         <label for="quiropractico" class="block font-bold mb-3">Quiropractico</label>
         <Select id="quiropractico" class="w-full" v-model:model-value="nQuiropracticoSelected"
           :options="aQuiropracticosSelect" option-label="label" option-value="value" :disabled="isQuiropracticosLoading"
           :invalid="oInvalidObj['quiropractico']" filter>
         </Select>
-      </div>
+      </div> -->
       <div class="col-span-12 grid grid-cols-4 gap-4">
-        <div class="col-span-4">
+        <div class="col-span-4 md:col-span-2">
           <label for="fecha" class="block font-bold mb-3">Fecha</label>
           <!--
           <DatePicker id="fecha" class="col-span-3 w-full" v-model:model-value="oFechaSelected" date-format="yy/mm/dd"
             :invalid="oInvalidObj['fecha']">
           </DatePicker>
           -->
-          <InputText id="fecha_cita" type="datetime" v-model:model-value="oFechaSelected" fluid />
+          <InputText id="fecha_cita" type="date" v-model:model-value="oFechaSelected" fluid />
         </div>
-        <!-- <div class="col-span-4 md:col-span-2">
-          <label for="horario" class="block font-bold mb-3">Horario</label>
-          <Select id="horario" class="col-span-3 w-full" v-model:model-value="nHorarioSelected"
+        <div class="col-span-4 md:col-span-2">
+          <label for="hora_cita" class="block font-bold mb-3">Hora</label>
+          <DatePicker id="hora_cita" class="col-span-3 w-full" hour-format="12" v-model:model-value="oTiempoSelected"
+            time-only>
+          </DatePicker>
+          <!-- <Select id="horario" class="col-span-3 w-full" v-model:model-value="nHorarioSelected"
             :options="aHorariosSelect" option-label="label" option-value="value" :disabled="isHorarioLoading"
-            :invalid="oInvalidObj['horario']"></Select>
-        </div> -->
+            :invalid="oInvalidObj['horario']"></Select> -->
+        </div>
       </div>
       <div class="col-span-12">
         <label for="observaciones" class="block font-bold mb-3">Observaciones</label>
