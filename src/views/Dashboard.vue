@@ -204,7 +204,7 @@ onMounted(() => {
                     </Card>
                 </router-link>
                 <!--Quiroprácticos-->
-                <router-link to="/gestion/quiropracticos/todos">
+                <!-- <router-link to="/gestion/quiropracticos/todos">
                     <Card class="mb-1">
                         <template #content>
                             <div class="flex items-center mb-0">
@@ -220,22 +220,24 @@ onMounted(() => {
                             </div>
                         </template>
                     </Card>
-                </router-link>
+                </router-link> -->
                 <!--Pacientes-->
-                <Card class="mb-1">
-                    <template #content>
-                        <div class="flex items-center mb-0">
-                            <div class="col-span-4 flex items-center justify-center bg-secondary-50 dark:bg-secondary-400/20 rounded-border"
-                                style="width: 3.5rem; height: 3.5rem">
-                                <i class="pi pi-fw pi-user-plus text-secondary dark:text-white/90 !text-5xl"></i>
+                <router-link to="/gestion/pacientes/todos">
+                    <Card class="mb-1">
+                        <template #content>
+                            <div class="flex items-center mb-0">
+                                <div class="col-span-4 flex items-center justify-center bg-secondary-50 dark:bg-secondary-400/20 rounded-border"
+                                    style="width: 3.5rem; height: 3.5rem">
+                                    <i class="pi pi-fw pi-user-plus text-secondary dark:text-white/90 !text-5xl"></i>
+                                </div>
+                                <div class="col-span-8 flex justify-center flex-col pl-4">
+                                    <span class="block text-lg font-bold">Pacientes</span>
+                                    <span class="block text-2xl font-bold text-secondary dark:text-white/90">190</span>
+                                </div>
                             </div>
-                            <div class="col-span-8 flex justify-center flex-col pl-4">
-                                <span class="block text-lg font-bold">Pacientes</span>
-                                <span class="block text-2xl font-bold text-secondary dark:text-white/90">190</span>
-                            </div>
-                        </div>
-                    </template>
-                </Card>
+                        </template>
+                    </Card>
+                </router-link>
                 <!--Pagos-->
                 <Card class="mb-1">
                     <template #content>

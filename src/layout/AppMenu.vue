@@ -42,8 +42,8 @@ const menuItems = ref([
                 label: 'Pacientes',
                 icon: 'pi pi-fw pi-user-plus',
                 items: [
-                    { label: 'Todos los pacientes', to: '/gestion/paciente' },
-                    { label: 'Añadir pacientes', to: '#' },
+                    { label: 'Todos los pacientes', to: '/gestion/pacientes/todos' },
+                    { label: 'Añadir pacientes', to: '/gestion/pacientes/agregar' },
                     { label: 'Historial de pagos', to: '#' },
                     { label: 'Historias clínicas', to: '#' },
                 ]
@@ -410,7 +410,15 @@ const updateMenu = () => {
 
     // Verificamos si el rol es 'Superadministrador'
     if (userRole.value === 'Superadministrador') {
-        filteredMenu.value = menuItems.value;
+        filteredMenu.value = menuItems.value.map(item => {
+            if (item.label === 'Gestion Clínica') {
+                item.items = item.items.filter(subitem => {
+                    return subitem.label !== 'Quiroprácticos'
+                });
+                return item;
+            }
+            return item;
+        }).filter(item => item !== null);
     } else if (userRole.value === 'Administrador') {
         // Si el rol es 'Administrador'
         filteredMenu.value = menuItems.value.map(item => {

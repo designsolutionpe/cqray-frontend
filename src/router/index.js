@@ -45,13 +45,13 @@ const router = createRouter({
                     meta: { requiresAuth: true }
                     //meta: { requiresAuth: true, roles: ['admin', 'user'] },
                 },
-                {
-                    path: '/gestion/cita',
-                    name: 'cita',
-                    component: () => import('@/views/gestion/Cita.vue'),
-                    meta: { requiresAuth: true, roles: ['Superadministrador', 'Administrador'] }
-                    //meta: { requiresAuth: true, roles: ['admin', 'user'] },
-                },
+                // {
+                //     path: '/gestion/cita',
+                //     name: 'cita',
+                //     component: () => import('@/views/gestion/Cita.vue'),
+                //     meta: { requiresAuth: true, roles: ['Superadministrador', 'Administrador'] }
+                //     //meta: { requiresAuth: true, roles: ['admin', 'user'] },
+                // },
                 {
                     path: '/gestion/citas/todas',
                     name: 'citas-todas',
@@ -73,38 +73,52 @@ const router = createRouter({
                     meta: { requiresAuth: true, roles: ['Superadministrador', 'Administrador'] }
                     //meta: { requiresAuth: true, roles: ['admin', 'user'] },
                 },
+                // {
+                //     path: '/gestion/quiropractico',
+                //     name: 'quiropractico',
+                //     component: () => import('@/views/gestion/Quiropractico.vue'),
+                //     meta: { requiresAuth: true, roles: [] }
+                //     //meta: { requiresAuth: true, roles: ['admin'] },
+                // },
+                // {
+                //     path: '/gestion/quiropracticos/todos',
+                //     name: 'quiropracticos-todos',
+                //     component: () => import('@/views/gestion/quiropracticos/Todos.vue'),
+                //     meta: { requiresAuth: true, roles: [] }
+                //     //meta: { requiresAuth: true, roles: ['admin'] },
+                // },
+                // {
+                //     path: '/gestion/quiropracticos/agregar',
+                //     name: 'quiropracticos-agregar',
+                //     component: () => import('@/views/gestion/quiropracticos/Agregar.vue'),
+                //     meta: { requiresAuth: true, roles: ['Superadministrador', 'Administrador'] }
+                //     //meta: { requiresAuth: true, roles: ['admin'] },
+                // },
+                // {
+                //     path: '/gestion/quiropracticos/atendidos',
+                //     name: 'quiropracticos-atendidos',
+                //     component: () => import('@/views/gestion/quiropracticos/Atentidos.vue'),
+                //     meta: { requiresAuth: true, roles: ['Superadministrador', 'Administrador'] }
+                //     //meta: { requiresAuth: true, roles: ['admin'] },
+                // },
+                // {
+                //     path: '/gestion/paciente',
+                //     name: 'paciente',
+                //     component: () => import('@/views/gestion/Paciente.vue'),
+                //     meta: { requiresAuth: true, roles: ['Superadministrador', 'Administrador'] }
+                //     //meta: { requiresAuth: true, roles: ['admin', 'user'] },
+                // },
                 {
-                    path: '/gestion/quiropractico',
-                    name: 'quiropractico',
-                    component: () => import('@/views/gestion/Quiropractico.vue'),
-                    meta: { requiresAuth: true, roles: [] }
-                    //meta: { requiresAuth: true, roles: ['admin'] },
-                },
-                {
-                    path: '/gestion/quiropracticos/todos',
-                    name: 'quiropracticos-todos',
-                    component: () => import('@/views/gestion/quiropracticos/Todos.vue'),
-                    meta: { requiresAuth: true, roles: [] }
-                    //meta: { requiresAuth: true, roles: ['admin'] },
-                },
-                {
-                    path: '/gestion/quiropracticos/agregar',
-                    name: 'quiropracticos-agregar',
-                    component: () => import('@/views/gestion/quiropracticos/Agregar.vue'),
+                    path: '/gestion/pacientes/todos',
+                    name: 'paciente-todos',
+                    component: () => import('@/views/gestion/pacientes/Todos.vue'),
                     meta: { requiresAuth: true, roles: ['Superadministrador', 'Administrador'] }
-                    //meta: { requiresAuth: true, roles: ['admin'] },
+                    //meta: { requiresAuth: true, roles: ['admin', 'user'] },
                 },
                 {
-                    path: '/gestion/quiropracticos/atendidos',
-                    name: 'quiropracticos-atendidos',
-                    component: () => import('@/views/gestion/quiropracticos/Atentidos.vue'),
-                    meta: { requiresAuth: true, roles: ['Superadministrador', 'Administrador'] }
-                    //meta: { requiresAuth: true, roles: ['admin'] },
-                },
-                {
-                    path: '/gestion/paciente',
-                    name: 'paciente',
-                    component: () => import('@/views/gestion/Paciente.vue'),
+                    path: '/gestion/pacientes/agregar',
+                    name: 'paciente-agregar',
+                    component: () => import('@/views/gestion/pacientes/Agregar.vue'),
                     meta: { requiresAuth: true, roles: ['Superadministrador', 'Administrador'] }
                     //meta: { requiresAuth: true, roles: ['admin', 'user'] },
                 },
@@ -158,97 +172,97 @@ const router = createRouter({
                     meta: { requiresAuth: true, roles: ['Superadministrador'] }
                 },
                 */
-                {
-                    path: '/uikit/formlayout',
-                    name: 'formlayout',
-                    component: () => import('@/views/uikit/FormLayout.vue')
-                },
-                {
-                    path: '/uikit/input',
-                    name: 'input',
-                    component: () => import('@/views/uikit/InputDoc.vue')
-                },
-                {
-                    path: '/uikit/button',
-                    name: 'button',
-                    component: () => import('@/views/uikit/ButtonDoc.vue')
-                },
-                {
-                    path: '/uikit/table',
-                    name: 'table',
-                    component: () => import('@/views/uikit/TableDoc.vue')
-                },
-                {
-                    path: '/uikit/list',
-                    name: 'list',
-                    component: () => import('@/views/uikit/ListDoc.vue')
-                },
-                {
-                    path: '/uikit/tree',
-                    name: 'tree',
-                    component: () => import('@/views/uikit/TreeDoc.vue')
-                },
-                {
-                    path: '/uikit/panel',
-                    name: 'panel',
-                    component: () => import('@/views/uikit/PanelsDoc.vue')
-                },
+                // {
+                //     path: '/uikit/formlayout',
+                //     name: 'formlayout',
+                //     component: () => import('@/views/uikit/FormLayout.vue')
+                // },
+                // {
+                //     path: '/uikit/input',
+                //     name: 'input',
+                //     component: () => import('@/views/uikit/InputDoc.vue')
+                // },
+                // {
+                //     path: '/uikit/button',
+                //     name: 'button',
+                //     component: () => import('@/views/uikit/ButtonDoc.vue')
+                // },
+                // {
+                //     path: '/uikit/table',
+                //     name: 'table',
+                //     component: () => import('@/views/uikit/TableDoc.vue')
+                // },
+                // {
+                //     path: '/uikit/list',
+                //     name: 'list',
+                //     component: () => import('@/views/uikit/ListDoc.vue')
+                // },
+                // {
+                //     path: '/uikit/tree',
+                //     name: 'tree',
+                //     component: () => import('@/views/uikit/TreeDoc.vue')
+                // },
+                // {
+                //     path: '/uikit/panel',
+                //     name: 'panel',
+                //     component: () => import('@/views/uikit/PanelsDoc.vue')
+                // },
 
-                {
-                    path: '/uikit/overlay',
-                    name: 'overlay',
-                    component: () => import('@/views/uikit/OverlayDoc.vue')
-                },
-                {
-                    path: '/uikit/media',
-                    name: 'media',
-                    component: () => import('@/views/uikit/MediaDoc.vue')
-                },
-                {
-                    path: '/uikit/message',
-                    name: 'message',
-                    component: () => import('@/views/uikit/MessagesDoc.vue')
-                },
-                {
-                    path: '/uikit/file',
-                    name: 'file',
-                    component: () => import('@/views/uikit/FileDoc.vue')
-                },
-                {
-                    path: '/uikit/menu',
-                    name: 'menu',
-                    component: () => import('@/views/uikit/MenuDoc.vue')
-                },
-                {
-                    path: '/uikit/charts',
-                    name: 'charts',
-                    component: () => import('@/views/uikit/ChartDoc.vue')
-                },
-                {
-                    path: '/uikit/misc',
-                    name: 'misc',
-                    component: () => import('@/views/uikit/MiscDoc.vue')
-                },
-                {
-                    path: '/uikit/timeline',
-                    name: 'timeline',
-                    component: () => import('@/views/uikit/TimelineDoc.vue')
-                },
-                {
-                    path: '/pages/empty',
-                    name: 'empty',
-                    component: () => import('@/views/pages/Empty.vue')
-                },
-                {
-                    path: '/pages/crud',
-                    name: 'crud',
-                    component: () => import('@/views/pages/Crud.vue')
-                },
-                {
-                    path: '/documentation',
-                    name: 'documentation',
-                    component: () => import('@/views/pages/Documentation.vue')
-                }
+                // {
+                //     path: '/uikit/overlay',
+                //     name: 'overlay',
+                //     component: () => import('@/views/uikit/OverlayDoc.vue')
+                // },
+                // {
+                //     path: '/uikit/media',
+                //     name: 'media',
+                //     component: () => import('@/views/uikit/MediaDoc.vue')
+                // },
+                // {
+                //     path: '/uikit/message',
+                //     name: 'message',
+                //     component: () => import('@/views/uikit/MessagesDoc.vue')
+                // },
+                // {
+                //     path: '/uikit/file',
+                //     name: 'file',
+                //     component: () => import('@/views/uikit/FileDoc.vue')
+                // },
+                // {
+                //     path: '/uikit/menu',
+                //     name: 'menu',
+                //     component: () => import('@/views/uikit/MenuDoc.vue')
+                // },
+                // {
+                //     path: '/uikit/charts',
+                //     name: 'charts',
+                //     component: () => import('@/views/uikit/ChartDoc.vue')
+                // },
+                // {
+                //     path: '/uikit/misc',
+                //     name: 'misc',
+                //     component: () => import('@/views/uikit/MiscDoc.vue')
+                // },
+                // {
+                //     path: '/uikit/timeline',
+                //     name: 'timeline',
+                //     component: () => import('@/views/uikit/TimelineDoc.vue')
+                // },
+                // {
+                //     path: '/pages/empty',
+                //     name: 'empty',
+                //     component: () => import('@/views/pages/Empty.vue')
+                // },
+                // {
+                //     path: '/pages/crud',
+                //     name: 'crud',
+                //     component: () => import('@/views/pages/Crud.vue')
+                // },
+                // {
+                //     path: '/documentation',
+                //     name: 'documentation',
+                //     component: () => import('@/views/pages/Documentation.vue')
+                // }
             ]
         },
         {
@@ -277,6 +291,11 @@ const router = createRouter({
             path: '/auth/error',
             name: 'error',
             component: () => import('@/views/pages/auth/Error.vue')
+        },
+        {
+            path: '/:pathMath(.*)*',
+            name: 'checkExistence',
+            component: () => import('@/views/pages/NotFound.vue')
         }
     ]
 });

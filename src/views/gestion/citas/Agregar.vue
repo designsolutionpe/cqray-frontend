@@ -218,7 +218,7 @@ const cargarSedes = async () => {
       label: d.nombre,
       value: d.id
     }))
-    nSedeSelected.value = aSedesSelect.value.find(s => s.value == parseInt(id_sede.value)).value || null
+    nSedeSelected.value = aSedesSelect.value.find(s => s.value == parseInt(id_sede.value))?.value || null
     isSedeLoading.value = false
   }
   catch (error) {

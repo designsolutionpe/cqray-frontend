@@ -47,6 +47,7 @@ const filters = ref()
 
 const initFilters = () => {
   filters.value = {
+    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
     'sede.nombre': { value: sedeSelected, matchMode: FilterMatchMode.EQUALS },
     'paciente.persona.nombreCompleto': { value: null, matchMode: FilterMatchMode.CONTAINS },
     'quiropractico.persona.nombreCompleto': { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -322,11 +323,20 @@ onMounted(() => {
     <DataTable v-model:filters="filters" :value="citasTable" removable-sort table-style="min-width: 50rem"
       filter-display="row" data-key="id" paginator show-gridlines :rows="10"
       paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
-      currentPageReportTemplate="Mostrando {first} de {last} - {totalRecords} citas">
+      currentPageReportTemplate="Mostrando {first} de {last} - {totalRecords} citas"
+      :global-filter-fields="['id', 'sede.nombre', 'paciente.persona.nombreCompleto', 'paciente.historia_clinica']">
 
       <!-- Header -->
       <template #header>
-        <Button label="Borrar filtros" icon="pi pi-filter-slash" @click="resetFilters()" outlined></Button>
+        <div class="flex justify-between">
+          <Button label="Borrar filtros" icon="pi pi-filter-slash" @click="resetFilters()" outlined></Button>
+          <IconField>
+            <InputIcon>
+              <i class="pi pi-search"></i>
+            </InputIcon>
+            <InputText v-model:model-value="filters['global'].value" placeholder="Filtro global"></InputText>
+          </IconField>
+        </div>
       </template>
 
       <!-- ID -->
