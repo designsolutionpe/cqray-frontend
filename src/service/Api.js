@@ -11,6 +11,7 @@ const api = axios.create({
     }
 });
 
+
 api.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('token');
@@ -28,6 +29,8 @@ api.interceptors.request.use(
 api.interceptors.response.use(
     response => response,
     error => {
+        if (axios.isCancel(error))
+            return Promise.resolve({ cancelled: true })
         console.error('Error en la API:', error.response?.data || error.message);
         return Promise.reject(error);
     }

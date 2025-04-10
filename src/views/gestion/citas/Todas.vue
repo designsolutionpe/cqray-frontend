@@ -6,8 +6,9 @@ import { getPacienteEstados } from '@/service/gestion/PacienteService'
 import { getSedes } from '@/service/mantenimiento/SedeService'
 import { formatDate } from '@/utils/Util'
 import { FilterMatchMode } from '@primevue/core/api'
+import axios from 'axios'
 import { useToast } from 'primevue'
-import { computed, onMounted, ref } from 'vue'
+import { computed, onBeforeMount, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useStore } from 'vuex'
 
 const toast = useToast()
@@ -20,6 +21,8 @@ const isCitasLoading = ref(true)
 const isCitaUpdateLoading = ref(false)
 const isLinkWhatsappActive = ref(false)
 const sLinkWhatsappActive = ref('')
+
+const cancelToken = ref()
 
 const id_sede = computed(() => store.getters.id_sede)
 const id_usuario = computed(() => store.getters.id)
@@ -40,8 +43,8 @@ const horariosSelect = ref([
 ])
 const aTipoDocumento = ref([
   { label: "DNI" },
-  { label: "Carnet de extranjeria" },
-  { label: "RUC" },
+  { label: "Carnet de Extranjería" },
+  { label: "Pasaporte" },
   { label: "Otro" },
 ])
 
@@ -82,12 +85,14 @@ const sendWhatsappDialog = ref()
 
 const cargarSedes = async () => {
   try {
-    const response = await getSedes();
-    sedesSelect.value = response.map(sede => ({
-      label: sede.nombre,
-      value: sede.id
-    }))
-    sedeSelected.value = id_sede.value ? sedesSelect.value[id_sede.value - 1].label : null
+    const response = await getSedes(cancelToken.value.token);
+    if (response) {
+      sedesSelect.value = response.map(sede => ({
+        label: sede.nombre,
+        value: sede.id
+      }))
+      sedeSelected.value = id_sede.value ? sedesSelect.value[id_sede.value - 1].label : null
+    }
     isSedeLoading.value = false
   }
   catch (error) {
@@ -102,11 +107,13 @@ const cargarSedes = async () => {
 
 const cargarEstadoCita = async () => {
   try {
-    const response = await getCitaEstados()
-    estadoCitaSelect.value = response.map(estado => ({
-      label: estado.nombre,
-      value: estado.id
-    }))
+    const response = await getCitaEstados(cancelToken.value.token)
+    if (response) {
+      estadoCitaSelect.value = response.map(estado => ({
+        label: estado.nombre,
+        value: estado.id
+      }))
+    }
     isEstadoCitaLoading.value = false
   }
   catch (error) {
@@ -121,11 +128,13 @@ const cargarEstadoCita = async () => {
 
 const cargarEstadoPaciente = async () => {
   try {
-    const response = await getPacienteEstados();
-    estadoPacienteSelect.value = response.map(estado => ({
-      label: estado.nombre,
-      value: estado.id
-    }))
+    const response = await getPacienteEstados(cancelToken.value.token);
+    if (response) {
+      estadoPacienteSelect.value = response.map(estado => ({
+        label: estado.nombre,
+        value: estado.id
+      }))
+    }
     isEstadoPacienteLoading.value = false
   }
   catch (error) {
@@ -141,20 +150,22 @@ const cargarEstadoPaciente = async () => {
 const cargarCitas = async () => {
   isCitasLoading.value = true
   try {
-    const response = await getCitas()
-    citasTable.value = response.map(cita => ({
-      ...cita,
-      fecha_cita: new Date(cita.fecha_cita + 'T00:00:00'),
-      hora_cita: cita.hora_cita ? new Date(cita.fecha_cita + 'T' + cita.hora_cita).toLocaleTimeString('es-PE', { hour12: true }) : null,
-      paciente: {
-        ...cita.paciente,
-        persona: {
-          ...cita.paciente.persona,
-          nombreCompleto: `${cita.paciente.persona.apellido} ${cita.paciente.persona.nombre}`,
-          edad: new Date().getYear() - new Date(cita.paciente.persona.fecha_nacimiento + 'T00:00:00').getYear()
+    const response = await getCitas(cancelToken.value.token)
+    if (response) {
+      citasTable.value = response.map(cita => ({
+        ...cita,
+        fecha_cita: new Date(cita.fecha_cita + 'T00:00:00'),
+        hora_cita: cita.hora_cita ? new Date(cita.fecha_cita + 'T' + cita.hora_cita).toLocaleTimeString('es-PE', { hour12: true }) : null,
+        paciente: {
+          ...cita.paciente,
+          persona: {
+            ...cita.paciente.persona,
+            nombreCompleto: `${cita.paciente.persona.apellido} ${cita.paciente.persona.nombre}`,
+            edad: new Date().getYear() - new Date(cita.paciente.persona.fecha_nacimiento + 'T00:00:00').getYear()
+          }
         }
-      }
-    }))
+      }))
+    }
     isCitasLoading.value = false
   }
   catch (error) {
@@ -318,15 +329,19 @@ const deleteCitaFn = async () => {
   }
 }
 
-// watch([citaSelected], () => {
-//   console.log('cita selected', citaSelected.value)
-// })
+onBeforeMount(() => {
+  cancelToken.value = axios.CancelToken.source()
+})
 
 onMounted(() => {
   cargarSedes()
   cargarEstadoCita()
   cargarEstadoPaciente()
   cargarCitas()
+})
+
+onBeforeUnmount(() => {
+  cancelToken.value.cancel()
 })
 
 </script>
@@ -490,7 +505,7 @@ onMounted(() => {
       </div>
       <hr class="m-0">
       <p class="text-2xl font-bold m-0">Informacion de cita</p>
-      <div>
+      <div v-if="citaSelected.paciente.numero">
         <Button icon="pi pi-eye" severity="info" outlined label="Ir a whatsapp" @click="sendWhatsappMessage"></Button>
       </div>
       <div>

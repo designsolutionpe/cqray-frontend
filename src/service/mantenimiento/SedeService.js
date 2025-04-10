@@ -1,8 +1,12 @@
 import api from '@/service/Api';
 
-export const getSedes = async () => {
+export const getSedes = async (cancelToken) => {
     try {
-        const response = await api.get('/sedes');
+        const response = await api.get('/sedes', {
+            cancelToken: cancelToken || null
+        });
+        if (typeof response.cancelled != 'undefined')
+            return null
         return response.data;
     } catch (error) {
         console.error('Error al obtener las sedes:', error);
@@ -11,9 +15,13 @@ export const getSedes = async () => {
 };
 
 // Obtener una sede por ID
-export const getSedeById = async (id) => {
+export const getSedeById = async (id, cancelToken) => {
     try {
-        const response = await api.get(`/sedes/${id}`);
+        const response = await api.get(`/sedes/${id}`, {
+            cancelToken: cancelToken || null
+        });
+        if (typeof response.cancelled != 'undefined')
+            return []
         return response.data;
     } catch (error) {
         console.error('Error al obtener la sede:', error);

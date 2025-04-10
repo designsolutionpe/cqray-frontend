@@ -5,8 +5,9 @@ import { deletePaciente, getPacienteEstados, getPacientes, updatePaciente } from
 import { getSedes } from '@/service/mantenimiento/SedeService';
 import { formatDate, handleServerError } from '@/utils/Util';
 import { FilterMatchMode } from '@primevue/core/api';
+import axios from 'axios';
 import { useToast } from 'primevue';
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onBeforeMount, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useStore } from 'vuex';
 
 // General Variables
@@ -24,6 +25,8 @@ const bEditPaciente = ref(false)
 const oPacienteInfo = ref({})
 
 const deleteDialog = ref()
+
+const cancelToken = ref()
 
 // Invalid
 const oInvalid = ref({
@@ -44,8 +47,8 @@ const oInvalid = ref({
 // Select Variables
 const aTipoDocumentoSelect = ref([
   { label: "DNI" },
-  { label: "Carnet de extranjeria" },
-  { label: "RUC" },
+  { label: "Carnet de Extranjería" },
+  { label: "Pasaporte" },
   { label: "Otro" },
 ])
 const aGenero = ref([
@@ -95,11 +98,13 @@ const cargarPacientes = async () => {
 const cargarSedes = async () => {
   isSedeLoading.value = true
   try {
-    const response = await getSedes()
-    aSedeSelect.value = response.map(s => ({
-      label: s.nombre,
-      value: s.id
-    }))
+    const response = await getSedes(cancelToken.value.token)
+    if (response) {
+      aSedeSelect.value = response.map(s => ({
+        label: s.nombre,
+        value: s.id
+      }))
+    }
     isSedeLoading.value = false
   }
   catch (error) {
@@ -110,11 +115,13 @@ const cargarSedes = async () => {
 const cargarEstadoPaciente = async () => {
   isEstadoPacienteLoading.value = true
   try {
-    const response = await getPacienteEstados()
-    aEstadoPacienteSelect.value = response.map(e => ({
-      label: e.nombre,
-      value: e.id
-    }))
+    const response = await getPacienteEstados(cancelToken.value.token)
+    if (response) {
+      aEstadoPacienteSelect.value = response.map(e => ({
+        label: e.nombre,
+        value: e.id
+      }))
+    }
     isEstadoPacienteLoading.value = false
   }
   catch (error) {
@@ -127,6 +134,7 @@ const cargarEstadoPaciente = async () => {
 const initFilters = () => {
   oFilters.value = {
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    'sede.nombre': { value: null, matchMode: FilterMatchMode.EQUALS },
     'persona.tipo_documento': { value: null, matchMode: FilterMatchMode.EQUALS },
     'persona.numero_documento': { value: null, matchMode: FilterMatchMode.CONTAINS },
     'persona.apellido': { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -271,11 +279,20 @@ watch([
 })
 
 // Mounted
+
+onBeforeMount(() => {
+  cancelToken.value = axios.CancelToken.source()
+})
+
 // to load all server request
 onMounted(() => {
   cargarSedes()
   cargarEstadoPaciente()
   cargarPacientes()
+})
+
+onBeforeUnmount(() => {
+  cancelToken.value.cancel()
 })
 
 </script>
@@ -306,6 +323,15 @@ onMounted(() => {
 
       <!-- ID -->
       <!-- <Column field="id" header="#" sortable style="min-width: 3rem"></Column> -->
+
+      <!-- Sede -->
+      <Column field="sede.nombre" header="Sede" :show-filter-menu="false" sortable style="min-width: 8rem">
+        <template #filter="{ filterModel, filterCallback }">
+          <Select v-model:model-value="filterModel.value" @change="filterCallback()" option-label="label"
+            option-value="label" :options="aSedeSelect" placeholder="Filtrar por sede"
+            style="min-width: 12rem;"></Select>
+        </template>
+      </Column>
 
       <!-- Tipo Documento -->
       <Column field="persona.tipo_documento" header="Tipo Documento" :show-filter-menu="false" sortable
@@ -381,12 +407,15 @@ onMounted(() => {
       </Column>
 
       <!-- Acciones -->
-      <Column :exportable="false" style="min-width: 12rem">
+      <Column :exportable="false" style="min-width: 15rem">
         <template #body="pacienteItem">
           <Button icon="pi pi-eye" outlined rounded severity="info" class="mr-2"
             @click="onOpenViewDialog(pacienteItem.data)"></Button>
           <Button icon="pi pi-pencil" outlined rounded class="mr-2"
             @click="onOpenEditDialog(pacienteItem.data)"></Button>
+          <!-- <router-link to="/gestion/pacientes/directorio">
+            <Button icon="pi pi-folder" outlined rounded severity='contrast' class="mr-2"></Button>
+          </router-link> -->
           <Button icon="pi pi-trash" outlined rounded severity="danger" class="mr-2"
             @click="openDeleteDialog(pacienteItem.data)"></Button>
         </template>

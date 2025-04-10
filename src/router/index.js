@@ -123,6 +123,20 @@ const router = createRouter({
                     //meta: { requiresAuth: true, roles: ['admin', 'user'] },
                 },
                 {
+                    path: '/gestion/pacientes/directorio',
+                    name: 'paciente-directorio',
+                    component: () => import('@/views/gestion/pacientes/Directorio.vue'),
+                    meta: { requiresAuth: true, roles: ['Superadministrador', 'Administrador'] }
+                    //meta: { requiresAuth: true, roles: ['admin', 'user'] },
+                },
+                {
+                    path: '/gestion/pacientes/historial-pagos',
+                    name: 'paciente-historial_pagos',
+                    component: () => import('@/views/gestion/pacientes/HistorialPagos.vue'),
+                    meta: { requiresAuth: true, roles: ['Superadministrador', 'Administrador'] }
+                    //meta: { requiresAuth: true, roles: ['admin', 'user'] },
+                },
+                {
                     path: '/gestion/ventas/boleta',
                     name: 'boleta',
                     component: () => import('@/views/gestion/ventas/Boleta.vue'),

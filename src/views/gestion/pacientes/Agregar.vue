@@ -3,14 +3,17 @@ import Preloader from '@/components/Preloader.vue';
 import { createPaciente, getPacienteEstados } from '@/service/gestion/PacienteService';
 import { getSedes } from '@/service/mantenimiento/SedeService';
 import { handleServerError } from '@/utils/Util';
+import axios from 'axios';
 import { useToast } from 'primevue';
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onBeforeMount, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useStore } from 'vuex';
 
 
 const store = useStore()
 const toast = useToast()
 const id_sede = computed(() => store.getters.id_sede)
+
+const cancelToken = ref()
 
 const oPacienteInfo = ref({
   tipo_documento: 'DNI',
@@ -46,8 +49,8 @@ const oInvalid = ref({
 // Select Variables
 const aTipoDocumentoSelect = ref([
   { label: "DNI" },
-  { label: "Carnet de extranjeria" },
-  { label: "RUC" },
+  { label: "Carnet de Extranjería" },
+  { label: "Pasaporte" },
   { label: "Otro" },
 ])
 const aGenero = ref([
@@ -85,12 +88,14 @@ const resetInputs = () => {
 const cargarSedes = async () => {
   isSedeLoading.value = true
   try {
-    const response = await getSedes()
-    aSedeSelect.value = response.map(s => ({
-      label: s.nombre,
-      value: s.id
-    }))
-    oPacienteInfo.value.id_sede = aSedeSelect.value.find(s => s.value == id_sede.value)?.value || null
+    const response = await getSedes(cancelToken.value.token)
+    if (response) {
+      aSedeSelect.value = response.map(s => ({
+        label: s.nombre,
+        value: s.id
+      }))
+      oPacienteInfo.value.id_sede = aSedeSelect.value.find(s => s.value == id_sede.value)?.value || null
+    }
     isSedeLoading.value = false
   }
   catch (error) {
@@ -101,11 +106,13 @@ const cargarSedes = async () => {
 const cargarEstadoPaciente = async () => {
   isEstadoPacienteLoading.value = true
   try {
-    const response = await getPacienteEstados()
-    aEstadoPacienteSelect.value = response.map(e => ({
-      label: e.nombre,
-      value: e.id
-    }))
+    const response = await getPacienteEstados(cancelToken.value.token)
+    if (response) {
+      aEstadoPacienteSelect.value = response.map(e => ({
+        label: e.nombre,
+        value: e.id
+      }))
+    }
     isEstadoPacienteLoading.value = false
   }
   catch (error) {
@@ -189,12 +196,21 @@ watch([
     isPageLoading.value = false
 })
 
+onBeforeMount(() => {
+  cancelToken.value = axios.CancelToken.source()
+})
+
 // Mounted
 // to load all server request
 onMounted(() => {
   cargarSedes()
   cargarEstadoPaciente()
 })
+
+onBeforeUnmount(() => {
+  cancelToken.value.cancel()
+})
+
 </script>
 <template>
   <div class="card w-full lg:w-[650px] relative overflow-hidden flex flex-col gap-6 pt-5">

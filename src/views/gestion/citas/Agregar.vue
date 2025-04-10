@@ -3,12 +3,11 @@ import Preloader from '@/components/Preloader.vue';
 import YesNoDialog from '@/components/YesNoDialog.vue';
 import { createCita, getCitaEstados } from '@/service/gestion/CitaService';
 import { getPacienteEstados, getPacientes } from '@/service/gestion/PacienteService';
-import { getQuiropracticos } from '@/service/gestion/QuiropracticoService';
-import { getHorariosDisponibles } from '@/service/mantenimiento/HorarioService';
 import { getSedes } from '@/service/mantenimiento/SedeService';
 import { formatDate } from '@/utils/Util';
+import axios from 'axios';
 import { useToast } from 'primevue';
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onBeforeMount, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useStore } from 'vuex';
 
 // Global Data
@@ -20,10 +19,18 @@ const oNuevaCita = ref({
   id_usuario: null,
   historia_clinica: null,
   fecha_cita: null,
-  hora_cira: null,
+  hora_cita: null,
   estado: null,
   tipo_paciente: null,
   observaciones: null
+})
+
+const oWhatsappLinkData = ref({
+  telefono: null,
+  paciente: null,
+  fecha: null,
+  hora: null,
+  sede: null
 })
 
 const toast = useToast()
@@ -32,6 +39,8 @@ const id_sede = computed(() => store.getters.id_sede)
 const id_usuario = computed(() => store.getters.id)
 const isSuperAdmin = computed(() => (id_sede.value == null))
 const sendWhatsappDialog = ref()
+
+const cancelToken = ref()
 
 const oInvalidObj = ref({
   paciente: false,
@@ -48,7 +57,6 @@ const oInvalidObj = ref({
 
 // Select Input Data
 const aPacientesSelect = ref()
-// const aQuiropracticosSelect = ref()
 const aHorariosSelect = ref()
 const aEstadosCitaSelect = ref()
 const aEstadosPacienteSelect = ref()
@@ -106,21 +114,23 @@ const handleServerError = (error, info) => {
 const cargarPacientes = async () => {
   isPacientesLoading.value = true
   try {
-    const response = await getPacientes()
+    const response = await getPacientes(cancelToken.value.token)
     aPacientes.value = response
-    aPacientesSelect.value = response.map(d => ({
-      label: `${d.persona.nombre} ${d.persona.apellido}`,
-      value: d.id
-    }))
-    oPacienteSelected.value = response[0].id
+    if (response) {
+      aPacientesSelect.value = response.map(d => ({
+        label: `${d.persona.nombre} ${d.persona.apellido}`,
+        value: d.id
+      }))
+      oPacienteSelected.value = response[0].id
 
-    if (response[0].persona.telefono)
-      bActiveNumero.value = true
-    if (response[0].historia_clinica)
-      bActiveHistorial.value = true
+      if (response[0].persona.telefono)
+        bActiveNumero.value = true
+      if (response[0].historia_clinica)
+        bActiveHistorial.value = true
 
-    sNumeroPaciente.value = response[0].persona.telefono
-    sHistorialClinica.value = response[0].historia_clinica
+      sNumeroPaciente.value = response[0].persona.telefono
+      sHistorialClinica.value = response[0].historia_clinica
+    }
     isPacientesLoading.value = false
   }
   catch (error) {
@@ -128,65 +138,17 @@ const cargarPacientes = async () => {
   }
 }
 
-const cargarQuiropracticos = async () => {
-  isQuiropracticosLoading.value = true
-  try {
-    const response = await getQuiropracticos()
-    aQuiropracticosSelect.value = response.map(d => ({
-      label: `${d.persona.nombre} ${d.persona.apellido}`,
-      value: d.id
-    }))
-    nQuiropracticoSelected.value = response[0].id
-    isQuiropracticosLoading.value = false
-    // await cargarHorarios()
-
-  }
-  catch (error) {
-    handleServerError(error, 'Quiropracticos')
-  }
-}
-
-const cargarHorarios = async () => {
-  isHorarioLoading.value = true
-
-  try {
-
-    const fechaSeleccionada = new Date(oNuevaCita.value.fecha_cita + 'T00:00:00');
-    let dia = fechaSeleccionada.getDay();
-    if (dia === 0) {
-      dia = 6;
-    } else {
-      dia -= 1;
-    }
-
-    const response = await getHorariosDisponibles(
-      oNuevaCita.value.fecha_cita,
-      oNuevaCita.value.id_quiropractico,
-      dia
-    )
-
-    aHorariosSelect.value = response.map(d => ({
-      label: `${d.hora_inicio} - ${d.hora_fin}`,
-      value: d.id
-    }))
-    if (response.length > 0)
-      nHorarioSelected.value = response[0].id
-    isHorarioLoading.value = false
-  }
-  catch (error) {
-    handleServerError(error, 'Horarios')
-  }
-}
-
 const cargarEstadosCita = async () => {
   isEstadosCitaLoading.value = true
   try {
-    const response = await getCitaEstados()
-    aEstadosCitaSelect.value = response.map(d => ({
-      label: d.nombre,
-      value: d.id
-    }))
-    nEstadoCitaSelected.value = response[0].id
+    const response = await getCitaEstados(cancelToken.value.token)
+    if (response) {
+      aEstadosCitaSelect.value = response.map(d => ({
+        label: d.nombre,
+        value: d.id
+      }))
+      nEstadoCitaSelected.value = response[0].id
+    }
     isEstadosCitaLoading.value = false
   }
   catch (error) {
@@ -197,12 +159,14 @@ const cargarEstadosCita = async () => {
 const cargarEstadosPaciente = async () => {
   isEstadosPacienteLoading.value = true
   try {
-    const response = await getPacienteEstados()
-    aEstadosPacienteSelect.value = response.map(d => ({
-      label: d.nombre,
-      value: d.id
-    }))
-    nEstadoPacienteSelected.value = response[0].id
+    const response = await getPacienteEstados(cancelToken.value.token)
+    if (response) {
+      aEstadosPacienteSelect.value = response.map(d => ({
+        label: d.nombre,
+        value: d.id
+      }))
+      nEstadoPacienteSelected.value = response[0].id
+    }
     isEstadosPacienteLoading.value = false
   }
   catch (error) {
@@ -213,12 +177,14 @@ const cargarEstadosPaciente = async () => {
 const cargarSedes = async () => {
   isSedeLoading.value = true
   try {
-    const response = await getSedes()
-    aSedesSelect.value = response.map(d => ({
-      label: d.nombre,
-      value: d.id
-    }))
-    nSedeSelected.value = aSedesSelect.value.find(s => s.value == parseInt(id_sede.value))?.value || null
+    const response = await getSedes(cancelToken.value.token)
+    if (response) {
+      aSedesSelect.value = response.map(d => ({
+        label: d.nombre,
+        value: d.id
+      }))
+      nSedeSelected.value = aSedesSelect.value.find(s => s.value == parseInt(id_sede.value))?.value || null
+    }
     isSedeLoading.value = false
   }
   catch (error) {
@@ -239,8 +205,18 @@ const enviarServidor = async () => {
   isPageLoading.value = true
   try {
     const response = await createCita(oNuevaCita.value)
-    if (bLinkWhatsapp.value)
+    if (bLinkWhatsapp.value) {
+      let paciente = aPacientes.value.find(p => p.id == oNuevaCita.value.id_paciente)
+      let sede = aSedesSelect.value.find(s => s.value == oNuevaCita.value.id_sede)
+      oWhatsappLinkData.value = {
+        telefono: sNumeroPaciente.value,
+        paciente: `${paciente.persona.nombre} ${paciente.persona.apellido}`,
+        fecha: oNuevaCita.value.fecha_cita,
+        hora: oNuevaCita.value.hora_cita,
+        sede: sede.label
+      }
       sendWhatsappDialog.value.showDialog()
+    }
     resetAllInputs()
     toast.add({
       severity: 'success',
@@ -255,21 +231,21 @@ const enviarServidor = async () => {
 }
 
 const sendWhatsappMessage = () => {
-  const telefono = sNumeroPaciente.value.replace(/\D/g, ''); // Eliminar caracteres no numéricos
 
-  // Podríamos tomar datos como la fecha y hora de la cita, y el nombre completo del paciente
-  const paciente = aPacientesSelect.value.find(p => p.value === oPacienteSelected.value)
-  const nomPaciente = paciente.label || 'Estimado/a';
+  const data = oWhatsappLinkData.value
 
-  const fixFecha = new Date(oFechaSelected.value + 'T00:00:00')
+  console.log('DATA WHATSAPP', data)
+
+  const telefono = data.telefono.replace(/\D/g, ''); // Eliminar caracteres no numéricos
+
+  const nomPaciente = data.paciente || 'Estimado/a';
+
+  const fixFecha = new Date(data.fecha + 'T00:00:00')
   const fecha = fixFecha ? formatDate(fixFecha) : 'de la fecha programada';
 
-  const hora = oTiempoSelected.value.toLocaleTimeString('es-PE', { hour12: true })
-  // const horarioSelecciodo = aHorariosSelect.value.find((h) => h.value === nHorarioSelected.value);
-  // const hora = horarioSelecciodo ? horarioSelecciodo.label : 'seleccionado';
+  const hora = data.hora
 
-  const sedeSeleccionada = aSedesSelect.value.find(s => s.value === nSedeSelected.value);
-  const nomSede = sedeSeleccionada ? sedeSeleccionada.label : 'consultada';
+  const nomSede = data.sede || 'consultada';
 
   const mensaje =
     `¡${nomPaciente}!\n\n` +
@@ -284,87 +260,100 @@ const sendWhatsappMessage = () => {
 
 const enableSubmit = () => {
   const ret = isPacientesLoading.value ||
-    // isQuiropracticosLoading.value ||
-    // isHorarioLoading.value ||
     isEstadosCitaLoading.value ||
     isEstadosPacienteLoading.value ||
     isSedeLoading.value
   return ret
 }
 // Vue Functions
+
+/**
+ * Verifica si los campos de los que
+ * se alimentan del servidor
+ * ya terminaron de cargar y
+ * cambia el estado de carga de la pagina
+ */
 watch(
   [
     isPacientesLoading,
-    // isQuiropracticosLoading,
-    // isHorarioLoading,
     isEstadosCitaLoading,
     isEstadosPacienteLoading,
     isSedeLoading
   ],
-  () => {
-    if (
-      !isPacientesLoading.value &&
-      // !isQuiropracticosLoading.value &&
-      // !isHorarioLoading.value &&
-      !isEstadosCitaLoading.value &&
-      !isEstadosPacienteLoading.value &&
-      !isSedeLoading.value
-    ) {
-      isPageLoading.value = false
-    } else
-      isPageLoading.value = true
+  (values) => {
+    const [paciente_done, estado_cita_done, estado_paciente_done, sede_done] = values
+
+    // Return: True || False
+    isPageLoading.value = (paciente_done || estado_cita_done || estado_paciente_done || sede_done)
   }
 )
 
-// watch([oNuevaCita], () => {
-//   console.log('checking post', oNuevaCita.value)
-// })
+/**
+ * Actualiza historial y numero al cambiar de paciente
+ */
+watch(oPacienteSelected, (id_paciente) => {
+  const paciente = aPacientes.value.find(p => p.id === id_paciente)
 
+  sHistorialClinica.value = paciente.historia_clinica
+  sNumeroPaciente.value = paciente.persona.telefono || ''
+
+  bActiveHistorial.value = (sHistorialClinica.value != null)
+  bActiveNumero.value = (sNumeroPaciente.value.trim().length != 0)
+})
+
+/**
+ * Actualiza informmacion de cita
+ * para realizar la peticion POST
+ */
 watch([
   oPacienteSelected,
-  // nQuiropracticoSelected,
+  nEstadoPacienteSelected,
   sHistorialClinica,
   oFechaSelected,
   oTiempoSelected,
   nEstadoCitaSelected,
-  nEstadoPacienteSelected,
   sObservaciones,
   nSedeSelected
-], () => {
+], (values) => {
 
-  sHistorialClinica.value = aPacientes.value.find(p => p.id === oPacienteSelected.value).historia_clinica
-  sNumeroPaciente.value = aPacientes.value.find(p => p.id === oPacienteSelected.value).persona.telefono
-
-  bActiveHistorial.value = (sHistorialClinica.value != null)
-  bActiveNumero.value = (sNumeroPaciente.value != null)
-
-  console.log('FECHA', oFechaSelected.value, oTiempoSelected.value)
+  const [
+    id_paciente,
+    tipo_paciente,
+    historia_clinica,
+    fecha_cita,
+    hora_cita,
+    estado,
+    observaciones,
+    id_sede
+  ] = values
 
   oNuevaCita.value = {
-    id_paciente: oPacienteSelected.value,
-    // id_quiropractico: nQuiropracticoSelected.value,
-    // id_detalle_horario: 1,
-    historia_clinica: sHistorialClinica.value,
-    fecha_cita: oFechaSelected.value,
-    hora_cita: oTiempoSelected.value.toTimeString().slice(0, 5),
-    estado: nEstadoCitaSelected.value,
-    tipo_paciente: nEstadoPacienteSelected.value,
-    observaciones: sObservaciones.value,
-    id_sede: nSedeSelected.value,
+    id_paciente,
+    historia_clinica,
+    fecha_cita,
+    hora_cita: hora_cita.toTimeString().slice(0, 5),
+    estado,
+    tipo_paciente,
+    observaciones,
+    id_sede,
     id_usuario: id_usuario.value
   }
 })
 
-// watch([nQuiropracticoSelected, oFechaSelected], () => {
-//   cargarHorarios()
-// })
+onBeforeMount(() => {
+  cancelToken.value = axios.CancelToken.source()
+})
 
 onMounted(() => {
   cargarPacientes()
-  // cargarQuiropracticos()
   cargarEstadosCita()
   cargarEstadosPaciente()
   cargarSedes()
+})
+
+onBeforeUnmount(() => {
+  console.log("ANTES DE DESTRUIR EL COMPOE")
+  cancelToken.value.cancel()
 })
 
 </script>
@@ -408,7 +397,7 @@ onMounted(() => {
           </InputMask>
           <div class="col-span-4 md:col-span-1">
             <Checkbox binary input-id="linkwsp" class="mr-3" v-model:model-value="bLinkWhatsapp"
-              :disabled="sNumeroPaciente.length == 0"></Checkbox>
+              :disabled="!sNumeroPaciente || sNumeroPaciente.length == 0"></Checkbox>
             <label for="linkwsp">Link WhatsApp</label>
           </div>
         </div>

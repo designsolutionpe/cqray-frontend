@@ -1,8 +1,12 @@
 import api from '@/service/Api';
 
-export const getCitaEstados = async () => {
+export const getCitaEstados = async (cancelToken) => {
     try {
-        const response = await api.get('/citas/estados')
+        const response = await api.get('/citas/estados', {
+            cancelToken: cancelToken || null
+        })
+        if (typeof response.cancelled != 'undefined')
+            return null
         return response.data;
     } catch (error) {
         console.error('error en servicio "getCitaEstados" al obtener estados de cita: ', error)
@@ -10,9 +14,13 @@ export const getCitaEstados = async () => {
     }
 }
 
-export const getCitas = async () => {
+export const getCitas = async (cancelToken) => {
     try {
-        const response = await api.get('/citas');
+        const response = await api.get('/citas', {
+            cancelToken: cancelToken || null
+        });
+        if (typeof response.cancelled != 'undefined')
+            return []
         return response.data;
     } catch (error) {
         console.error('Error al obtener las citas:', error);

@@ -1,8 +1,12 @@
 import api from '@/service/Api';
 
-export const getPacienteEstados = async () => {
+export const getPacienteEstados = async (cancelToken) => {
     try {
-        const response = await api.get('/pacientes/estados')
+        const response = await api.get('/pacientes/estados', {
+            cancelToken: cancelToken || null
+        })
+        if (typeof response.cancelled != 'undefined')
+            return null
         return response.data
     } catch (error) {
         console.error('error en servicio "getPacienteEstados" al obtener estados de pacientes: ', error)
@@ -10,9 +14,13 @@ export const getPacienteEstados = async () => {
     }
 }
 
-export const getPacientes = async () => {
+export const getPacientes = async (cancelToken) => {
     try {
-        const response = await api.get('/pacientes');
+        const response = await api.get('/pacientes', {
+            cancelToken: cancelToken || null
+        });
+        if (typeof response.cancelled != 'undefined')
+            return null
         return response.data;
     } catch (error) {
         console.error('Error al obtener los pacientes:', error);
