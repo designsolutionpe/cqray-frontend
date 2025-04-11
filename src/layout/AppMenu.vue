@@ -21,7 +21,7 @@ const menuItems = ref([
                 items: [
                     { label: 'Todas las citas', to: '/gestion/citas/todas' },
                     { label: 'Añadir citas', to: '/gestion/citas/agregar' },
-                    { label: 'Calendario de citas', to: '#' },
+                    // { label: 'Calendario de citas', to: '#' },
                 ]
             },
             {
@@ -86,15 +86,15 @@ const menuItems = ref([
                     { label: 'Todos los documentos', to: '#' },
                 ]
             },
-            {
-                label: 'Control quiroprácticos',
-                icon: 'pi pi-fw pi-calendar-plus',
-                items: [
-                    { label: 'Configuración de resultados', to: '#' },
-                    { label: 'Configuración firma de anexo', to: '#' },
-                    { label: 'Configuración de horarios', to: '#' },
-                ]
-            },
+            // {
+            //     label: 'Control quiroprácticos',
+            //     icon: 'pi pi-fw pi-calendar-plus',
+            //     items: [
+            //         { label: 'Configuración de resultados', to: '#' },
+            //         { label: 'Configuración firma de anexo', to: '#' },
+            //         { label: 'Configuración de horarios', to: '#' },
+            //     ]
+            // },
             {
                 label: 'Categorías',
                 icon: 'pi pi-fw pi-list',
