@@ -30,13 +30,9 @@ const comprobante = ref({});
 <template>
     <div>
         <div class="card p-4">
-            <h2 class="text-xl font-semibold mb-4">Comprobante</h2>
+            <h2 class="text-xl font-semibold mb-4">{{ tipoComprobanteText(tipoComprobanteProp.tipoComprobante) }}</h2>
 
             <div class="grid grid-cols-12 gap-3">
-                <div class="col-span-6">
-                    <label for="tipo_comprobante" class="block font-bold mb-3">Tipo Comprobante</label>
-                    <Select id="tipo_comprobante" v-model="comprobante.tipo_comprobante" :options="tiposComprobante" optionLabel="label" optionValue="value" placeholder="Selecciona un tipo de comprobante" fluid />
-                </div>
 
                 <div class="col-span-6">
                     <label for="tipo" class="block font-bold mb-3">Tipo</label>

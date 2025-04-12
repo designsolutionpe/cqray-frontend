@@ -21,7 +21,7 @@ const menuItems = ref([
                 items: [
                     { label: 'Todas las citas', to: '/gestion/citas/todas' },
                     { label: 'Añadir citas', to: '/gestion/citas/agregar' },
-                    { label: 'Calendario de citas', to: '#' },
+                    { label: 'Calendario de citas', to: '/gestion/citas/calendario' },
                 ]
             },
             {

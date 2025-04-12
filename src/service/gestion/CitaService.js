@@ -28,6 +28,27 @@ export const getCitas = async (cancelToken) => {
     }
 }
 
+export const getCitasPorFecha = async (fecha, idSede = null, cancelToken) => {
+    try {
+        const response = await api.get('/citas/fechas', {
+            params: {
+                fecha: fecha,
+                ...(idSede && { id_sede: idSede })
+            },
+            cancelToken: cancelToken || null
+        });
+
+        if (typeof response.cancelled !== 'undefined')
+            return [];
+
+        return response.data;
+    } catch (error) {
+        console.error('Error al obtener las citas por fecha:', error);
+        throw error;
+    }
+}
+
+
 // Crear una nueva cita
 export const createCita = async (data) => {
     try {

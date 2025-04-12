@@ -143,6 +143,12 @@ const router = createRouter({
                     meta: { requiresAuth: true, roles: ['Superadministrador', 'Administrador'] }
                 },
                 {
+                    path: '/gestion/ventas/agregarboleta',
+                    name: 'agregarboleta',
+                    component: () => import('@/views/gestion/ventas/AgregarBoleta.vue'),
+                    meta: { requiresAuth: true, roles: ['Superadministrador', 'Administrador'] }
+                },
+                {
                     path: '/gestion/ventas/factura',
                     name: 'factura',
                     component: () => import('@/views/gestion/ventas/Factura.vue'),
