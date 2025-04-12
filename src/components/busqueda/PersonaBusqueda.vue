@@ -1,6 +1,6 @@
 <script setup>
 import { ref, watch } from 'vue';
-import { getPersonas } from '@/service/mantenimiento/PersonaService';
+import { getBuscarPersonas } from '@/service/mantenimiento/PersonaService';
 
 const props = defineProps({
     numeroDocumento: String,
@@ -24,7 +24,7 @@ const filteredPersonas = ref([]);
 const searchPersonas = async () => {
     if (numeroDocumento || nombre) {  
         try {
-            const data = await getPersonas({
+            const data = await getBuscarPersonas({
             nombre: nombre.value,
             numero_documento: numeroDocumento.value,
             id_persona: idPersona.value
