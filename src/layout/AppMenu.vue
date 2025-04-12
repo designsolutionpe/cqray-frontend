@@ -44,7 +44,7 @@ const menuItems = ref([
                 items: [
                     { label: 'Todos los pacientes', to: '/gestion/pacientes/todos' },
                     { label: 'Añadir pacientes', to: '/gestion/pacientes/agregar' },
-                    { label: 'Historial de pagos', to: '#' },
+                    { label: 'Historial de pagos', to: '/gestion/pacientes/historial-pagos' },
                     { label: 'Historias clínicas', to: '#' },
                 ]
             },
