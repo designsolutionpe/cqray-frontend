@@ -184,6 +184,12 @@ const router = createRouter({
                     component: () => import('@/views/mantenimiento/Usuario.vue'),
                     meta: { requiresAuth: true, roles: ['Superadministrador'] }
                 },
+                {
+                    path: '/mantenimiento/categorias/todas',
+                    name: 'categorias-todas',
+                    component: () => import('@/views/mantenimiento/categorias/Todas.vue'),
+                    meta: { requiresAuth: true, roles: ['Superadministrador'] }
+                },
                 /*
                 {
                     path: '/mantenimiento/horario',

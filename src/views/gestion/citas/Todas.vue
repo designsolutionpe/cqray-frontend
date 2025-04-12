@@ -21,6 +21,7 @@ const isCitasLoading = ref(true)
 const isCitaUpdateLoading = ref(false)
 const isLinkWhatsappActive = ref(false)
 const sLinkWhatsappActive = ref('')
+const user_role = computed(() => store.getters.userRole)
 
 const cancelToken = ref()
 
@@ -57,7 +58,7 @@ const filters = ref()
 const initFilters = () => {
   filters.value = {
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    'sede.nombre': { value: sedeSelected, matchMode: FilterMatchMode.EQUALS },
+    'sede.nombre': { value: null, matchMode: FilterMatchMode.EQUALS },
     'usuario.sede.nombre': { value: null, matchMode: FilterMatchMode.EQUALS },
     'paciente.persona.nombreCompleto': { value: null, matchMode: FilterMatchMode.CONTAINS },
     'paciente.persona.tipo_documento': { value: null, matchMode: FilterMatchMode.EQUALS },
@@ -375,6 +376,9 @@ onBeforeUnmount(() => {
       <!-- Sede Inicial-->
       <Column field="usuario.sede.nombre" header="Creado en" :show-filter-menu="false" sortable
         style="min-width: 8rem;">
+        <template #body="cita">
+          {{ cita.data.usuario ? cita.data.sede.nombre.toUpperCase() : null }}
+        </template>
         <template #filter="{ filterModel, filterCallback }">
           <Select v-model="filterModel.value" @change="filterCallback()" :options="sedesSelect" option-label="label"
             option-value="label" placeholder="Selecciona sede"></Select>
@@ -383,6 +387,9 @@ onBeforeUnmount(() => {
 
       <!-- Sede Actual -->
       <Column field="sede.nombre" header="Actualmente en" :show-filter-menu="false" sortable style="min-width: 8rem;">
+        <template #body="cita">
+          {{ cita.data.sede.nombre.toUpperCase() }}
+        </template>
         <template #filter="{ filterModel, filterCallback }">
           <Select v-model="filterModel.value" @change="filterCallback()" :options="sedesSelect" option-label="label"
             option-value="label" placeholder="Selecciona sede"></Select>
@@ -392,6 +399,9 @@ onBeforeUnmount(() => {
       <!-- DNI -->
       <Column field="paciente.persona.tipo_documento" header="Tipo Documento" :show-filter-menu="false" sortable
         style="min-width: 10rem;">
+        <template #body="cita">
+          {{ cita.data.paciente.persona.tipo_documento.toUpperCase() }}
+        </template>
         <template #filter="{ filterModel, filterCallback }">
           <Select v-model="filterModel.value" @change="filterCallback()" option-label="label" option-value="label"
             :options="aTipoDocumento" placeholder="Filtrar por Tipo Documento"></Select>
@@ -410,6 +420,9 @@ onBeforeUnmount(() => {
       <!-- Paciente -->
       <Column field="paciente.persona.nombreCompleto" header="Paciente" :show-filter-menu="false" sortable
         style="min-width: 10rem;">
+        <template #body="cita">
+          {{ cita.data.paciente.persona.nombreCompleto.toUpperCase() }}
+        </template>
         <template #filter="{ filterModel, filterCallback }">
           <InputText v-model="filterModel.value" type="text" @input="filterCallback()"
             placeholder="Filtrar por paciente" />
@@ -458,6 +471,9 @@ onBeforeUnmount(() => {
       <!-- Estado Paciente -->
       <Column field="tipo_paciente.nombre" header="Estado Paciente" :show-filter-menu="false" sortable
         style="min-width: 10rem;">
+        <template #body="cita">
+          {{ cita.data.tipo_paciente.nombre.toUpperCase() }}
+        </template>
         <template #filter="{ filterModel, filterCallback }">
           <Select v-model="filterModel.value" @change="filterCallback()" option-label="label" option-value="label"
             :options="estadoPacienteSelect" placeholder="Filtrar por estado paciente"></Select>
@@ -466,6 +482,9 @@ onBeforeUnmount(() => {
 
       <!-- Estado Cita -->
       <Column field="estado.nombre" header="Estado Cita" :show-filter-menu="false" sortable style="min-width: 10rem;">
+        <template #body="cita">
+          {{ cita.data.estado.nombre.toUpperCase() }}
+        </template>
         <template #filter="{ filterModel, filterCallback }">
           <Select v-model="filterModel.value" @change="filterCallback()" option-label="label" option-value="label"
             :options="estadoCitaSelect" placeholder="Filtrar por estado cita"></Select>
@@ -477,8 +496,12 @@ onBeforeUnmount(() => {
         <template #body="citaItem">
           <Button icon="pi pi-eye" outlined rounded severity="info" class="mr-2"
             @click="verCita(citaItem.data)"></Button>
-          <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="editCita(citaItem.data)"></Button>
+          <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="editCita(citaItem.data)"
+            :disabled="(id_sede != null) && (citaItem.data.id_sede != id_sede)"
+            v-tooltip.top="{ value: 'Comuniquese con su Superadministrador o con el Administrador de la sede para modificar esta cita', disabled: id_sede == null ? true : (id_sede != null) && (citaItem.data.id_sede == id_sede) }"></Button>
           <Button icon="pi pi-trash" outlined rounded severity="danger" class="mr-2"
+            :disabled="user_role != 'Superadministrador'"
+            v-tooltip.top="{ value: 'Solicita permiso a tu Superadministrador para realizar esta accion', disabled: user_role == 'Superadministrador' }"
             @click="onShowDialog(citaItem.data.id)"></Button>
         </template>
       </Column>
