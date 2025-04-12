@@ -16,6 +16,7 @@ import { useStore } from 'vuex';
 const store = useStore()
 const toast = useToast()
 const id_sede = computed(() => store.getters.id_sede)
+const user_role = computed(() => store.getters.userRole)
 
 const aPacientes = ref([])
 const oFilters = ref()
@@ -431,12 +432,14 @@ onBeforeUnmount(() => {
         <template #body="pacienteItem">
           <Button icon="pi pi-eye" outlined rounded severity="info" class="mr-2"
             @click="onOpenViewDialog(pacienteItem.data)"></Button>
-          <Button icon="pi pi-pencil" outlined rounded class="mr-2"
-            @click="onOpenEditDialog(pacienteItem.data)"></Button>
+          <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="onOpenEditDialog(pacienteItem.data)"
+            :disabled="(id_sede != null) && (pacienteItem.data.id_sede != id_sede)"
+            v-tooltip.top="{ value: 'Comuniquese con su SUPERADMINISTRADOR o con el ADMINISTRADOR de la sede para modificar esta cita', disabled: id_sede == null ? true : (id_sede != null) && (pacienteItem.data.id_sede == id_sede) }"></Button>
           <Button icon="pi pi-folder" outlined rounded severity='contrast' class="mr-2"
             @click="onOpenDirectory(pacienteItem.data.id)"></Button>
           <Button icon="pi pi-trash" outlined rounded severity="danger" class="mr-2"
-            @click="openDeleteDialog(pacienteItem.data)"></Button>
+            @click="openDeleteDialog(pacienteItem.data)" :disabled="user_role != 'Superadministrador'"
+            v-tooltip.top="{ value: 'Solicita permiso a tu SUPERADMINISTRADOR, para realizar ésta acción.', disabled: user_role == 'Superadministrador' }"></Button>
         </template>
       </Column>
 

@@ -190,6 +190,12 @@ const router = createRouter({
                     component: () => import('@/views/mantenimiento/categorias/Todas.vue'),
                     meta: { requiresAuth: true, roles: ['Superadministrador'] }
                 },
+                {
+                    path: '/mantenimiento/categorias/agregar',
+                    name: 'categorias-agregar',
+                    component: () => import('@/views/mantenimiento/categorias/Agregar.vue'),
+                    meta: { requiresAuth: true, roles: ['Superadministrador'] }
+                },
                 /*
                 {
                     path: '/mantenimiento/horario',

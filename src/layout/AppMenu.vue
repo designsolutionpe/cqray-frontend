@@ -99,8 +99,8 @@ const menuItems = ref([
                 label: 'Categorías',
                 icon: 'pi pi-fw pi-list',
                 items: [
-                    { label: 'Todas las categorías', to: '#' },
-                    { label: 'Añadir categorías', to: '#' },
+                    { label: 'Todas las categorías', to: '/mantenimiento/categorias/todas' },
+                    { label: 'Añadir categorías', to: '/mantenimiento/categorias/agregar' },
                 ]
             },
             {
