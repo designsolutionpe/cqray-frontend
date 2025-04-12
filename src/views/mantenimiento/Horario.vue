@@ -59,8 +59,6 @@ async function saveHorario() {
         })
     };
 
-    console.log("payload", payload);
-
     try {
         await upsertHorarios(payload);
         toast.add({ severity: 'success', summary: 'Éxito', detail: 'Horarios guardados correctamente', life: 3000 });

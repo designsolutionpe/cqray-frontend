@@ -70,6 +70,14 @@ const menuItems = ref([
                     { label: 'Añadir usuario', to: '#' },
                 ]
             },
+            {
+                label: 'Control personal',
+                icon: 'pi pi-fw pi-users',
+                items: [
+                    { label: 'Todo el personal', to: '/mantenimiento/personas/todas' },
+                    { label: 'Añadir personal', to: '#' },
+                ]
+            },
             /*
             {
                 label: 'Horario',
