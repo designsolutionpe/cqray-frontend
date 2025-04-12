@@ -58,6 +58,7 @@ const initFilters = () => {
   filters.value = {
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
     'sede.nombre': { value: sedeSelected, matchMode: FilterMatchMode.EQUALS },
+    'usuario.sede.nombre': { value: null, matchMode: FilterMatchMode.EQUALS },
     'paciente.persona.nombreCompleto': { value: null, matchMode: FilterMatchMode.CONTAINS },
     'paciente.persona.tipo_documento': { value: null, matchMode: FilterMatchMode.EQUALS },
     'paciente.persona.numero_documento': { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -371,13 +372,20 @@ onBeforeUnmount(() => {
       <!-- ID -->
       <!-- <Column field="id" header="#" sortable style="min-width: 3rem;"></Column> -->
 
-      <!-- Sede -->
-      <Column filterField="sede.nombre" field="sede.nombre" header="Sede" :show-filter-menu="false" sortable
+      <!-- Sede Inicial-->
+      <Column field="usuario.sede.nombre" header="Creado en" :show-filter-menu="false" sortable
         style="min-width: 8rem;">
         <template #filter="{ filterModel, filterCallback }">
-          <InputText v-if="id_sede != null" v-model="filterModel.value" disabled></InputText>
-          <Select v-else v-model="filterModel.value" @change="filterCallback()" :options="sedesSelect"
-            option-label="label" option-value="label" placeholder="Selecciona sede"></Select>
+          <Select v-model="filterModel.value" @change="filterCallback()" :options="sedesSelect" option-label="label"
+            option-value="label" placeholder="Selecciona sede"></Select>
+        </template>
+      </Column>
+
+      <!-- Sede Actual -->
+      <Column field="sede.nombre" header="Actualmente en" :show-filter-menu="false" sortable style="min-width: 8rem;">
+        <template #filter="{ filterModel, filterCallback }">
+          <Select v-model="filterModel.value" @change="filterCallback()" :options="sedesSelect" option-label="label"
+            option-value="label" placeholder="Selecciona sede"></Select>
         </template>
       </Column>
 

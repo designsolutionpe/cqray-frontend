@@ -14,6 +14,21 @@ export const getPacienteEstados = async (cancelToken) => {
     }
 }
 
+export const getPaciente = async (id, cancelToken) => {
+    try {
+        const response = await api.get(`/pacientes/${id}`, {
+            cancelToken: cancelToken || null
+        })
+        if (typeof response.cancelled != 'undefined')
+            return null
+        return response.data
+    }
+    catch (error) {
+        console.error('Error al obtener el paciente:', error)
+        throw error
+    }
+}
+
 export const getPacientes = async (cancelToken) => {
     try {
         const response = await api.get('/pacientes', {

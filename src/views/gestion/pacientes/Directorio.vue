@@ -1,27 +1,271 @@
 <script setup>
 import Preloader from '@/components/Preloader.vue';
-import { ref } from 'vue';
+import { getPaciente } from '@/service/gestion/PacienteService';
+import { formatDate, handleServerError } from '@/utils/Util';
+import axios from 'axios';
+import { useToast } from 'primevue';
+import { computed, onBeforeMount, onBeforeUnmount, onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { useStore } from 'vuex';
 
-const isPageLoading = ref(false)
+const isPageLoading = ref(true)
+
+const store = useStore()
+const toast = useToast()
+const id_paciente = computed(() => store.getters.id_paciente)
+const router = useRouter()
+
+const cancelToken = ref()
+
+const oPacienteInfo = ref({
+  persona: {
+    numero_documento: null
+  },
+  estado: {
+    nombre: null
+  },
+  historia_clinica: null,
+  citas: [],
+  events: []
+})
+const aPacientes = ref([])
+
+const cargarPaciente = async () => {
+  isPageLoading.value = true
+  try {
+    const response = await getPaciente(id_paciente.value, cancelToken.value.token)
+    if (response) {
+      aPacientes.value = [response]
+      oPacienteInfo.value = response
+      console.log('PACIENTE', oPacienteInfo.value)
+      oPacienteInfo.value.citas = oPacienteInfo.value.citas.map(c => ({
+        ...c,
+        hora_cita: new Date(c.fecha_cita + 'T' + c.hora_cita) || null
+      }))
+      console.log(oPacienteInfo.value.citas)
+      isPageLoading.value = false
+    }
+  }
+  catch (error) {
+    isPageLoading.value = false
+    handleServerError(error, 'Obtener informacion paciente', toast)
+  }
+}
+
+onBeforeMount(() => {
+  cancelToken.value = axios.CancelToken.source()
+})
+
+onMounted(() => {
+  cargarPaciente()
+})
+
+onBeforeUnmount(() => {
+  cancelToken.value.cancel()
+})
 
 </script>
 <template>
-  <div class="card relative overflow-hidden">
+  <div class="card relative overflow-hidden md:w-[650px] lg:w-full">
     <Preloader v-if="isPageLoading"></Preloader>
-    <div class="flex gap-3">
-      <div class="flex flex-col gap-4 justify-end">
-        <div class="flex flex-col gap-4">
+    <div class="grid grid-cols-4 gap-3">
+      <div class="col-span-4 lg:col-span-1 flex flex-col gap-4 justify-between">
+        <div class="flex md:flex-row lg:flex-col flex-col gap-4">
           <p class="text-2xl font-bold text-secondary m-0">Directorio</p>
           <router-link to="/gestion/citas/agregar">
-            <Button icon="pi pi-plus" label="Agregar cita"></Button>
+            <Button icon="pi pi-plus" label="Agregar cita" class="w-full"></Button>
           </router-link>
           <router-link to="/gestion/pacientes/agregar">
-            <Button icon="pi pi-plus" label="Agregar paciente"></Button>
+            <Button icon="pi pi-plus" label="Agregar paciente" class="w-full"></Button>
           </router-link>
         </div>
-        <div class="card shadow">
-          <p class="text-xl font-bold">ID:</p>
+        <div class="card border-2 !rounded-xl flex flex-col gap-4">
+          <p class="text-xl font-bold text-center md:text-left lg:text-center md:w-max lg:w-auto m-0">ID: {{
+            oPacienteInfo.persona.numero_documento }}</p>
+          <div>
+            <p class="text-xl font-bold text-center md:text-left lg:text-center md:w-max lg:w-auto mb-2">Estado
+              paciente:</p>
+            <p
+              class="bg-green-600 text-white font-bold rounded-full text-center md:text-left lg:text-center md:w-max lg:w-auto px-4 py-2 text-lg">
+              Paciente {{
+                oPacienteInfo.estado.nombre }}
+            </p>
+          </div>
+          <div>
+            <p class="text-xl font-bold text-center md:text-left lg:text-center md:w-max lg:w-auto mb-2">Paquete actual:
+            </p>
+            <p
+              class="bg-red-600 text-white text-center md:text-left lg:text-center md:w-max lg:w-auto font-bold rounded-full px-4 py-2 text-lg">
+              000 / 000</p>
+          </div>
+          <div>
+            <p class="text-xl font-bold text-center md:text-left lg:text-center md:w-max lg:w-auto mb-2">Historia
+              Clinica</p>
+            <p class="text-center md:text-left lg:text-center md:w-max lg:w-auto font-medium text-lg">{{
+              oPacienteInfo.historia_clinica ||
+              '<sin informacion>' }}</p>
+          </div>
         </div>
+      </div>
+      <div class="col-span-4 lg:col-span-3 card border-2 !rounded-3xl flex-auto !p-3">
+        <Tabs value="0" scrollable>
+          <TabList>
+            <Tab value="0">Datos Personales</Tab>
+            <Tab value="1">Historial Citas</Tab>
+            <Tab value="2">Historial Clinica</Tab>
+            <Tab value="3">Documentos</Tab>
+            <Tab value="4">Timeline</Tab>
+          </TabList>
+          <TabPanels>
+            <TabPanel value="0">
+              <DataTable :value="aPacientes" removable-sort table-style="min-width: 50rem" data-key="id" show-gridlines>
+
+                <Column field="sede.nombre" header="Creado en" :show-filter-menu="false" sortable
+                  style="min-width: 8rem">
+                </Column>
+
+                <Column field="persona.tipo_documento" header="Tipo Documento" :show-filter-menu="false" sortable
+                  style="min-width: 8rem">
+                  <template #body="pacienteItem">
+                    {{ pacienteItem.data.persona.tipo_documento.toUpperCase() }}
+                  </template>
+                </Column>
+
+                <Column field="persona.numero_documento" header="Numero Documento" :show-filter-menu="false" sortable
+                  style="min-width: 10rem;"></Column>
+
+                <Column field="persona.apellido" header="Apellido" :show-filter-menu="false" sortable
+                  style="min-width: 10rem;">
+                  <template #body="pacienteItem">
+                    {{ pacienteItem.data.persona.apellido.toUpperCase() }}
+                  </template>
+                </Column>
+
+                <Column field="persona.nombre" header="Nombre" :show-filter-menu="false" sortable
+                  style="min-width: 10rem;">
+                  <template #body="pacienteItem">
+                    {{ pacienteItem.data.persona.nombre.toUpperCase() }}
+                  </template>
+                </Column>
+
+                <Column field="persona.genero" header="Genero" :show-filter-menu="false" sortable
+                  style="min-width: 8rem">
+                  <template #body="pacienteItem">
+                    {{ pacienteItem.data.persona.genero.toUpperCase() }}
+                  </template>
+                </Column>
+
+                <Column field="persona.fecha_nacimiento" header="Fecha Nacimiento" :show-filter-menu="false" sortable
+                  style="min-width: 15rem;">
+                  <template #body="pacienteItem">
+                    {{ formatDate(pacienteItem.data.persona.fecha_nacimiento) }}
+                  </template>
+                </Column>
+
+                <Column field="estado.nombre" header="Estado" :show-filter-menu="false" sortable
+                  style="min-width: 8rem">
+                  <template #body="pacienteItem">
+                    {{ pacienteItem.data.estado.nombre.toUpperCase() }}
+                  </template>
+                </Column>
+
+                <Column field="historia_clinica" header="Historia Clinica" :show-filter-menu="false" sortable
+                  style="min-width: 10rem;">
+                </Column>
+
+                <!-- <Column :exportable="false">
+                  <template #body="pacienteItem">
+                    <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="null"></Button>
+                  </template>
+                </Column> -->
+
+              </DataTable>
+            </TabPanel>
+            <TabPanel value="1">
+              <DataTable :value="oPacienteInfo.citas" removable-sort table-style="min-width: 20rem" scrollable
+                scroll-height="500px" data-key="id" show-gridlines>
+
+                <Column field="fecha_cita" header="Fecha" sortable style="min-width: 5rem;">
+                  <template #body="citaItem">
+                    {{ formatDate(citaItem.data.fecha_cita) }}
+                  </template>
+                </Column>
+
+                <Column field="hora_cita" header="Hora" sortable style="min-width: 8rem">
+                  <template #body="citaItem">
+                    {{ citaItem.data.hora_cita != 'Invalid Date' ? citaItem.data.hora_cita.toLocaleTimeString() : null
+                    }}
+                  </template>
+                </Column>
+
+                <Column field="sede.nombre" header="Quiropractico" sortable style="min-width: 15rem;">
+                  <template #body="citaItem">
+                    Quiropractico - {{ citaItem.data.sede.nombre.split(' ')[1] }}
+                  </template>
+                </Column>
+
+                <Column field="estado.nombre" header="Estado" sortable style="min-width: 13rem"></Column>
+
+                <!-- <Column :exportable="false" style="min-width: 9rem;">
+                  <template #body="pacienteItem">
+                    <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="null"></Button>
+                    <Button icon="pi pi-trash" severity='danger' outlined rounded class="mr-2" @click="null"></Button>
+                  </template>
+                </Column> -->
+
+              </DataTable>
+            </TabPanel>
+            <TabPanel value="2">
+              <DataTable :value="oPacienteInfo.citas" removable-sort table-style="min-width: 20rem" scrollable
+                scroll-height="500px" data-key="id" show-gridlines>
+
+                <Column field="fecha_cita" header="Fecha" sortable style="min-width: 5rem;">
+                  <template #body="citaItem">
+                    {{ formatDate(citaItem.data.fecha_cita) }}
+                  </template>
+                </Column>
+
+                <Column field="hora_cita" header="Hora" sortable style="min-width: 8rem">
+                  <template #body="citaItem">
+                    {{ citaItem.data.hora_cita != 'Invalid Date' ? citaItem.data.hora_cita.toLocaleTimeString() : null
+                    }}
+                  </template>
+                </Column>
+
+                <Column field="sede.nombre" header="Quiropractico" sortable style="min-width: 15rem;">
+                  <template #body="citaItem">
+                    Quiropractico - {{ citaItem.data.sede.nombre.split(' ')[1] }}
+                  </template>
+                </Column>
+
+                <Column field="estado.nombre" header="Estado" sortable style="min-width: 13rem"></Column>
+
+                <!-- <Column :exportable="false" style="min-width: 9rem;">
+                  <template #body="pacienteItem">
+                    <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="null"></Button>
+                    <Button icon="pi pi-trash" severity='danger' outlined rounded class="mr-2" @click="null"></Button>
+                  </template>
+                </Column> -->
+
+              </DataTable>
+            </TabPanel>
+            <TabPanel value="3">
+              <Button icon="pi pi-plus" label="Agregar documento" disabled></Button>
+              <p class="text-center text-xl font-bold">&lt;Mantenimiento&#62;</p>
+            </TabPanel>
+            <TabPanel value="4" class="h-[600px] overflow-auto">
+              <Timeline :value="oPacienteInfo.events" align="alternate" class="w-full">
+                <template #content="item">
+                  <div class="card border-4">
+                    <p class="text-xl m-0 font-bold text-secondary">{{ item.item.titulo }}</p>
+                    <p class="text-md m-0 font-bold text-gray-400">{{ new Date(item.item.fecha).toLocaleString() }}</p>
+                    <p v-if="item.item.atendido" class="text-lg m-0 font-semibold">{{ item.item.atendido }}</p>
+                  </div>
+                </template>
+              </Timeline>
+            </TabPanel>
+          </TabPanels>
+        </Tabs>
       </div>
 
     </div>

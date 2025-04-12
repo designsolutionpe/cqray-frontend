@@ -3,151 +3,66 @@
     --code-background: var(--p-surface-800);
     --code-color: var(--p-surface-100);
 }
-
 // DARK MODE
-
-.dark\:text-secondary:where([class*="app-dark"],[class*="app-dark"] *),
-.dark\:text-secondary-500:where([class*="app-dark"],[class*="app-dark"] *){ color: var(--secondary-color); }
-.dark\:text-secondary-0:where([class*="app-dark"],[class*="app-dark"] *){ color: var(--p-secondary-0); }
-.dark\:text-secondary-50:where([class*="app-dark"],[class*="app-dark"] *){ color: var(--p-secondary-50); }
-.dark\:text-secondary-100:where([class*="app-dark"],[class*="app-dark"] *){ color: var(--p-secondary-100); }
-.dark\:text-secondary-200:where([class*="app-dark"],[class*="app-dark"] *){ color: var(--p-secondary-200); }
-.dark\:text-secondary-300:where([class*="app-dark"],[class*="app-dark"] *){ color: var(--p-secondary-300); }
-.dark\:text-secondary-400:where([class*="app-dark"],[class*="app-dark"] *){ color: var(--p-secondary-400); }
-.dark\:text-secondary-600:where([class*="app-dark"],[class*="app-dark"] *){ color: var(--p-secondary-600); }
-.dark\:text-secondary-700:where([class*="app-dark"],[class*="app-dark"] *){ color: var(--p-secondary-700); }
-.dark\:text-secondary-800:where([class*="app-dark"],[class*="app-dark"] *){ color: var(--p-secondary-800); }
-.dark\:text-secondary-900:where([class*="app-dark"],[class*="app-dark"] *){ color: var(--p-secondary-900); }
-
-.dark\:bg-secondary:where([class*="app-dark"],[class*="app-dark"] *),
-.dark\:bg-secondary-500:where([class*="app-dark"],[class*="app-dark"] *){ background-color: var(--secondary-color); }
-.dark\:bg-secondary-0:where([class*="app-dark"],[class*="app-dark"] *){ background-color: var(--p-secondary-0); }
-.dark\:bg-secondary-50:where([class*="app-dark"],[class*="app-dark"] *){ background-color: var(--p-secondary-50); }
-.dark\:bg-secondary-100:where([class*="app-dark"],[class*="app-dark"] *){ background-color: var(--p-secondary-100); }
-.dark\:bg-secondary-200:where([class*="app-dark"],[class*="app-dark"] *){ background-color: var(--p-secondary-200); }
-.dark\:bg-secondary-300:where([class*="app-dark"],[class*="app-dark"] *){ background-color: var(--p-secondary-300); }
-.dark\:bg-secondary-400:where([class*="app-dark"],[class*="app-dark"] *){ background-color: var(--p-secondary-400); }
-.dark\:bg-secondary-600:where([class*="app-dark"],[class*="app-dark"] *){ background-color: var(--p-secondary-600); }
-.dark\:bg-secondary-700:where([class*="app-dark"],[class*="app-dark"] *){ background-color: var(--p-secondary-700); }
-.dark\:bg-secondary-800:where([class*="app-dark"],[class*="app-dark"] *){ background-color: var(--p-secondary-800); }
-.dark\:bg-secondary-900:where([class*="app-dark"],[class*="app-dark"] *){ background-color: var(--p-secondary-900); }
-
-.dark\:bg-secondary\/10:where([class*="app-dark"],[class*="app-dark"] *),
-.dark\:bg-secondary-500\/10:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-500) calc(100% * 0.1), transparent) }
-.dark\:bg-secondary-0\/10:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-0) calc(100% * 0.1), transparent) }
-.dark\:bg-secondary-50\/10:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-50) calc(100% * 0.1), transparent) }
-.dark\:bg-secondary-100\/10:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-100) calc(100% * 0.1), transparent) }
-.dark\:bg-secondary-200\/10:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-200) calc(100% * 0.1), transparent) }
-.dark\:bg-secondary-300\/10:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-300) calc(100% * 0.1), transparent) }
-.dark\:bg-secondary-400\/10:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-400) calc(100% * 0.1), transparent) }
-.dark\:bg-secondary-600\/10:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-600) calc(100% * 0.1), transparent) }
-.dark\:bg-secondary-700\/10:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-700) calc(100% * 0.1), transparent) }
-.dark\:bg-secondary-800\/10:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-800) calc(100% * 0.1), transparent) }
-.dark\:bg-secondary-900\/10:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-900) calc(100% * 0.1), transparent) }
+$tones: 0,50,100,200,300,400,500,600,700,800,900;
+$opacities: 10,20,30,40,50,60,70,80,90,100;
 
 
-.dark\:bg-secondary\/20:where([class*="app-dark"],[class*="app-dark"] *),
-.dark\:bg-secondary-500\/20:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-500) calc(100% * 0.2), transparent) }
-.dark\:bg-secondary-0\/20:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-0) calc(100% * 0.2), transparent) }
-.dark\:bg-secondary-50\/20:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-50) calc(100% * 0.2), transparent) }
-.dark\:bg-secondary-100\/20:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-100) calc(100% * 0.2), transparent) }
-.dark\:bg-secondary-200\/20:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-200) calc(100% * 0.2), transparent) }
-.dark\:bg-secondary-300\/20:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-300) calc(100% * 0.2), transparent) }
-.dark\:bg-secondary-400\/20:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-400) calc(100% * 0.2), transparent) }
-.dark\:bg-secondary-600\/20:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-600) calc(100% * 0.2), transparent) }
-.dark\:bg-secondary-700\/20:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-700) calc(100% * 0.2), transparent) }
-.dark\:bg-secondary-800\/20:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-800) calc(100% * 0.2), transparent) }
-.dark\:bg-secondary-900\/20:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-900) calc(100% * 0.2), transparent) }
+// TEXT SECONDARY
+.dark\:text-secondary:where([class*="app-dark"],[class*="app-dark"] *)
+{ color: var(--secondary-color); }
+.dark\:\!text-secondary:where([class*="app-dark"],[class*="app-dark"] *)
+{ color: var(--secondary-color) !important; }
 
+// BG SECONDARY
+.dark\:bg-secondary:where([class*="app-dark"],[class*="app-dark"] *)
+{ background-color: var(--secondary-color); }
+.dark\:\!bg-secondary:where([class*="app-dark"],[class*="app-dark"] *)
+{ background-color: var(--secondary-color) !important; }
 
-.dark\:bg-secondary\/30:where([class*="app-dark"],[class*="app-dark"] *),
-.dark\:bg-secondary-500\/30:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-500) calc(100% * 0.2), transparent) }
-.dark\:bg-secondary-0\/30:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-0) calc(100% * 0.3), transparent) }
-.dark\:bg-secondary-50\/30:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-50) calc(100% * 0.3), transparent) }
-.dark\:bg-secondary-100\/30:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-100) calc(100% * 0.3), transparent) }
-.dark\:bg-secondary-200\/30:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-200) calc(100% * 0.3), transparent) }
-.dark\:bg-secondary-300\/30:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-300) calc(100% * 0.3), transparent) }
-.dark\:bg-secondary-400\/30:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-400) calc(100% * 0.3), transparent) }
-.dark\:bg-secondary-600\/30:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-600) calc(100% * 0.3), transparent) }
-.dark\:bg-secondary-700\/30:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-700) calc(100% * 0.3), transparent) }
-.dark\:bg-secondary-800\/30:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-800) calc(100% * 0.3), transparent) }
-.dark\:bg-secondary-900\/30:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-900) calc(100% * 0.3), transparent) }
+@each $opacity in $opacities
+{
+    .dark\:text-secondary\/#{$opacity}:where([class*="app-dark"],[class*="app-dark"] *)
+    { color: color-mix(in srgb, var(--secondary-color) calc(100% * #{calc($opacity / 100)}), transparent); }
 
+    .dark\:\!text-secondary\/#{$opacity}:where([class*="app-dark"],[class*="app-dark"] *)
+    { color: color-mix(in srgb, var(--secondary-color) calc(100% * #{calc($opacity / 100)}), transparent) !important; }
 
-.dark\:bg-secondary\/40:where([class*="app-dark"],[class*="app-dark"] *),
-.dark\:bg-secondary-500\/40:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-500) calc(100% * 0.4), transparent) }
-.dark\:bg-secondary-0\/40:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-0) calc(100% * 0.4), transparent) }
-.dark\:bg-secondary-50\/40:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-50) calc(100% * 0.4), transparent) }
-.dark\:bg-secondary-100\/40:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-100) calc(100% * 0.4), transparent) }
-.dark\:bg-secondary-200\/40:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-200) calc(100% * 0.4), transparent) }
-.dark\:bg-secondary-300\/40:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-300) calc(100% * 0.4), transparent) }
-.dark\:bg-secondary-400\/40:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-400) calc(100% * 0.4), transparent) }
-.dark\:bg-secondary-600\/40:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-600) calc(100% * 0.4), transparent) }
-.dark\:bg-secondary-700\/40:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-700) calc(100% * 0.4), transparent) }
-.dark\:bg-secondary-800\/40:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-800) calc(100% * 0.4), transparent) }
-.dark\:bg-secondary-900\/40:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-900) calc(100% * 0.4), transparent) }
+    .dark\:bg-secondary\/#{$opacity}:where([class*="app-dark"],[class*="app-dark"] *)
+    { background-color: color-mix(in srgb, var(--secondary-color) calc(100% * #{calc($opacity / 100)}), transparent); }
 
-.dark\:bg-secondary\/50:where([class*="app-dark"],[class*="app-dark"] *),
-.dark\:bg-secondary-500\/50:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-500) calc(100% * 0.5), transparent) }
-.dark\:bg-secondary-0\/50:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-0) calc(100% * 0.5), transparent) }
-.dark\:bg-secondary-50\/50:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-50) calc(100% * 0.5), transparent) }
-.dark\:bg-secondary-100\/50:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-100) calc(100% * 0.5), transparent) }
-.dark\:bg-secondary-200\/50:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-200) calc(100% * 0.5), transparent) }
-.dark\:bg-secondary-300\/50:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-300) calc(100% * 0.5), transparent) }
-.dark\:bg-secondary-400\/50:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-400) calc(100% * 0.5), transparent) }
-.dark\:bg-secondary-600\/50:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-600) calc(100% * 0.5), transparent) }
-.dark\:bg-secondary-700\/50:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-700) calc(100% * 0.5), transparent) }
-.dark\:bg-secondary-800\/50:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-800) calc(100% * 0.5), transparent) }
-.dark\:bg-secondary-900\/50:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-900) calc(100% * 0.5), transparent) }
+    .dark\:\!bg-secondary\/#{$opacity}:where([class*="app-dark"],[class*="app-dark"] *)
+    { background-color: color-mix(in srgb, var(--secondary-color) calc(100% * #{calc($opacity / 100)}), transparent) !important; }
+}
 
-.dark\:bg-secondary\/60:where([class*="app-dark"],[class*="app-dark"] *),
-.dark\:bg-secondary-500\/60:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-500) calc(100% * 0.6), transparent) }
-.dark\:bg-secondary-0\/60:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-0) calc(100% * 0.6), transparent) }
-.dark\:bg-secondary-50\/60:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-50) calc(100% * 0.6), transparent) }
-.dark\:bg-secondary-100\/60:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-100) calc(100% * 0.6), transparent) }
-.dark\:bg-secondary-200\/60:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-200) calc(100% * 0.6), transparent) }
-.dark\:bg-secondary-300\/60:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-300) calc(100% * 0.6), transparent) }
-.dark\:bg-secondary-400\/60:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-400) calc(100% * 0.6), transparent) }
-.dark\:bg-secondary-600\/60:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-600) calc(100% * 0.6), transparent) }
-.dark\:bg-secondary-700\/60:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-700) calc(100% * 0.6), transparent) }
-.dark\:bg-secondary-800\/60:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-800) calc(100% * 0.6), transparent) }
-.dark\:bg-secondary-900\/60:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-900) calc(100% * 0.6), transparent) }
+@each $tone in $tones{
+    
+    // Normal Text Tones
+    .dark\:text-secondary-#{$tone}:where([class*="app-dark"],[class*="app-dark"] *)
+    { color: var(--p-secondary-#{$tone}); }
+    .dark\:\!text-secondary-#{$tone}:where([class*="app-dark"],[class*="app-dark"] *)
+    { color: var(--p-secondary-#{$tone}) !important; }
 
-.dark\:bg-secondary\/70:where([class*="app-dark"],[class*="app-dark"] *),
-.dark\:bg-secondary-500\/70:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-500) calc(100% * 0.7), transparent) }
-.dark\:bg-secondary-0\/70:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-0) calc(100% * 0.7), transparent) }
-.dark\:bg-secondary-50\/70:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-50) calc(100% * 0.7), transparent) }
-.dark\:bg-secondary-100\/70:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-100) calc(100% * 0.7), transparent) }
-.dark\:bg-secondary-200\/70:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-200) calc(100% * 0.7), transparent) }
-.dark\:bg-secondary-300\/70:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-300) calc(100% * 0.7), transparent) }
-.dark\:bg-secondary-400\/70:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-400) calc(100% * 0.7), transparent) }
-.dark\:bg-secondary-600\/70:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-600) calc(100% * 0.7), transparent) }
-.dark\:bg-secondary-700\/70:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-700) calc(100% * 0.7), transparent) }
-.dark\:bg-secondary-800\/70:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-800) calc(100% * 0.7), transparent) }
-.dark\:bg-secondary-900\/70:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-900) calc(100% * 0.7), transparent) }
+    // Normal Background Tones
+    .dark\:bg-secondary-#{$tone}:where([class*="app-dark"],[class*="app-dark"] *)
+    { background-color: var(--p-secondary-#{$tone}); }
+    .dark\:\!bg-secondary-#{$tone}:where([class*="app-dark"],[class*="app-dark"] *)
+    { background-color: var(--p-secondary-#{$tone}) !important; }
 
-.dark\:bg-secondary\/80:where([class*="app-dark"],[class*="app-dark"] *),
-.dark\:bg-secondary-500\/80:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-500) calc(100% * 0.8), transparent) }
-.dark\:bg-secondary-0\/80:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-0) calc(100% * 0.8), transparent) }
-.dark\:bg-secondary-50\/80:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-50) calc(100% * 0.8), transparent) }
-.dark\:bg-secondary-100\/80:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-100) calc(100% * 0.8), transparent) }
-.dark\:bg-secondary-200\/80:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-200) calc(100% * 0.8), transparent) }
-.dark\:bg-secondary-300\/80:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-300) calc(100% * 0.8), transparent) }
-.dark\:bg-secondary-400\/80:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-400) calc(100% * 0.8), transparent) }
-.dark\:bg-secondary-600\/80:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-600) calc(100% * 0.8), transparent) }
-.dark\:bg-secondary-700\/80:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-700) calc(100% * 0.8), transparent) }
-.dark\:bg-secondary-800\/80:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-800) calc(100% * 0.8), transparent) }
-.dark\:bg-secondary-900\/80:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-900) calc(100% * 0.8), transparent) }
+    // Dynamic Opacity
+    @each $opacity in $opacities{
 
-.dark\:bg-secondary\/90:where([class*="app-dark"],[class*="app-dark"] *),
-.dark\:bg-secondary-500\/90:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-500) calc(100% * 0.9), transparent) }
-.dark\:bg-secondary-0\/90:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-0) calc(100% * 0.9), transparent) }
-.dark\:bg-secondary-50\/90:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-50) calc(100% * 0.9), transparent) }
-.dark\:bg-secondary-100\/90:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-100) calc(100% * 0.9), transparent) }
-.dark\:bg-secondary-200\/90:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-200) calc(100% * 0.9), transparent) }
-.dark\:bg-secondary-300\/90:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-300) calc(100% * 0.9), transparent) }
-.dark\:bg-secondary-400\/90:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-400) calc(100% * 0.9), transparent) }
-.dark\:bg-secondary-600\/90:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-600) calc(100% * 0.9), transparent) }
-.dark\:bg-secondary-700\/90:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-700) calc(100% * 0.9), transparent) }
-.dark\:bg-secondary-800\/90:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-800) calc(100% * 0.9), transparent) }
-.dark\:bg-secondary-900\/90:where([class*="app-dark"],[class*="app-dark"] *){ background-color: color-mix(in srgb, var(--p-secondary-900) calc(100% * 0.9), transparent) }
+        .dark\:text-secondary-#{$tone}\/#{$opacity}:where([class*="app-dark"],[class*="app-dark"] *)
+        { color: color-mix(in srgb, var(--p-secondary-#{$tone}) calc(100% * #{calc($opacity / 100)}), transparent); }
+
+        .dark\:\!text-secondary-#{$tone}\/#{$opacity}:where([class*="app-dark"],[class*="app-dark"] *)
+        { color: color-mix(in srgb, var(--p-secondary-#{$tone}) calc(100% * #{calc($opacity / 100)}), transparent) !important; }
+
+        .dark\:bg-secondary-#{$tone}\/#{$opacity}:where([class*="app-dark"],[class*="app-dark"] *)
+        { background-color: color-mix(in srgb, var(--p-secondary-#{$tone}) calc(100% * #{calc($opacity / 100)}), transparent); }
+
+        .dark\:\!bg-secondary-#{$tone}\/#{$opacity}:where([class*="app-dark"],[class*="app-dark"] *)
+        { background-color: color-mix(in srgb, var(--p-secondary-#{$tone}) calc(100% * #{calc($opacity / 100)}), transparent) !important; }
+        
+    }
+}

@@ -18,8 +18,6 @@
     --focus-ring-offset: var(--p-focus-ring-offset);
     --focus-ring-shadow: var(--p-focus-ring-shadow);
 
-    --secondary-color: var(--p-secondary-500);
-
     --p-secondary-0: #FDE5E2;
     --p-secondary-50: #FBCDC8;
     --p-secondary-100: #F8B4AC;
@@ -31,4 +29,6 @@
     --p-secondary-700: #B84130;
     --p-secondary-800: #9B3729;
     --p-secondary-900: #7D2D22;
+
+    --secondary-color: var(--p-secondary-500);
 }

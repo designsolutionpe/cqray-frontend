@@ -2,13 +2,20 @@
 
 import FONO_BOT from '@/assets/PERSONA BOT.png';
 import Preloader from '@/components/Preloader.vue';
+import YesNoDialog from '@/components/YesNoDialog.vue';
 import { useLayout } from '@/layout/composables/layout';
-import { getSedes } from '@/service/mantenimiento/SedeService';
-import { onMounted, ref, watch } from 'vue';
+import { deleteSede, getSedes, updateSede } from '@/service/mantenimiento/SedeService';
+import { handleServerError } from '@/utils/Util';
+import axios from 'axios';
+import { useToast } from 'primevue';
+import { onBeforeMount, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { charts } from './chart_data';
 import LOGO from '/ICORAY.ico';
 
 const { isDarkTheme } = useLayout();
+
+// DASHBOARD
+
 const chartData = ref(null);
 const chartOptions = ref(null);
 
@@ -21,6 +28,21 @@ const isStatsLoading = ref(false)
 const aSedes = ref([])
 const aMonthsBySede = ref([])
 const nSelectedSede = ref(null)
+
+const cancelToken = ref()
+const toast = useToast()
+
+const toolTipProps = (text) => ({
+  value: text,
+  pt: {
+    arrow: {
+      style: {
+        borderBottomColor: "var(--p-primary-color-300)"
+      },
+    },
+    text: '!bg-secondary-300 !text-white !font-medium'
+  }
+})
 
 function setChartData() {
   var labels, datasets = null;
@@ -66,13 +88,17 @@ const changeChart = (show) => {
 }
 
 const cargarSedes = async () => {
+  isLoading.value = true
   try {
-    const sedes = await getSedes();
-    aSedes.value = sedes
+    const sedes = await getSedes(cancelToken.value.token);
+    if (sedes) {
+      aSedes.value = sedes
+      isLoading.value = false
+    }
   } catch (error) {
     console.error('Error al obtener las sedes:', error);
+    handleServerError(error, 'Sedes', toast)
   }
-  isLoading.value = false
 };
 
 const cargarSede = async (sedeID) => {
@@ -94,9 +120,90 @@ const cargarSede = async (sedeID) => {
   }
 }
 
+// UPDATE SEDE ITEM
+
+const oSedeData = ref({
+  id: null,
+  nombre: null,
+  direccion: null,
+  telefono: null,
+  email: null
+})
+
+const bViewDialog = ref(false)
+const isUpdateLoading = ref(false)
+
+const updateSedeData = (sede) => {
+  oSedeData.value = {
+    id: sede.id,
+    nombre: sede.nombre,
+    direccion: sede.direccion,
+    telefono: sede.telefono,
+    email: sede.email
+  }
+}
+
+const onShowUpdateDialog = (idx) => {
+  const sede = aSedes.value[idx]
+  updateSedeData(sede)
+  bViewDialog.value = true
+}
+
+const updateSedeFetch = async () => {
+  isUpdateLoading.value = true
+  try {
+
+    const formData = new FormData()
+
+    for (let key in oSedeData.value) {
+      if (key == 'id') continue
+      const value = oSedeData.value[key]
+      if (value.trim().length != 0) {
+        formData.append(key, value)
+      }
+    }
+
+    const response = await updateSede(oSedeData.value.id, formData)
+    isUpdateLoading.value = false
+    cargarSedes()
+    bViewDialog.value = false
+    toast.add({
+      severity: 'success',
+      summary: 'Se ha actualizado la sede correctamente',
+      life: 5000
+    })
+  }
+  catch (error) {
+    isUpdateLoading.value = false
+    handleServerError(error, 'Actualizar Sede', toast)
+  }
+}
+
+// Delete
+const deleteDialog = ref()
+
+const onDeleteDialog = (i) => {
+  oSedeData.value.id = i
+  deleteDialog.value.showDialog()
+}
+
+const onDeleteFn = async () => {
+  try {
+    const response = await deleteSede(oSedeData.value.id)
+    cargarSedes()
+  }
+  catch (error) {
+    handleServerError(error, 'Eliminar Sede', toast)
+  }
+}
+
 watch([isDarkTheme, aSedes, aMonthsBySede, chartShow, chartState], () => {
   chartData.value = setChartData()
   chartOptions.value = setChartOptions()
+})
+
+onBeforeMount(() => {
+  cancelToken.value = axios.CancelToken.source()
 })
 
 onMounted(() => {
@@ -105,9 +212,13 @@ onMounted(() => {
   chartOptions.value = setChartOptions()
 })
 
+onBeforeUnmount(() => {
+  cancelToken.value.cancel()
+})
+
 </script>
 <template>
-  <div class="card grid grid-cols-12 gap-2 relative">
+  <div class="card grid grid-cols-12 gap-2 relative overflow-hidden">
     <Preloader v-if="isLoading" />
     <div class="col-span-12 xl:col-span-7">
       <div
@@ -150,14 +261,18 @@ onMounted(() => {
         class="flex flex-col gap-3 h-[40rem] md:h-auto xl:h-[40rem] overflow-y-auto md:flex-row md:overflow-x-auto xl:flex-col">
         <template v-for="(sede, i) in aSedes" :key="sede">
           <div v-if="!sede.empty"
-            class="grid grid-cols-2 grid-row-1 md:flex-shrink-0 items-center p-5 rounded-md dark:odd:bg-gray-700 dark:even:bg-primary-700 odd:bg-gray-900 even:bg-primary"
-            @click="cargarSede(i)">
+            class="grid grid-cols-2 grid-row-1 md:flex-shrink-0 items-center p-5 rounded-md dark:odd:bg-gray-700 dark:even:bg-primary-700 odd:bg-gray-900 even:bg-primary">
             <div class="col-span-2 sm:col-span-1">
               <p class="font-bold text-white text-2xl">{{ sede.nombre }}</p>
-              <p class="text-white flex items-center gap-x-2 text-lg sm:text-xl">
-                <i class="pi pi-fw pi-arrow-circle-right"></i>
-                <span>{{ `Sede ${sede.id}` }}</span>
-              </p>
+              <p class="text-white/60">Acciones</p>
+              <div class="flex 2xl:w-auto justify-between gap-x-2 p-3 rounded-xl bg-white/10 dark:bg-black/10">
+                <Button icon="pi pi-eye" severity='help' v-tooltip.top="toolTipProps('Ver estadisticas')" rounded
+                  @click="cargarSede(i)"></Button>
+                <Button icon="pi pi-pencil" severity='info' v-tooltip.top="toolTipProps('Editar sede')" rounded
+                  @click="onShowUpdateDialog(i)"></Button>
+                <Button icon="pi pi-trash" severity="danger" v-tooltip.top="toolTipProps('Eliminar sede')" rounded
+                  @click="onDeleteDialog(sede.id)"></Button>
+              </div>
             </div>
             <div class="hidden sm:block col-span-1 w-[100px] lg:w-[80px] justify-self-end">
               <img class="w-full" :src="LOGO" alt="Logo">
@@ -167,6 +282,52 @@ onMounted(() => {
       </div>
     </div>
   </div>
+  <Dialog v-model:visible="bViewDialog" :closable="true" modal :draggable="false" :show-header="false"
+    class="w-4/5 lg:w-[450px] relative overflow-hidden">
+    <div class="pt-4">
+      <Preloader v-if="isUpdateLoading"></Preloader>
+      <div class="flex flex-col gap-4">
+        <p class="text-2xl text-secondary font-bold m-0">Editar Informacion</p>
+
+        <div class="flex flex-col gap-4">
+
+          <!-- Nombre -->
+          <div class="flex flex-col gap-3">
+            <label for="nombre_sede" class="font-bold block">Nombre</label>
+            <InputText id="nombre_sede" v-model:model-value="oSedeData.nombre"></InputText>
+          </div>
+
+          <!-- Direccion -->
+          <div class="flex flex-col gap-3">
+            <label for="direccion_sede" class="font-bold block">Direccion</label>
+            <InputText id="direccion_sede" v-model:model-value="oSedeData.direccion"></InputText>
+          </div>
+
+          <!-- Telefono -->
+          <div class="flex flex-col gap-3">
+            <label for="telefono_sede" class="font-bold block">Telefono</label>
+            <InputText id="telefono_sede" v-model:model-value="oSedeData.telefono"></InputText>
+          </div>
+
+          <!-- Email -->
+          <div class="flex flex-col gap-3">
+            <label for="email_sede" class="font-bold block">Email</label>
+            <InputText id="email_sede" v-model:model-value="oSedeData.email"></InputText>
+          </div>
+
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <Button class="col-span-2 md:col-span-1" outlined icon="pi pi-times" label="Cancelar"
+            @click="bViewDialog = false"></Button>
+          <Button class="col-span-2 md:col-span-1" icon="pi pi-check" label="Actualizar"
+            @click="updateSedeFetch"></Button>
+        </div>
+      </div>
+    </div>
+  </Dialog>
+  <YesNoDialog ref="deleteDialog" v-on:affirmation="onDeleteFn"
+    title="¿Estas seguro de eliminar la sede? SE PERDERAN TODOS LOS DATOS"></YesNoDialog>
 </template>
 <style scoped>
 .crm-whatsapp {

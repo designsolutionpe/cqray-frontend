@@ -3,17 +3,18 @@ import { createStore } from 'vuex';
 export default createStore({
   state: {
     isAuthenticated: !!localStorage.getItem('token'),
-    id:localStorage.getItem('id') || null,
+    id: localStorage.getItem('id') || null,
     id_sede: localStorage.getItem('id_sede') || null,
     userRole: localStorage.getItem('userRole') || null,
     token: localStorage.getItem('token') || null,
     nombre: localStorage.getItem('nombre') || '',
     apellido: localStorage.getItem('apellido') || '',
-    foto: localStorage.getItem('foto') || null
+    foto: localStorage.getItem('foto') || null,
+    id_paciente: localStorage.getItem('id_paciente_directorio') || null
   },
 
   mutations: {
-    setAuth(state, { isAuthenticated, id, id_sede, userRole, token, nombre, apellido , foto }) {
+    setAuth(state, { isAuthenticated, id, id_sede, userRole, token, nombre, apellido, foto }) {
       state.isAuthenticated = isAuthenticated;
       state.id = id;
       state.id_sede = id_sede;
@@ -29,18 +30,17 @@ export default createStore({
       localStorage.setItem('userRole', userRole || '');
       localStorage.setItem('nombre', nombre || '');
       localStorage.setItem('apellido', apellido || '');
-      localStorage.setItem('foto',foto || '')
+      localStorage.setItem('foto', foto || '')
     },
-    updateUserData(state,{ userRole , nombre , apellido , foto })
-    {
+    updateUserData(state, { userRole, nombre, apellido, foto }) {
       state.userRole = userRole
       state.nombre = nombre
       state.apellido = apellido
       state.foto = foto
-      localStorage.setItem('userRole',state.userRole)
-      localStorage.setItem('nombre',state.nombre)
-      localStorage.setItem('apellido',state.apellido)
-      localStorage.setItem('foto',state.foto)
+      localStorage.setItem('userRole', state.userRole)
+      localStorage.setItem('nombre', state.nombre)
+      localStorage.setItem('apellido', state.apellido)
+      localStorage.setItem('foto', state.foto)
     },
     logout(state) {
       state.isAuthenticated = false;
@@ -59,17 +59,25 @@ export default createStore({
       localStorage.removeItem('nombre');
       localStorage.removeItem('apellido');
       localStorage.removeItem('foto');
+      localStorage.removeItem('id_paciente_directorio')
+    },
+    updatePacienteID(state, id) {
+      state.id_paciente = id
+      localStorage.setItem('id_paciente_directorio', id)
     }
   },
   actions: {
     login({ commit }, payload) {
       commit('setAuth', payload);
     },
-    updateUserData({ commit },payload){
-      commit('updateUserData',payload)
+    updateUserData({ commit }, payload) {
+      commit('updateUserData', payload)
     },
     logout({ commit }) {
       commit('logout');
+    },
+    setPacienteID({ commit }, payload) {
+      commit('updatePacienteID', payload)
     }
   },
   getters: {
@@ -81,6 +89,7 @@ export default createStore({
     nombre: (state) => state.nombre,
     apellido: (state) => state.apellido,
     nombreCompleto: (state) => `${state.nombre} ${state.apellido}`.trim(),
-    foto: (state) => state.foto
+    foto: (state) => state.foto,
+    id_paciente: (state) => state.id_paciente
   }
 });

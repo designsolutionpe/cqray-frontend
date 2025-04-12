@@ -8,6 +8,7 @@ import { FilterMatchMode } from '@primevue/core/api';
 import axios from 'axios';
 import { useToast } from 'primevue';
 import { computed, onBeforeMount, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 
 // General Variables
@@ -47,9 +48,9 @@ const oInvalid = ref({
 // Select Variables
 const aTipoDocumentoSelect = ref([
   { label: "DNI" },
-  { label: "Carnet de Extranjería" },
-  { label: "Pasaporte" },
-  { label: "Otro" },
+  { label: "Carnet de Extranjería".toUpperCase() },
+  { label: "Pasaporte".toUpperCase() },
+  { label: "Otro".toUpperCase() },
 ])
 const aGenero = ref([
   { label: "Masculino" },
@@ -58,6 +59,8 @@ const aGenero = ref([
 
 const aSedeSelect = ref([])
 const aEstadoPacienteSelect = ref([])
+
+const oSedeSelected = ref()
 
 // Loading State Variables
 const isPacientesLoading = ref(true)
@@ -72,22 +75,17 @@ const isPageLoading = ref(true)
 const cargarPacientes = async () => {
   isPacientesLoading.value = true
   try {
-    const response = await getPacientes()
-    aPacientes.value = response
-      .filter(p => {
-        if (id_sede.value)
-          return p.id_sede == id_sede.value
-        else
-          return true
-      })
-      .map(p => ({
-        ...p,
-        persona: {
-          ...p.persona,
-          fecha_nacimiento: new Date(p.persona.fecha_nacimiento + 'T00:00:00')
-        }
-      }))
-    console.log(aPacientes.value, 'PACIENTES')
+    const response = await getPacientes(cancelToken.value.token)
+    if (response) {
+      aPacientes.value = response
+        .map(p => ({
+          ...p,
+          persona: {
+            ...p.persona,
+            fecha_nacimiento: new Date(p.persona.fecha_nacimiento + 'T00:00:00')
+          }
+        }))
+    }
     isPacientesLoading.value = false
   }
   catch (error) {
@@ -104,6 +102,7 @@ const cargarSedes = async () => {
         label: s.nombre,
         value: s.id
       }))
+      oSedeSelected.value = id_sede.value ? aSedeSelect.value.find(s => s.value == id_sede.value).label : null
     }
     isSedeLoading.value = false
   }
@@ -134,7 +133,7 @@ const cargarEstadoPaciente = async () => {
 const initFilters = () => {
   oFilters.value = {
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    'sede.nombre': { value: null, matchMode: FilterMatchMode.EQUALS },
+    'sede.nombre': { value: oSedeSelected, matchMode: FilterMatchMode.EQUALS },
     'persona.tipo_documento': { value: null, matchMode: FilterMatchMode.EQUALS },
     'persona.numero_documento': { value: null, matchMode: FilterMatchMode.CONTAINS },
     'persona.apellido': { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -259,6 +258,12 @@ const openDeleteDialog = (paciente) => {
   deleteDialog.value.showDialog()
 }
 
+const router = useRouter()
+const onOpenDirectory = (id) => {
+  store.dispatch('setPacienteID', id)
+  router.push('/gestion/pacientes/directorio')
+}
+
 // Watch functions
 
 // Watch all loading variables
@@ -321,11 +326,11 @@ onBeforeUnmount(() => {
         </div>
       </template>
 
-      <!-- ID -->
-      <!-- <Column field="id" header="#" sortable style="min-width: 3rem"></Column> -->
-
-      <!-- Sede -->
-      <Column field="sede.nombre" header="Sede" :show-filter-menu="false" sortable style="min-width: 8rem">
+      <!-- Sede Inicial -->
+      <Column field="sede.nombre" header="Creado en" :show-filter-menu="false" sortable style="min-width: 8rem">
+        <template #body="pacienteItem">
+          {{ pacienteItem.data.sede.nombre.toUpperCase() }}
+        </template>
         <template #filter="{ filterModel, filterCallback }">
           <Select v-model:model-value="filterModel.value" @change="filterCallback()" option-label="label"
             option-value="label" :options="aSedeSelect" placeholder="Filtrar por sede"
@@ -336,6 +341,9 @@ onBeforeUnmount(() => {
       <!-- Tipo Documento -->
       <Column field="persona.tipo_documento" header="Tipo Documento" :show-filter-menu="false" sortable
         style="min-width: 8rem">
+        <template #body="pacienteItem">
+          {{ pacienteItem.data.persona.tipo_documento.toUpperCase() }}
+        </template>
         <template #filter="{ filterModel, filterCallback }">
           <Select v-model:model-value="filterModel.value" @change="filterCallback()" option-label="label"
             option-value="label" :options="aTipoDocumentoSelect" placeholder="Filtrar por Tipo Documento"
@@ -354,6 +362,9 @@ onBeforeUnmount(() => {
 
       <!-- Apellido -->
       <Column field="persona.apellido" header="Apellido" :show-filter-menu="false" sortable style="min-width: 10rem;">
+        <template #body="pacienteItem">
+          {{ pacienteItem.data.persona.apellido.toUpperCase() }}
+        </template>
         <template #filter="{ filterModel, filterCallback }">
           <InputText v-model="filterModel.value" type="text" @input="filterCallback()"
             placeholder="Filtrar por apellido" />
@@ -362,6 +373,9 @@ onBeforeUnmount(() => {
 
       <!-- Nombre -->
       <Column field="persona.nombre" header="Nombre" :show-filter-menu="false" sortable style="min-width: 10rem;">
+        <template #body="pacienteItem">
+          {{ pacienteItem.data.persona.nombre.toUpperCase() }}
+        </template>
         <template #filter="{ filterModel, filterCallback }">
           <InputText v-model="filterModel.value" type="text" @input="filterCallback()"
             placeholder="Filtrar por nombre" />
@@ -370,6 +384,9 @@ onBeforeUnmount(() => {
 
       <!-- Genero -->
       <Column field="persona.genero" header="Genero" :show-filter-menu="false" sortable style="min-width: 8rem">
+        <template #body="pacienteItem">
+          {{ pacienteItem.data.persona.genero.toUpperCase() }}
+        </template>
         <template #filter="{ filterModel, filterCallback }">
           <Select v-model:model-value="filterModel.value" @change="filterCallback()" option-label="label"
             option-value="label" :options="aGenero" placeholder="Filtrar por Genero"></Select>
@@ -391,6 +408,9 @@ onBeforeUnmount(() => {
 
       <!-- Estado -->
       <Column field="estado.nombre" header="Estado" :show-filter-menu="false" sortable style="min-width: 8rem">
+        <template #body="pacienteItem">
+          {{ pacienteItem.data.estado.nombre.toUpperCase() }}
+        </template>
         <template #filter="{ filterModel, filterCallback }">
           <Select v-model:model-value="filterModel.value" @change="filterCallback()" option-label="label"
             option-value="label" :options="aEstadoPacienteSelect" placeholder="Filtrar por estado"></Select>
@@ -413,9 +433,8 @@ onBeforeUnmount(() => {
             @click="onOpenViewDialog(pacienteItem.data)"></Button>
           <Button icon="pi pi-pencil" outlined rounded class="mr-2"
             @click="onOpenEditDialog(pacienteItem.data)"></Button>
-          <!-- <router-link to="/gestion/pacientes/directorio">
-            <Button icon="pi pi-folder" outlined rounded severity='contrast' class="mr-2"></Button>
-          </router-link> -->
+          <Button icon="pi pi-folder" outlined rounded severity='contrast' class="mr-2"
+            @click="onOpenDirectory(pacienteItem.data.id)"></Button>
           <Button icon="pi pi-trash" outlined rounded severity="danger" class="mr-2"
             @click="openDeleteDialog(pacienteItem.data)"></Button>
         </template>
