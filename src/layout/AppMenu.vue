@@ -124,8 +124,8 @@ const menuItems = ref([
                 label: 'Artículos',
                 icon: 'pi pi-fw pi-file',
                 items: [
-                    { label: 'Agregar producto', to: '#' },
-                    { label: 'Agregar servicio', to: '#' },
+                    { label: 'Agregar producto', to: '/mantenimiento/articulos/producto' },
+                    { label: 'Agregar servicio', to: '/mantenimiento/articulos/servicio' },
                 ]
             },
         ]

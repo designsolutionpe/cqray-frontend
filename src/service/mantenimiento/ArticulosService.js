@@ -47,3 +47,70 @@ export const deleteCategoria = async (id) => {
     throw error;
   }
 }
+
+// ARTICULOS - SERVICIOS
+
+export const getArticulosServicios = async (cancelToken) => {
+  try {
+    const response = await api.get('/articulos', {
+      cancelToken: cancelToken || null
+    })
+    if (typeof response.cancelled != 'undefined')
+      return null
+    return response.data
+  }
+  catch (error) {
+    console.error('Erro al obtener servicios', error)
+    throw error;
+  }
+}
+
+export const createArticuloServicio = async (data) => {
+  try {
+    const response = await api.post('/articulos', data)
+    return response.data
+  }
+  catch (error) {
+    console.error('Erros al crear un servicio', error)
+    throw error;
+  }
+}
+
+export const updateArticuloServicio = async (id, data) => {
+  try {
+    const response = await api.put(`/articulos/${id}`, data)
+    return response.data
+  }
+  catch (error) {
+    console.error('Erro al actualizar servicio', error)
+    throw error;
+  }
+}
+
+export const deleteArticuloServicio = async (id) => {
+  try {
+    const response = await api.delete(`/articulos/${id}`)
+    return response.data
+  }
+  catch (error) {
+    console.error('Erro al actualizar servicio', error)
+    throw error;
+  }
+}
+
+// ARTICULOS - MEDIDAS
+
+export const getMedidas = async (cancelToken) => {
+  try {
+    const response = await api.get('/articulos/medidas', {
+      cancelToken: cancelToken || null
+    })
+    if (typeof response.cancelled != 'undefined')
+      return null
+    return response.data
+  }
+  catch (error) {
+    console.error('Erro al actualizar servicio', error)
+    throw error;
+  }
+}

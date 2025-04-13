@@ -204,6 +204,20 @@ const router = createRouter({
                     meta: { requiresAuth: true, roles: ['Superadministrador'] }
                 },
 
+                {
+                    path: '/mantenimiento/articulos/producto',
+                    name: 'articulos-producto',
+                    component: () => import('@/views/mantenimiento/articulos/Producto.vue'),
+                    meta: { requiresAuth: true, roles: ['Superadministrador'] }
+                },
+
+                {
+                    path: '/mantenimiento/articulos/servicio',
+                    name: 'articulos-servicio',
+                    component: () => import('@/views/mantenimiento/articulos/Servicio.vue'),
+                    meta: { requiresAuth: true, roles: ['Superadministrador'] }
+                },
+
 
                 /*
                 {

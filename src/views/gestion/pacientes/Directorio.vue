@@ -219,6 +219,10 @@ onBeforeUnmount(() => {
               <DataTable :value="oPacienteInfo.citas" removable-sort table-style="min-width: 20rem" scrollable
                 scroll-height="500px" data-key="id" show-gridlines>
 
+                <template #empty>
+                  <p class="text-center font-bold">&lt;Mantenimiento&#62;</p>
+                </template>
+
                 <Column field="fecha_cita" header="Fecha" sortable style="min-width: 5rem;">
                   <template #body="citaItem">
                     {{ formatDate(citaItem.data.fecha_cita) }}
