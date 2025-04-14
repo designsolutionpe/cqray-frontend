@@ -205,6 +205,13 @@ const router = createRouter({
                 },
 
                 {
+                    path: '/mantenimiento/personas/agregar',
+                    name: 'persona-agregar',
+                    component: () => import('@/views/mantenimiento/personas/Agregar.vue'),
+                    meta: { requiresAuth: true, roles: ['Superadministrador'] }
+                },
+
+                {
                     path: '/mantenimiento/articulos/producto',
                     name: 'articulos-producto',
                     component: () => import('@/views/mantenimiento/articulos/Producto.vue'),

@@ -75,7 +75,7 @@ const menuItems = ref([
                 icon: 'pi pi-fw pi-users',
                 items: [
                     { label: 'Todo el personal', to: '/mantenimiento/personas/todas' },
-                    { label: 'Añadir personal', to: '#' },
+                    { label: 'Añadir personal', to: '/mantenimiento/personas/agregar' },
                 ]
             },
             /*

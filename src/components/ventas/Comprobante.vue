@@ -3,12 +3,20 @@ import { ref, onMounted, watch } from 'vue';
 import { getComprobantes } from '@/service/gestion/ComprobanteService';
 import { FilterMatchMode } from '@primevue/core/api';
 import { useToast } from 'primevue/usetoast';
+import { useRouter } from 'vue-router';
 
+const router = useRouter();
 const toast = useToast();
 const dt = ref();
 const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS }
 });
+
+const routeMap = {
+  1: 'agregarboleta',
+  2: 'agregarfactura',
+  3: 'agregarnota'
+};
 
 const tipoComprobanteProp = defineProps({
   tipoComprobante: {
@@ -44,7 +52,12 @@ const cargarComprobantes = async () => {
 };
 
 function openNew() {
-
+    const routeName = routeMap[tipoComprobanteProp.tipoComprobante];
+    if (routeName) {
+        router.push({ name: routeName });
+    } else {
+        console.warn('Tipo de comprobante no válido');
+    }
 }
 
 function viewComprobante(){

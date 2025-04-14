@@ -21,7 +21,7 @@ const oPersonaInfo = ref({})
 const deleteDialog = ref();
 const cancelToken = ref();
 
-const onInvalid = ref({
+const oInvalid = ref({
   tipo_documento: false,
   numero_documento: false,
   nombre: false,
@@ -56,7 +56,7 @@ const cargarPersonas = async () => {
         if (response) {
             aPersonas.value = response.map((persona) => ({
             ...persona,
-            fecha_nacimiento: formatDate(persona.fecha_nacimiento),
+            //fecha_nacimiento: formatDate(persona.fecha_nacimiento),
             foto: persona.foto ? persona.foto : null
             }))
         }
@@ -207,7 +207,7 @@ const isValidDate = (date) => {
             </template>
 
             <!-- Tipo Documento -->
-            <Column field="tipo_documento" header="Tipo Documento" :show-filter-menu="false" sortable style="min-width: 8rem">
+            <Column field="tipo_documento" header="Tipo Documento" :show-filter-menu="false" sortable style="min-width: 5rem">
                 <template #body="slotProps">
                     {{ slotProps.data.tipo_documento }}
                 </template>
@@ -262,7 +262,7 @@ const isValidDate = (date) => {
             <!-- Fecha Nacimiento -->
             <Column field="fecha_nacimiento" header="Fecha Nacimiento" :show-filter-menu="false" sortable style="min-width: 15rem;">
                 <template #body="slotProps">
-                    {{ isValidDate(slotProps.data.fecha_nacimiento) ? (slotProps.data.fecha_nacimiento) : '' }}
+                    {{ isValidDate(slotProps.data.fecha_nacimiento) ? (formatDate(slotProps.data.fecha_nacimiento)) : '' }}
                 </template>
                 <template #filter="{ filterModel, filterCallback }">
                     <DatePicker v-model="filterModel.value" :manual-input="false" @value-change="filterCallback()"
@@ -271,9 +271,100 @@ const isValidDate = (date) => {
                 </template>
             </Column>
 
-
-
+            <Column :exportable="false" style="min-width: 12rem">
+                <template #body="slotProps">
+                    <Button icon="pi pi-eye" outlined rounded severity="info" class="mr-2" @click="onOpenViewDialog(slotProps.data)"></Button>
+                    <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="onOpenEditDialog(slotProps.data)"></Button>
+                    <Button icon="pi pi-trash" outlined rounded severity="danger" class="mr-2" @click="openDeleteDialog(slotProps.data)"></Button>
+                </template>
+            </Column>
         </DataTable>
 
+        <Dialog v-model:visible="bSeePersona" :show-header="false" modal :draggable="false" :closable="false"
+            class="w-4/5 lg:w-[650px] relative overflow-hidden">
+            <Preloader v-if="bUpdatePersona"></Preloader>
+            <div class="flex flex-col gap-6 pt-5">
+                <p class="text-2xl font-bold m-0 text-secondary">Informacion de personal</p>
+                <div class="grid grid-cols-4 gap-4">
+                    <div class="col-span-4 md:col-span-1">
+                        <label for="tipo_documento" class="block font-bold mb-3">Tipo Documento</label>
+                        <Select id="tipo_documento" v-model:model-value="oPersonaInfo.tipo_documento" fluid
+                        :disabled="!bEditPersona" :options="aTipoDocumentoSelect" option-label="label" option-value="label"
+                        :invalid="oInvalid.tipo_documento"></Select>
+                        <small v-if="oInvalid.tipo_documento" class="text-red-500">Este campo es requerido*</small>
+                    </div>
+                    <div class="col-span-4 md:col-span-3">
+                        <label for="numero_documento" class="block font-bold mb-3">Numero Documento</label>
+                        <InputText id="numero_documento" v-model:model-value="oPersonaInfo.numero_documento" fluid
+                        :disabled="!bEditPersona" :invalid="oInvalid.numero_documento"></InputText>
+                        <small v-if="oInvalid.numero_documento" class="text-red-500">Este campo es requerido*</small>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="apellido" class="block font-bold mb-3">Apellido</label>
+                    <InputText id="apellido" v-model:model-value="oPersonaInfo.apellido" fluid :disabled="!bEditPersona"
+                    :invalid="oInvalid.apellido">
+                    </InputText>
+                    <small v-if="oInvalid.apellido" class="text-red-500">Este campo es requerido*</small>
+                </div>
+
+                <div>
+                    <label for="nombre" class="block font-bold mb-3">Nombre</label>
+                    <InputText id="nombre" v-model:model-value="oPersonaInfo.nombre" fluid :disabled="!bEditPersona"
+                    :invalid="oInvalid.nombre">
+                    </InputText>
+                    <small v-if="oInvalid.nombre" class="text-red-500">Este campo es requerido*</small>
+                </div>
+
+                <div class="grid grid-cols-6 gap-4">
+                    <div class="col-span-6 md:col-span-2">
+                        <label for="genero" class="block font-bold mb-3">Genero</label>
+                        <Select id="genero" v-model:model-value="oPersonaInfo.genero" fluid :disabled="!bEditPersona"
+                        :options="aGenero" option-label="label" option-value="label" :invalid="oInvalid.genero"></Select>
+                        <small v-if="oInvalid.genero" class="text-red-500">Este campo es requerido*</small>
+                    </div>
+
+                    <div class="col-span-6 md:col-span-2">
+                        <label for="fecha_nacimiento" class="block font-bold mb-3">Fecha Nacimiento</label>
+                        <InputText id="fecha_nacimiento" type="date" v-model:model-value="oPersonaInfo.fecha_nacimiento" fluid
+                        :disabled="!bEditPersona" :invalid="oInvalid.fecha_nacimiento"></InputText>
+                        <small v-if="oInvalid.fecha_nacimiento" class="text-red-500">Este campo es requerido*</small>
+                    </div>
+
+                    <div class="col-span-6 md:col-span-2">
+                        <label for="telefono" class="block font-bold mb-3">Telefono</label>
+                        <InputText id="telefono" v-model:model-value="oPersonaInfo.telefono" fluid :disabled="!bEditPersona"
+                        :invalid="oInvalid.telefono">
+                        </InputText>
+                        <small v-if="oInvalid.telefono" class="text-red-500">Este campo es requerido*</small>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="direccion" class="block font-bold mb-3">Direccion</label>
+                    <InputText id="direccion" v-model:model-value="oPersonaInfo.direccion" fluid :disabled="!bEditPersona"
+                    :invalid="oInvalid.direccion">
+                    </InputText>
+                    <small v-if="oInvalid.direccion" class="text-red-500">Este campo es requerido*</small>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="col-span-2 md:col-span-1">
+                        <label for="email" class="block font-bold mb-3">Email</label>
+                        <InputText id="email" v-model:model-value="oPersonaInfo.email" fluid :disabled="!bEditPersona"
+                        :invalid="oInvalid.email">
+                        </InputText>
+                        <small v-if="oInvalid.email" class="text-red-500">Este campo es requerido*</small>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <Button :class="{ 'col-span-2': !bEditPersona }" label="Cancelar" icon="pi pi-times" outlined
+                    @click="onCloseDialog"></Button>
+                    <Button v-if="bEditPersona" label="Actualizar" icon="pi pi-check" @click="updateCurrentPersona"></Button>
+                </div>
+            </div>
+        </Dialog>
     </div>
 </template>
