@@ -42,9 +42,10 @@ const filteredComprobantes = ref([]);
 const cargarComprobantes = async () => {
     try {
         const response = await getComprobantes(); // Obtener todos los comprobantes
-        comprobantes.value = response;
+        comprobantes.value = Array.isArray(response) ? response : [];
         // Filtrar comprobantes según el tipo recibido como prop
-        filteredComprobantes.value = comprobantes.value.filter(comprobante => comprobante.tipo_comprobante === tipoComprobanteProp.tipoComprobante);
+        filteredComprobantes.value = comprobantes.value.filter(
+            comprobante => comprobante.tipo_comprobante === tipoComprobanteProp.tipoComprobante);
     } catch (error) {
         console.error('Error al cargar los comprobantes:', error);
         toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudo cargar los comprobantes', life: 3000 });
