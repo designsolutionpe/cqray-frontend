@@ -65,6 +65,24 @@ export const getArticulosServicios = async (cancelToken) => {
   }
 }
 
+export const searchArticulos = async (idSede, tipoArticulo, cancelToken = null) => {
+  try {
+    const response = await api.get('/articulos/buscar', {
+      params: {
+        id_sede: idSede,
+        tipo_articulo: tipoArticulo,
+      },
+      cancelToken: cancelToken || null,
+    });
+    if (typeof response.cancelled !== 'undefined') return null;
+    return response.data;
+  } catch (error) {
+    console.error('Error al obtener artículos:', error);
+    throw error;
+  }
+};
+
+
 export const createArticuloServicio = async (data) => {
   try {
     const response = await api.post('/articulos', data)

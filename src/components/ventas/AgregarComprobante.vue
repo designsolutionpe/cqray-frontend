@@ -1,6 +1,7 @@
 <script setup>
 import Preloader from '@/components/Preloader.vue';
 import { createComprobante } from '@/service/gestion/ComprobanteService';
+import { searchArticulos } from '@/service/mantenimiento/ArticulosService';
 import { getSedes } from '@/service/mantenimiento/SedeService';
 import { handleServerError } from '@/utils/Util';
 import axios from 'axios';
@@ -15,7 +16,7 @@ const id_sede = computed(() => store.getters.id_sede)
 
 const comprobante = ref({})
 const crearDetalleVacio = () => ({
-    id_producto: null,
+    id_articulo: null,
     cantidad: 1,
     descuento: 0,
     precio_unitario: 0,
@@ -28,21 +29,34 @@ const agregarFila = () => {
     detalles.value.push(crearDetalleVacio());
 };
 
-const productos = ref([
-  { id: 1, nombre: 'Producto A', precio: 50 },
-  { id: 2, nombre: 'Producto B', precio: 30 },
-  { id: 3, nombre: 'Producto C', precio: 20 }
-]);
+const productos = ref([]);
 
+const obtenerProductos = async () => {
+  try {
+    const data = await searchArticulos(comprobante.value.id_sede, comprobante.value.tipo);
+    if (data && data.length > 0) {
+      productos.value = data.map(item => ({
+        id: item.id,
+        nombre: item.nombre,
+        precio: item.precio_venta || 0,
+      }));
+    } else {
+      productos.value = []; // En caso de que no haya productos
+    }
+  } catch (error) {
+    console.error('Error al obtener productos:', error);
+  }
+};
 const obtenerNombreProducto = (id) => {
     const producto = productos.value.find(p => p.id === id);
     return producto ? producto.nombre : '';
 };
 
+
 const onCellEditComplete = (event) => {
     const { data, newValue, field } = event;
 
-    if (field === 'id_producto') {
+    if (field === 'id_articulo') {
         data[field] = newValue;
         // Autocompletar precio si se selecciona un producto
         const producto = productos.value.find(p => p.id === newValue);
@@ -86,7 +100,6 @@ const recalcularTotales = () => {
   comprobante.value.monto_igv = montoIGV.toFixed(2);
   comprobante.value.total = total.toFixed(2);
 };
-
 
 const eliminarFila = (index) => {
     detalles.value.splice(index, 1);
@@ -192,6 +205,20 @@ watch(() => comprobante.value.igv, () => {
   recalcularTotales();
 });
 
+watch(
+  () => [comprobante.value.id_sede, comprobante.value.tipo], 
+  ([idSede, tipoArticulo]) => {
+    if (idSede && tipoArticulo) {
+      obtenerProductos();
+    }
+  },
+  { immediate: true }
+);
+
+const calculateVuelto = computed(() => {
+  return comprobante.value.pago_cliente - comprobante.value.total;
+});
+
 function hideDialog(){
 
 }
@@ -225,77 +252,80 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <div>
-        <div class="card p-4">
-          <h2 class="text-xl font-semibold mb-4">{{ tipoComprobanteText(tipoComprobanteProp.tipoComprobante) }}</h2>
+  <div>
+    <div class="card p-4">
+      <h2 class="text-xl font-semibold mb-4">
+        {{ tipoComprobanteText(tipoComprobanteProp.tipoComprobante) }}
+      </h2>
 
-          <div class="grid grid-cols-12 gap-4">
-            <div class="col-span-8">
-              <label for="nomb" class="block font-bold mb-3">Nombre</label>
-              <InputGroup>
-                <InputText id="nomb" v-model="comprobante.nombre" readonly fluid />
-                <InputGroupAddon>
-                  <Button icon="pi pi-list" severity="info" variant="text" @click="openDialog" />
-                </InputGroupAddon>
-              </InputGroup>
-            </div>
-            <PersonaBusqueda :showDialog="showDialog" @select-persona="handleSelectPersona"
-            :numeroDocumento="numeroDocumento" :nombre="nombre" @update:visible="showDialog = $event"/>
-            <div class="col-span-4">
-              <label for="sede" class="block font-bold mb-3">Sede</label>
-              <Select id="sede" v-model="comprobante.id_sede" fluid :options="aSedeSelect"
-              option-label="label" option-value="value" placeholder="Seleccionar sede" />
-            </div>
-          </div>
+      <div class="grid grid-cols-12 gap-6 mb-6">
+        <div class="col-span-8">
+          <label for="nomb" class="block font-bold mb-3">Nombre</label>
+          <InputGroup>
+            <InputText id="nomb" v-model="comprobante.nombre" readonly fluid />
+            <InputGroupAddon>
+              <Button icon="pi pi-list" severity="info" variant="text" @click="openDialog" />
+            </InputGroupAddon>
+          </InputGroup>
+        </div>
+        <PersonaBusqueda :showDialog="showDialog" @select-persona="handleSelectPersona"
+        :numeroDocumento="numeroDocumento" :nombre="nombre" @update:visible="showDialog = $event"/>
+        <div class="col-span-4">
+          <label for="sede" class="block font-bold mb-3">Sede</label>
+          <Select id="sede" v-model="comprobante.id_sede" fluid :options="aSedeSelect"
+          option-label="label" option-value="value" placeholder="Seleccionar sede" />
+        </div>
+      </div>
 
-          <div class="grid grid-cols-12 gap-4">
-            <div class="col-span-4">
-                <label for="tipo" class="block font-bold mb-3">Tipo</label>
-                <Select id="tipo" v-model="comprobante.tipo" :options="tipo" optionLabel="label" optionValue="value" placeholder="Selecciona un tipo" fluid />
-            </div>
+      <div class="grid grid-cols-12 gap-6 mb-6">
+        <div class="col-span-4">
+          <label for="tipo" class="block font-bold mb-3">Tipo</label>
+          <Select id="tipo" v-model="comprobante.tipo" :options="tipo" optionLabel="label" optionValue="value" placeholder="Selecciona un tipo" fluid />
+        </div>
 
-            <div class="col-span-2">
-              <label for="serie" class="block font-bold mb-3">Serie</label>
-              <InputText id="serie" v-model="comprobante.serie" type="text" placeholder="Serie" fluid />
-            </div>
+        <div class="col-span-2">
+          <label for="serie" class="block font-bold mb-3">Serie</label>
+          <InputText id="serie" v-model="comprobante.serie" type="text" placeholder="Serie" fluid />
+        </div>
 
-            <div class="col-span-3">
-              <label for="numero" class="block font-bold mb-3">Número</label>
-              <InputText id="numero" v-model="comprobante.numero" type="text" placeholder="Número del comprobante" fluid />
-            </div>
+        <div class="col-span-3">
+          <label for="numero" class="block font-bold mb-3">Número</label>
+          <InputText id="numero" v-model="comprobante.numero" type="text" placeholder="Número del comprobante" fluid />
+        </div>
 
-            <div class="col-span-3">
-              <label for="fecha_emision" class="block font-bold mb-3">Fecha de emisión</label>
-              <InputText id="fecha_emision" v-model="comprobante.fecha_emision" type="date" placeholder="Fecha de emisión" fluid />
-            </div>
+        <div class="col-span-3">
+          <label for="fecha_emision" class="block font-bold mb-3">Fecha de emisión</label>
+          <InputText id="fecha_emision" v-model="comprobante.fecha_emision" type="date" placeholder="Fecha de emisión" fluid />
+        </div>
+      </div>
 
-          </div>
+      <div class="grid grid-cols-12 gap-6 mb-6">
+        <div class="col-span-3">
+          <label for="moneda" class="block font-bold mb-3">Moneda</label>
+          <Select id="moneda" v-model="comprobante.moneda" :options="optMoneda" optionLabel="label" optionValue="value" placeholder="Selecciona la moneda" fluid />
+        </div>
+        <div class="col-span-3">
+          <label for="tipo_cambio" class="block font-bold mb-3">Tipo de cambio</label>
+          <InputText id="tipo_cambio" v-model="comprobante.tipo_cambio" type="number" step="0.01" placeholder="Tipo de cambio" fluid />
+        </div>
+        <div class="col-span-2">
+          <label for="igv" class="block font-bold mb-3">IGV</label>
+          <Checkbox id="igv" v-model="comprobante.igv" binary />
+        </div>
+      </div>
 
-          <div class="grid grid-cols-12 gap-4">
-            <div class="col-span-3">
-              <label for="moneda" class="block font-bold mb-3">Moneda</label>
-              <Select id="moneda" v-model="comprobante.moneda" :options="optMoneda" optionLabel="label" optionValue="value" placeholder="Selecciona la moneda" fluid />
-            </div>
-            <div class="col-span-3">
-              <label for="tipo_cambio" class="block font-bold mb-3">Tipo de cambio</label>
-              <InputText id="tipo_cambio" v-model="comprobante.tipo_cambio" type="number" step="0.01" placeholder="Tipo de cambio" fluid />
-            </div>
-            <div class="col-span-2">
-              <label for="igv" class="block font-bold mb-3">IGV</label>
-              <Checkbox id="igv" v-model="comprobante.igv" binary />
-            </div>
-          </div>
-
+      <Card class="p-mb-4 custom-card gap-6 mb-6">
+        <template #content>
           <div class="flex gap-2 mb-3">
             <Button label="Agregar detalle" icon="pi pi-plus" @click="agregarFila" />
             <Button label="Limpiar detalles" icon="pi pi-refresh" severity="secondary" @click="limpiarDetalles" />
           </div>
-
+          
           <DataTable :value="detalles" editMode="cell" @cell-edit-complete="onCellEditComplete"
             :pt="{ table: { style: 'min-width: 50rem' } }">
-            <Column field="id_producto" header="Producto" style="width: 25%">
+            <Column field="id_articulo" header="Producto" style="width: 25%">
                 <template #body="{ data }">
-                  {{ obtenerNombreProducto(data.id_producto) || 'Seleccionar producto' }}
+                  {{ obtenerNombreProducto(data.id_articulo) || 'Seleccionar producto' }}
                 </template>
                 <template #editor="{ data, field }">
                   <Select v-model="data[field]" :options="productos" option-label="nombre" 
@@ -336,49 +366,81 @@ onBeforeUnmount(() => {
               </template>
             </Column>
 
-        </DataTable>
+          </DataTable>
+        </template>
+      </Card>
 
-
-
-          <div class="grid grid-cols-12 gap-3">
-            <div class="col-span-3">
+      <div class="grid grid-cols-12 gap-6 mb-2">
+        <!-- Columna 1 -->
+        <div class="col-span-6 pr-6">
+          <div class="grid grid-cols-2 gap-4">
+            <!-- Subtotal -->
+            <div class="col-span-1">
               <label for="subtotal" class="block font-bold mb-3">Subtotal</label>
-              <InputText id="subtotal" v-model="comprobante.subtotal" type="number" step="0.01" placeholder="Subtotal" fluid />
+            </div>
+            <div class="col-span-1">
+              <InputText id="subtotal" v-model="comprobante.subtotal" type="number" step="0.01" readonly fluid />
             </div>
 
-            <div class="col-span-3">
+            <!-- Monto IGV -->
+            <div class="col-span-1">
               <label for="monto_igv" class="block font-bold mb-3">Monto IGV</label>
-              <InputText id="monto_igv" v-model="comprobante.monto_igv" type="number" step="0.01" placeholder="Monto IGV" fluid />
+            </div>
+            <div class="col-span-1">
+              <InputText id="monto_igv" v-model="comprobante.monto_igv" type="number" step="0.01" readonly fluid />
             </div>
 
-            <div class="col-span-3">
+            <!-- Descuento -->
+            <div class="col-span-1">
               <label for="descuento" class="block font-bold mb-3">Descuento</label>
-              <InputText id="descuento" v-model="comprobante.descuento" type="number" step="0.01" placeholder="Descuento" fluid />
+            </div>
+            <div class="col-span-1">
+              <InputText id="descuento" v-model="comprobante.descuento" type="number" step="0.01" readonly fluid />
             </div>
 
-            <div class="col-span-3">
+            <!-- Total -->
+            <div class="col-span-1">
               <label for="total" class="block font-bold mb-3">Total</label>
-              <InputText id="total" v-model="comprobante.total" type="number" step="0.01" placeholder="Total" fluid />
             </div>
-          </div>
-
-          <!-- Pagos -->
-          <div class="grid grid-cols-12 gap-3">
-            <div class="col-span-3">
-              <label for="pago_cliente" class="block font-bold mb-3">Pago Cliente</label>
-              <InputText id="pago_cliente" v-model="comprobante.pago_cliente" type="number" step="0.01" placeholder="Pago Cliente" fluid />
+            <div class="col-span-1">
+              <InputText id="total" v-model="comprobante.total" type="number" step="0.01" readonly fluid />
             </div>
-
-            <div class="col-span-3">
-              <label for="vuelto" class="block font-bold mb-3">Vuelto</label>
-              <InputText id="vuelto" v-model="comprobante.vuelto" type="number" step="0.01" placeholder="Vuelto" fluid />
-            </div>
-          </div>
-      
-          <div class="mt-4">
-            <Button label="Cancelar" icon="pi pi-times" class="p-button-text" @click="hideDialog" />
-            <Button label="Guardar" icon="pi pi-check" @click="saveComprobante" />
           </div>
         </div>
+
+        <!-- Columna 2 -->
+        <div class="col-span-6 pl-6">
+          <div class="grid grid-cols-2 gap-4">
+            <!-- Pago Cliente -->
+            <div class="col-span-1">
+              <label for="pago_cliente" class="block font-bold mb-3">Pago Cliente</label>
+            </div>
+            <div class="col-span-1">
+              <InputText id="pago_cliente" v-model="comprobante.pago_cliente" type="number" step="0.01" fluid />
+            </div>
+
+            <!-- Vuelto -->
+            <div class="col-span-1">
+              <label for="vuelto" class="block font-bold mb-3">Vuelto</label>
+            </div>
+            <div class="col-span-1">
+              <InputText id="vuelto" :value="calculateVuelto" type="number" step="0.01" readonly fluid />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <Button label="Cancelar" icon="pi pi-times" class="p-button-text" @click="hideDialog" />
+        <Button label="Guardar" icon="pi pi-check" @click="saveComprobante" />
+      </div>
     </div>
+  </div>
 </template>
+
+<style scoped>
+.custom-card {
+  border: 2px solid var(--p-primary-color); /* Usando el color primario del tema de PrimeVue */
+  border-radius: var(--p-card-border-radius); /* Mantiene el radio de bordes por defecto */
+}
+</style>
