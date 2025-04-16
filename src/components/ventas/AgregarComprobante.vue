@@ -52,10 +52,8 @@ const obtenerNombreProducto = (id) => {
     return producto ? producto.nombre : '';
 };
 
-
 const onCellEditComplete = (event) => {
     const { data, newValue, field } = event;
-
     if (field === 'id_articulo') {
         data[field] = newValue;
         // Autocompletar precio si se selecciona un producto
@@ -216,7 +214,7 @@ watch(
 );
 
 const calculateVuelto = computed(() => {
-  return comprobante.value.pago_cliente - comprobante.value.total;
+  return (comprobante.value.pago_cliente - comprobante.value.total).toFixed(2);
 });
 
 function hideDialog(){
@@ -324,9 +322,11 @@ onBeforeUnmount(() => {
           <DataTable :value="detalles" editMode="cell" @cell-edit-complete="onCellEditComplete"
             :pt="{ table: { style: 'min-width: 50rem' } }">
             <Column field="id_articulo" header="Producto" style="width: 25%">
+                <!--
                 <template #body="{ data }">
                   {{ obtenerNombreProducto(data.id_articulo) || 'Seleccionar producto' }}
                 </template>
+                -->
                 <template #editor="{ data, field }">
                   <Select v-model="data[field]" :options="productos" option-label="nombre" 
                   placeholder="Seleccionar producto" option-value="id" filter fluid />
@@ -341,15 +341,13 @@ onBeforeUnmount(() => {
 
             <Column field="descuento" header="Descuento (%)" style="width: 15%">
                 <template #editor="{ data, field }">
-                    <InputNumber v-model="data[field]" :min="0" :max="100" suffix="%" autofocus />
+                    <InputNumber v-model="data[field]" :min="0" :max="100" autofocus />
                 </template>
             </Column>
 
             <Column field="precio_unitario" header="Precio Unitario" style="width: 20%">
               <template #editor="{ data, field }">
-                <InputNumber v-if="comprobante.moneda" v-model="data[field]" mode="currency"
-                :currency="comprobante.moneda" :locale="comprobante.moneda === 'PEN' ? 'es-PE' : 'en-US'"
-                autofocus/>
+                <InputNumber v-model="data[field]" autofocus/>
               </template>
             </Column>
 
