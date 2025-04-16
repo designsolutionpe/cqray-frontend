@@ -223,6 +223,7 @@ function hideDialog(){
 
 async function saveComprobante() {
   try {
+    comprobante.value.tipo_comprobante = tipoComprobanteProp.tipoComprobante;
     const response = await createComprobante(comprobante.value, detalles.value, cancelToken.value.token)
     if (response) {
       toast.add({ severity: 'success', summary: 'Éxito', detail: 'Comprobante creado', life: 3000 });
@@ -322,27 +323,25 @@ onBeforeUnmount(() => {
           <DataTable :value="detalles" editMode="cell" @cell-edit-complete="onCellEditComplete"
             :pt="{ table: { style: 'min-width: 50rem' } }">
             <Column field="id_articulo" header="Producto" style="width: 25%">
-                <!--
-                <template #body="{ data }">
-                  {{ obtenerNombreProducto(data.id_articulo) || 'Seleccionar producto' }}
-                </template>
-                -->
-                <template #editor="{ data, field }">
-                  <Select v-model="data[field]" :options="productos" option-label="nombre" 
-                  placeholder="Seleccionar producto" option-value="id" filter fluid />
-                </template>
+              <template #body="{ data }">
+                <Tag>{{ obtenerNombreProducto(data.id_articulo) || 'Seleccionar producto' }}</Tag>
+              </template>
+              <template #editor="{ data, field }">
+                <Select v-model="data[field]" :options="productos" optionLabel="nombre" 
+                placeholder="Seleccionar producto" optionValue="id" filter fluid />
+              </template>
             </Column>
 
             <Column field="cantidad" header="Cantidad" style="width: 15%">
-                <template #editor="{ data, field }">
-                    <InputNumber v-model="data[field]" :min="1" autofocus />
-                </template>
+              <template #editor="{ data, field }">
+                <InputNumber v-model="data[field]" :min="1" autofocus />
+              </template>
             </Column>
 
             <Column field="descuento" header="Descuento (%)" style="width: 15%">
-                <template #editor="{ data, field }">
-                    <InputNumber v-model="data[field]" :min="0" :max="100" autofocus />
-                </template>
+              <template #editor="{ data, field }">
+                <InputNumber v-model="data[field]" :min="0" :max="100" autofocus />
+              </template>
             </Column>
 
             <Column field="precio_unitario" header="Precio Unitario" style="width: 20%">
