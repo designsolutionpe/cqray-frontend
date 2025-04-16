@@ -4,7 +4,7 @@ import YesNoDialog from '@/components/YesNoDialog.vue'
 import { deleteCita, getCitaEstados, getCitas, updateCita } from '@/service/gestion/CitaService'
 import { getPacienteEstados } from '@/service/gestion/PacienteService'
 import { getSedes } from '@/service/mantenimiento/SedeService'
-import { formatDate } from '@/utils/Util'
+import { formatDate, formatTime } from '@/utils/Util'
 import { FilterMatchMode } from '@primevue/core/api'
 import axios from 'axios'
 import { useToast } from 'primevue'
@@ -90,7 +90,7 @@ const cargarSedes = async () => {
     const response = await getSedes(cancelToken.value.token);
     if (response) {
       sedesSelect.value = response.map(sede => ({
-        label: sede.nombre,
+        label: sede.nombre.toUpperCase(),
         value: sede.id
       }))
       sedeSelected.value = id_sede.value ? sedesSelect.value[id_sede.value - 1].label : null
@@ -237,13 +237,23 @@ const cancelEditCita = () => {
 const saveCita = async () => {
   isCitaUpdateLoading.value = true
 
+  // FORMAT HORA CITA
+  let hora = citaSelected.value.hora_cita
+  if (typeof hora == 'string')
+    hora = formatTime(hora)
+  else if (typeof hora == 'object')
+    hora = formatTime(hora.toTimeString())
+
+  // FORMAT FECHA CITA
+  let fecha = citaSelected.value.fecha_cita.toISOString().split('T')[0]
+
   try {
     const post = {
       id_paciente: citaSelected.value.paciente.id,
       id_sede: citaSelected.value.id_sede,
       id_usuario: id_usuario.value,
-      fecha_cita: citaSelected.value.fecha_cita.toISOString().split('T')[0],
-      hora_cita: citaSelected.value.hora_cita.toTimeString().slice(0, 5),
+      fecha_cita: fecha,
+      hora_cita: hora,
       estado: citaSelected.value.estado,
       tipo_paciente: citaSelected.value.paciente.estado,
       observaciones: citaSelected.value.observaciones
