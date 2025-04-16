@@ -11,6 +11,20 @@ export function formatDate(dateStr) {
     return `${day}/${month}/${year}`;
 }
 
+/**
+ * 
+ * formatTime, formatea el tiempo especificamente para que el
+ * servidor reconozca el formato
+ * @param {*} timeStr -> 1:54:00 p.m
+ * @returns '00:00' formato H:i requerido por el servidor
+ */
+export function formatTime(timeStr) {
+    const partes = timeStr.split(':');
+    const hora = partes[0].padStart(2, '0');
+    const minutos = partes[1].padStart(2, '0');
+    return `${hora}:${minutos}`;
+}
+
 export const handleServerError = (error, info, toast) => {
     console.error(error);
     toast.add({
