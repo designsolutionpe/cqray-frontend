@@ -8,8 +8,10 @@ import axios from 'axios';
 import { useToast } from 'primevue/usetoast';
 import { computed, onBeforeMount, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useStore } from 'vuex';
+import { useRouter } from 'vue-router';
 import PersonaBusqueda from '@/components/busqueda/PersonaBusqueda.vue';
 
+const router = useRouter();
 const store = useStore()
 const toast = useToast();
 const id_sede = computed(() => store.getters.id_sede)
@@ -75,28 +77,28 @@ const onCellEditComplete = (event) => {
 };
 
 const recalcularTotales = () => {
-  let subtotal = 0;
+  let totalGeneral = 0;
   let totalDescuento = 0;
 
+  // Calcular total por cada fila y agregarlo al total general
   detalles.value.forEach(detalle => {
-    const lineaSubtotal = detalle.precio_unitario * detalle.cantidad;
-    const lineaDescuento = lineaSubtotal * (detalle.descuento / 100);
-
-    subtotal += lineaSubtotal;
-    totalDescuento += lineaDescuento;
-
-    // Total por fila
-    detalle.total_producto = lineaSubtotal - lineaDescuento;
+    totalGeneral += detalle.total_producto;
+    totalDescuento += detalle.precio_unitario * detalle.cantidad * (detalle.descuento / 100);
   });
 
-  const totalSinIGV = detalles.value.reduce((acc, item) => acc + Number(item.total_producto), 0);
-  const montoIGV = comprobante.value.igv ? totalSinIGV * 0.18 : 0;
-  const total = totalSinIGV + montoIGV;
+  // Verificar si el IGV está marcado
+  const montoIGV = comprobante.value.igv 
+    ? totalGeneral - (totalGeneral / 1.18)
+    : 0;
 
-  comprobante.value.subtotal = subtotal.toFixed(2); // solo por referencia
-  comprobante.value.descuento = totalDescuento.toFixed(2);
-  comprobante.value.monto_igv = montoIGV.toFixed(2);
-  comprobante.value.total = total.toFixed(2);
+  // El subtotal es el total general menos el IGV
+  const subtotal = totalGeneral - montoIGV;
+
+  // Asignar los valores calculados al objeto comprobante
+  comprobante.value.total = totalGeneral.toFixed(2); // Total general
+  comprobante.value.subtotal = subtotal.toFixed(2); // Total sin IGV
+  comprobante.value.descuento = totalDescuento.toFixed(2); // Total de descuento
+  comprobante.value.monto_igv = montoIGV.toFixed(2); // Monto del IGV
 };
 
 const eliminarFila = (index) => {
@@ -214,22 +216,36 @@ watch(
 );
 
 const calculateVuelto = computed(() => {
-  return (comprobante.value.pago_cliente - comprobante.value.total).toFixed(2);
+  comprobante.value.vuelto = (comprobante.value.pago_cliente - comprobante.value.total).toFixed(2); 
+  return comprobante.value.vuelto;
 });
 
-function hideDialog(){
+const routeMap = {
+  1: 'boleta',
+  2: 'factura',
+  3: 'notacredito'
+};
 
+function hideDialog(){
+  const routeName = routeMap[tipoComprobanteProp.tipoComprobante];
+    if (routeName) {
+        router.push({ name: routeName });
+    } else {
+        console.warn('Tipo de comprobante no válido');
+    }
 }
 
 async function saveComprobante() {
   try {
     comprobante.value.tipo_comprobante = tipoComprobanteProp.tipoComprobante;
-    const response = await createComprobante(comprobante.value, detalles.value, cancelToken.value.token)
+    comprobante.value.detalles = detalles.value; 
+    const response = await createComprobante(comprobante.value, cancelToken.value.token)
     if (response) {
       toast.add({ severity: 'success', summary: 'Éxito', detail: 'Comprobante creado', life: 3000 });
       // Limpiar los campos después de guardar
-      comprobante = ref({});
-      detalles = ref([{}]);
+      comprobante.value = {};
+      detalles.value = [{}];
+      productos.value = [{}];
     }
   } catch (error) {
     handleServerError(error, 'comprobante', toast)
@@ -253,6 +269,7 @@ onBeforeUnmount(() => {
 <template>
   <div>
     <div class="card p-4">
+      <Preloader v-if="isPageLoading"></Preloader>
       <h2 class="text-xl font-semibold mb-4">
         {{ tipoComprobanteText(tipoComprobanteProp.tipoComprobante) }}
       </h2>
@@ -303,7 +320,7 @@ onBeforeUnmount(() => {
           <label for="moneda" class="block font-bold mb-3">Moneda</label>
           <Select id="moneda" v-model="comprobante.moneda" :options="optMoneda" optionLabel="label" optionValue="value" placeholder="Selecciona la moneda" fluid />
         </div>
-        <div class="col-span-3">
+        <div v-if="comprobante.moneda!='PEN'" class="col-span-3">
           <label for="tipo_cambio" class="block font-bold mb-3">Tipo de cambio</label>
           <InputText id="tipo_cambio" v-model="comprobante.tipo_cambio" type="number" step="0.01" placeholder="Tipo de cambio" fluid />
         </div>
@@ -313,7 +330,7 @@ onBeforeUnmount(() => {
         </div>
       </div>
 
-      <Card class="p-mb-4 custom-card gap-6 mb-6">
+      <Card v-if="productos.length>0" class="p-mb-4 custom-card gap-6 mb-6">
         <template #content>
           <div class="flex gap-2 mb-3">
             <Button label="Agregar detalle" icon="pi pi-plus" @click="agregarFila" />
@@ -367,7 +384,7 @@ onBeforeUnmount(() => {
         </template>
       </Card>
 
-      <div class="grid grid-cols-12 gap-6 mb-2">
+      <div v-if="comprobante.total>0" class="grid grid-cols-12 gap-6 mb-2">
         <!-- Columna 1 -->
         <div class="col-span-6 pr-6">
           <div class="grid grid-cols-2 gap-4">

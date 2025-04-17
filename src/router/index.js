@@ -155,6 +155,12 @@ const router = createRouter({
                     meta: { requiresAuth: true, roles: ['Superadministrador', 'Administrador'] }
                 },
                 {
+                    path: '/gestion/ventas/agregarfactura',
+                    name: 'agregarfactura',
+                    component: () => import('@/views/gestion/ventas/AgregarFactura.vue'),
+                    meta: { requiresAuth: true, roles: ['Superadministrador', 'Administrador'] }
+                },
+                {
                     path: '/gestion/ventas/notacredito',
                     name: 'notacredito',
                     component: () => import('@/views/gestion/ventas/NotaCredito.vue'),
