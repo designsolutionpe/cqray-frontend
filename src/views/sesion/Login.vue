@@ -1,6 +1,7 @@
 <script setup>
 import { loginUser } from '@/service/sesion/LoginService';
 import { ref } from 'vue';
+import { useToast } from 'primevue/usetoast';
 import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 
@@ -10,6 +11,7 @@ const isLoading = ref(false)
 const checked = ref(false);
 const store = useStore();
 const router = useRouter();
+const toast = useToast();
 
 const loginUserHandler = async () => {
   try {
@@ -38,6 +40,7 @@ const loginUserHandler = async () => {
     }
   } catch (error) {
     console.error('Login fallido:', error);
+    toast.add({ severity: 'error', summary: 'Error', detail: 'Credenciales incorrectas', life: 3000 });
   }
   isLoading.value = false
 };
@@ -47,7 +50,7 @@ const loginUserHandler = async () => {
 <template>
 
   <div class="fondo-ondas min-h-screen flex flex-col items-center justify-center">
-
+    <Toast />
     <!-- Logo y título -->
     <div class="text-center mb-6">
       <img src="/logo_ray2.png" alt="Logo" class="w-1/2 mx-auto mb-4" />
@@ -66,7 +69,7 @@ const loginUserHandler = async () => {
         <InputGroupAddon>
           <i class="pi pi-user"></i>
         </InputGroupAddon>
-        <InputText id="login1" v-model="login" type="text" placeholder="Ingrese su usuario" :disabled="isLoading"
+        <InputText id="login1" v-model="login" type="text" placeholder="Ingrese su usuario o correo" :disabled="isLoading"
           class="w-full" required />
       </InputGroup>
 
