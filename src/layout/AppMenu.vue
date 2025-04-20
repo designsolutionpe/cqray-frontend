@@ -440,6 +440,8 @@ const updateMenu = () => {
                 });
                 return item;
             }
+            // if (item.label === 'Gestión Ventas')
+            //     return item
             return null;
         }).filter(item => item !== null);
     } else {

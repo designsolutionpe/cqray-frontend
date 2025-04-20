@@ -25,10 +25,73 @@ const oPacienteInfo = ref({
     nombre: null
   },
   historia_clinica: null,
+  historial_clinico: [],
   citas: [],
   events: []
 })
 const aPacientes = ref([])
+const p_estado = ref()
+
+const n_paquetes_activos = ref([])
+
+const changeEstadoBackground = (estado) => {
+  console.log(estado)
+  switch (estado) {
+    case 'Nuevo':
+      p_estado.value.classList.add('bg-green-400')
+      break;
+    case 'Reporte':
+      p_estado.value.classList.add('bg-blue-400')
+      break;
+    case 'Plan':
+      p_estado.value.classList.add('bg-orange-400')
+      break;
+    case 'Mantenimiento':
+      p_estado.value.classList.add('bg-red-400')
+      break;
+    case 'Individual':
+      p_estado.value.classList.add('bg-yellow-400')
+      break;
+    default:
+      p_estado.value.classList.add('bg-brown-400')
+      break;
+  }
+}
+
+const getEstadoPago = (item, target) => {
+  console.log('estado', 'item', item, 'target', target)
+  switch (item) {
+    case 0:
+      if (target == 'severity') return 'info'
+      else if (target == 'text') return 'Pendiente'
+    case 1:
+      if (target == 'severity') return 'success'
+      else if (target == 'text') return 'Pagado'
+    case 2:
+      if (target == 'severity') return 'danger'
+      else if (target == 'text') return 'Deuda'
+  }
+}
+
+const getEstadoCita = (item, target) => {
+  switch (item) {
+    case 1:
+      if (target == 'severity') return 'warn'
+      else if (target == 'text') return 'Confirmacion pendiente'
+    case 2:
+      if (target == 'severity') return 'info'
+      else if (target == 'text') return 'Confirmado'
+    case 3:
+      if (target == 'severity') return 'success'
+      else if (target == 'text') return 'Atendido'
+    case 4:
+      if (target == 'severity') return 'danger'
+      else if (target == 'text') return 'Cancelado'
+    default:
+      if (target == 'severity') return 'secondary'
+      else if (target == 'text') return 'Sin definir'
+  }
+}
 
 const cargarPaciente = async () => {
   isPageLoading.value = true
@@ -38,10 +101,13 @@ const cargarPaciente = async () => {
       aPacientes.value = [response]
       oPacienteInfo.value = response
       console.log('PACIENTE', oPacienteInfo.value)
+      changeEstadoBackground(response.estado.nombre)
       oPacienteInfo.value.citas = oPacienteInfo.value.citas.map(c => ({
         ...c,
         hora_cita: new Date(c.fecha_cita + 'T' + c.hora_cita) || null
       }))
+      n_paquetes_activos.value = response.historial_clinico.filter(i => i.activo)
+      console.log('paquetes activos', n_paquetes_activos.value)
       console.log(oPacienteInfo.value.citas)
       isPageLoading.value = false
     }
@@ -64,6 +130,7 @@ onBeforeUnmount(() => {
   cancelToken.value.cancel()
 })
 
+
 </script>
 <template>
   <div class="card relative overflow-hidden md:w-[650px] lg:w-full">
@@ -72,7 +139,7 @@ onBeforeUnmount(() => {
       <div class="col-span-4 lg:col-span-1 flex flex-col gap-4 justify-between">
         <div class="flex md:flex-row lg:flex-col flex-col gap-4">
           <p class="text-2xl font-bold text-secondary m-0">Directorio</p>
-          <router-link to="/gestion/citas/agregar">
+          <router-link :to="`/gestion/citas/agregar?id=${id_paciente}`">
             <Button icon="pi pi-plus" label="Agregar cita" class="w-full"></Button>
           </router-link>
           <router-link to="/gestion/pacientes/agregar">
@@ -85,8 +152,8 @@ onBeforeUnmount(() => {
           <div>
             <p class="text-xl font-bold text-center md:text-left lg:text-center md:w-max lg:w-auto mb-2">Estado
               paciente:</p>
-            <p
-              class="bg-green-600 text-white font-bold rounded-full text-center md:text-left lg:text-center md:w-max lg:w-auto px-4 py-2 text-lg">
+            <p ref="p_estado"
+              class="bg-gray-300 text-white font-bold rounded-full text-center md:text-left lg:text-center md:w-max lg:w-auto px-4 py-2 text-lg">
               Paciente {{
                 oPacienteInfo.estado.nombre }}
             </p>
@@ -96,7 +163,9 @@ onBeforeUnmount(() => {
             </p>
             <p
               class="bg-red-600 text-white text-center md:text-left lg:text-center md:w-max lg:w-auto font-bold rounded-full px-4 py-2 text-lg">
-              000 / 000</p>
+              {{n_paquetes_activos.filter(i => i.id_estado_cita == 3).length.toString().padStart(3, '0')}} / {{
+                n_paquetes_activos.length.toString().padStart(3, '0') }}
+            </p>
           </div>
           <div>
             <p class="text-xl font-bold text-center md:text-left lg:text-center md:w-max lg:w-auto mb-2">Historia
@@ -216,33 +285,50 @@ onBeforeUnmount(() => {
               </DataTable>
             </TabPanel>
             <TabPanel value="2">
-              <DataTable :value="oPacienteInfo.citas" removable-sort table-style="min-width: 20rem" scrollable
-                scroll-height="500px" data-key="id" show-gridlines>
+              <DataTable :value="oPacienteInfo.historial_clinico" removable-sort table-style="min-width: 20rem"
+                scrollable scroll-height="500px" data-key="id" show-gridlines>
 
                 <template #empty>
                   <p class="text-center font-bold">&lt;Mantenimiento&#62;</p>
                 </template>
 
-                <Column field="fecha_cita" header="Fecha" sortable style="min-width: 5rem;">
-                  <template #body="citaItem">
-                    {{ formatDate(citaItem.data.fecha_cita) }}
+                <Column field="sede.nombre" header="Sede" sortable style="min-width: 5rem"></Column>
+
+                <Column field="fecha" header="Fecha de atencion" sortable style="min-width: 5rem;">
+                  <template #body="item">
+                    {{ item.data.fecha ? item.data.fecha : '---' }}
                   </template>
                 </Column>
 
-                <Column field="hora_cita" header="Hora" sortable style="min-width: 8rem">
-                  <template #body="citaItem">
-                    {{ citaItem.data.hora_cita != 'Invalid Date' ? citaItem.data.hora_cita.toLocaleTimeString() : null
-                    }}
+                <Column field="hora" header="Hora de atencion" sortable style="min-width: 5rem;">
+                  <template #body="item">
+                    {{ item.data.hora ? item.data.hora : '---' }}
                   </template>
                 </Column>
 
-                <Column field="sede.nombre" header="Quiropractico" sortable style="min-width: 15rem;">
-                  <template #body="citaItem">
-                    Quiropractico - {{ citaItem.data.sede.nombre.split(' ')[1] }}
+                <Column field="estado_pago" header="Estado de pago" sortable style="min-width: 8rem">
+                  <template #body="item">
+                    <Tag :severity="getEstadoPago(item.data.estado_pago, 'severity')">
+                      {{ getEstadoPago(item.data.estado_pago, 'text') }}
+                    </Tag>
                   </template>
                 </Column>
 
-                <Column field="estado.nombre" header="Estado" sortable style="min-width: 13rem"></Column>
+                <Column field="id_estado_cita" header="Estado de Cita" sortable style="min-width: 8rem">
+                  <template #body="item">
+                    <Tag :severity="getEstadoCita(item.data.id_estado_cita, 'severity')">
+                      {{ getEstadoCita(item.data.id_estado_cita, 'text') }}
+                    </Tag>
+                  </template>
+                </Column>
+
+                <Column field="activo" header="Estado de paquete" sortable style="min-width: 8rem">
+                  <template #body="item">
+                    <Tag :severity="item.data.activo ? 'success' : 'secondary'">
+                      {{ item.data.activo ? 'Activo' : 'Inactivo' }}
+                    </Tag>
+                  </template>
+                </Column>
 
                 <!-- <Column :exportable="false" style="min-width: 9rem;">
                   <template #body="pacienteItem">

@@ -3,11 +3,13 @@ import Preloader from '@/components/Preloader.vue';
 import YesNoDialog from '@/components/YesNoDialog.vue';
 import { createCita, getCitaEstados } from '@/service/gestion/CitaService';
 import { getPacienteEstados, getPacientes } from '@/service/gestion/PacienteService';
+import { getArticulosServicios } from '@/service/mantenimiento/ArticulosService';
 import { getSedes } from '@/service/mantenimiento/SedeService';
 import { formatDate } from '@/utils/Util';
 import axios from 'axios';
 import { useToast } from 'primevue';
 import { computed, onBeforeMount, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { useRoute } from 'vue-router';
 import { useStore } from 'vuex';
 
 // Global Data
@@ -35,6 +37,7 @@ const oWhatsappLinkData = ref({
 
 const toast = useToast()
 const store = useStore()
+const route = useRoute()
 const id_sede = computed(() => store.getters.id_sede)
 const id_usuario = computed(() => store.getters.id)
 const isSuperAdmin = computed(() => (id_sede.value == null))
@@ -52,7 +55,7 @@ const oInvalidObj = ref({
   estado_cita: false,
   estado_paciente: false,
   observaciones: false,
-  sede: false
+  sede: false,
 })
 
 // Select Input Data
@@ -61,15 +64,18 @@ const aHorariosSelect = ref()
 const aEstadosCitaSelect = ref()
 const aEstadosPacienteSelect = ref()
 const aSedesSelect = ref()
+const aPaquetesSelect = ref()
 
 // Selected Data
 const aPacientes = ref([])
+const aPaquetes = ref([])
 const oPacienteSelected = ref()
 // const nQuiropracticoSelected = ref()
 // const nHorarioSelected = ref()
 const nEstadoCitaSelected = ref()
 const nEstadoPacienteSelected = ref()
 const nSedeSelected = ref()
+const nPaqueteSelected = ref()
 const sHistorialClinica = ref('')
 
 const dateNow = new Date()
@@ -97,8 +103,8 @@ const isHorarioLoading = ref(true)
 const isEstadosCitaLoading = ref(true)
 const isEstadosPacienteLoading = ref(true)
 const isSedeLoading = ref(true)
+const isPaquetesLoading = ref(true)
 const isPageLoading = ref(true)
-const isAbleToCreate = ref(false)
 
 // Retrieve Server Data
 
@@ -121,7 +127,11 @@ const cargarPacientes = async () => {
         label: `${d.persona.nombre} ${d.persona.apellido}`,
         value: d.id
       }))
-      oPacienteSelected.value = response[0].id
+
+      // SELECCIONAR EL PACIENTE OBTENIDO DESDE EL URL
+      const paciente_ruta = response.filter(p => p.id == route.query.id)
+
+      oPacienteSelected.value = paciente_ruta.length > 0 ? paciente_ruta[0].id : response[0].id
 
       if (response[0].persona.telefono)
         bActiveNumero.value = true
@@ -189,6 +199,25 @@ const cargarSedes = async () => {
   }
   catch (error) {
     handleServerError(error, 'Sedes')
+  }
+}
+
+const cargarArticulos = async () => {
+  isPaquetesLoading.value = true
+  try {
+    const response = await getArticulosServicios(cancelToken.value.token)
+    if (response) {
+      console.log('PAQUETES SERVIDOR', response)
+      aPaquetes.value = response
+      aPaquetesSelect.value = response.filter(q => q.tipo_articulo == 2).map(q => ({
+        label: q.nombre,
+        value: q.id
+      }))
+    }
+    isPaquetesLoading.value = false
+  }
+  catch (error) {
+    handleServerError(error, 'Paquetes')
   }
 }
 
@@ -278,13 +307,14 @@ watch(
     isPacientesLoading,
     isEstadosCitaLoading,
     isEstadosPacienteLoading,
-    isSedeLoading
+    isSedeLoading,
+    isPaquetesLoading,
   ],
   (values) => {
-    const [paciente_done, estado_cita_done, estado_paciente_done, sede_done] = values
+    const [paciente_done, estado_cita_done, estado_paciente_done, sede_done, paquetes_done] = values
 
     // Return: True || False
-    isPageLoading.value = (paciente_done || estado_cita_done || estado_paciente_done || sede_done)
+    isPageLoading.value = (paciente_done || estado_cita_done || estado_paciente_done || sede_done || paquetes_done)
   }
 )
 
@@ -296,6 +326,8 @@ watch(oPacienteSelected, (id_paciente) => {
 
   sHistorialClinica.value = paciente.historia_clinica
   sNumeroPaciente.value = paciente.persona.telefono || ''
+  nEstadoPacienteSelected.value = paciente.estado.id
+  nPaqueteSelected.value = paciente.historial_clinico.length > 0 ? paciente.historial_clinico.filter(q => q.activo)[0].id_articulo : null
 
   bActiveHistorial.value = (sHistorialClinica.value != null)
   bActiveNumero.value = (sNumeroPaciente.value.trim().length != 0)
@@ -313,7 +345,7 @@ watch([
   oTiempoSelected,
   nEstadoCitaSelected,
   sObservaciones,
-  nSedeSelected
+  nSedeSelected,
 ], (values) => {
 
   const [
@@ -324,7 +356,7 @@ watch([
     hora_cita,
     estado,
     observaciones,
-    id_sede
+    id_sede,
   ] = values
 
   oNuevaCita.value = {
@@ -345,10 +377,11 @@ onBeforeMount(() => {
 })
 
 onMounted(() => {
-  cargarPacientes()
   cargarEstadosCita()
   cargarEstadosPaciente()
   cargarSedes()
+  cargarArticulos()
+  cargarPacientes()
 })
 
 onBeforeUnmount(() => {
@@ -447,6 +480,11 @@ onBeforeUnmount(() => {
             :options="aEstadosPacienteSelect" option-label="label" option-value="value"
             :disabled="isEstadosPacienteLoading" :invalid="oInvalidObj['estado_paciente']"></Select>
         </div>
+      </div>
+      <div class="col-span-12" v-if="nEstadoPacienteSelected > 2">
+        <label for="paquete_servicio" class="block font-bold mb-3">Servicios</label>
+        <Select id="paquete_servicio" class="w-full" v-model:model-value="nPaqueteSelected" :options="aPaquetesSelect"
+          option-label="label" option-value="value" :disabled="isPaquetesLoading"></Select>
       </div>
     </div>
     <Button label="Agregar" icon="pi pi-check" class="w-full md:w-auto mt-6" @click="enviarServidor"

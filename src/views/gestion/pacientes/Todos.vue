@@ -316,13 +316,18 @@ onBeforeUnmount(() => {
       currentPageReportTemplate="Mostrando {first} de {last} - {totalRecords} pacientes">
       <!-- Header -->
       <template #header>
-        <div class="flex justify-between">
-          <Button label="Borrar filtros" icon="pi pi-filter-slash" @click="cleanFilters()" outlined></Button>
-          <IconField>
+        <div class="grid grid-cols-12 gap-4">
+          <Button class="col-span-12 sm:col-span-4 lg:col-span-3 xl:col-span-2" label="Borrar filtros"
+            icon="pi pi-filter-slash" @click="cleanFilters()" outlined></Button>
+          <router-link to="/gestion/pacientes/agregar" class="col-span-12 sm:col-span-4 lg:col-span-3 xl:col-span-2">
+            <Button icon="pi pi-plus" label="Crear paciente" fluid></Button>
+          </router-link>
+          <IconField class="col-span-12 sm:col-span-4 lg:col-span-6 xl:col-span-8 lg:justify-self-end">
             <InputIcon>
               <i class="pi pi-search"></i>
             </InputIcon>
-            <InputText v-model:model-value="oFilters['global'].value" placeholder="Filtro global"></InputText>
+            <InputText class="w-full" v-model:model-value="oFilters['global'].value" placeholder="Filtro global">
+            </InputText>
           </IconField>
         </div>
       </template>
