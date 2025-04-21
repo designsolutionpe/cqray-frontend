@@ -1,6 +1,5 @@
 import api from '@/service/Api';
 
-
 export const getComprobantes = async (cancelToken) => {
     try {
         const response = await api.get('/comprobantes', {

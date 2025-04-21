@@ -166,6 +166,12 @@ const router = createRouter({
                     component: () => import('@/views/gestion/ventas/NotaCredito.vue'),
                     meta: { requiresAuth: true, roles: ['Superadministrador', 'Administrador'] }
                 },
+                {
+                    path: '/gestion/ventas/agregarnota',
+                    name: 'agregarnota',
+                    component: () => import('@/views/gestion/ventas/AgregarNota.vue'),
+                    meta: { requiresAuth: true, roles: ['Superadministrador', 'Administrador'] }
+                },
                 // {
                 //     path: '/mantenimiento/sede',
                 //     name: 'sede',
