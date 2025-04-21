@@ -87,12 +87,16 @@ const bLinkWhatsapp = ref(false)
 
 const bActiveHistorial = ref(false)
 const bActiveNumero = ref(false)
+const bActiveEstadoPaciente = ref(false)
+const bActiveServicios = ref(false)
 
 const resetAllInputs = () => {
-  cargarPacientes()
-  // await cargarQuiropracticos()
   cargarEstadosCita()
   cargarEstadosPaciente()
+  cargarSedes()
+  cargarArticulos()
+  cargarPacientes()
+  // await cargarQuiropracticos()
   bLinkWhatsapp.value = false
 }
 
@@ -132,14 +136,6 @@ const cargarPacientes = async () => {
       const paciente_ruta = response.filter(p => p.id == route.query.id)
 
       oPacienteSelected.value = paciente_ruta.length > 0 ? paciente_ruta[0].id : response[0].id
-
-      if (response[0].persona.telefono)
-        bActiveNumero.value = true
-      if (response[0].historia_clinica)
-        bActiveHistorial.value = true
-
-      sNumeroPaciente.value = response[0].persona.telefono
-      sHistorialClinica.value = response[0].historia_clinica
     }
     isPacientesLoading.value = false
   }
@@ -323,14 +319,39 @@ watch(
  */
 watch(oPacienteSelected, (id_paciente) => {
   const paciente = aPacientes.value.find(p => p.id === id_paciente)
+  var proximo_estado = paciente.estado.id
+
+  if (paciente.historial_clinico.length > 0) {
+    let paciente = aPacientes.value.find(p => p.id === id_paciente)
+    var paquete_activo = paciente.historial_clinico.filter(q => q.activo)
+    if (paquete_activo.length > 0) {
+      paquete_activo = paquete_activo[0].paquete.nombre.toLowerCase()
+      const estado_paciente = aEstadosPacienteSelect.value.find(e => paquete_activo.includes(e.label.toLowerCase())).value
+      if (estado_paciente != undefined) {
+        proximo_estado = estado_paciente
+        nPaqueteSelected.value = paciente.historial_clinico.length > 0 ? paciente.historial_clinico.filter(q => q.activo)[0].id_articulo : null
+      }
+    }
+    else {
+      nPaqueteSelected.value = null
+    }
+  }
+  else {
+    nPaqueteSelected.value = null
+  }
 
   sHistorialClinica.value = paciente.historia_clinica
   sNumeroPaciente.value = paciente.persona.telefono || ''
   nEstadoPacienteSelected.value = paciente.estado.id
-  nPaqueteSelected.value = paciente.historial_clinico.length > 0 ? paciente.historial_clinico.filter(q => q.activo)[0].id_articulo : null
+
+  var paq_active = paciente.historial_clinico.find(q => q.activo)
+  if (paq_active)
+    nPaqueteSelected.value = paq_active.id_articulo
 
   bActiveHistorial.value = (sHistorialClinica.value != null)
   bActiveNumero.value = (sNumeroPaciente.value.trim().length != 0)
+  bActiveEstadoPaciente.value = (nEstadoPacienteSelected.value != null)
+  bActiveServicios.value = (nPaqueteSelected.value != null)
 })
 
 /**
@@ -346,6 +367,7 @@ watch([
   nEstadoCitaSelected,
   sObservaciones,
   nSedeSelected,
+  nPaqueteSelected
 ], (values) => {
 
   const [
@@ -357,6 +379,7 @@ watch([
     estado,
     observaciones,
     id_sede,
+    id_paquete
   ] = values
 
   oNuevaCita.value = {
@@ -368,7 +391,8 @@ watch([
     tipo_paciente,
     observaciones,
     id_sede,
-    id_usuario: id_usuario.value
+    id_usuario: id_usuario.value,
+    id_paquete
   }
 })
 
@@ -478,13 +502,14 @@ onBeforeUnmount(() => {
           <label for="estado_paciente" class="block font-bold mb-3">Estado paciente</label>
           <Select id="estado_paciente" class="w-full" v-model:model-value="nEstadoPacienteSelected"
             :options="aEstadosPacienteSelect" option-label="label" option-value="value"
-            :disabled="isEstadosPacienteLoading" :invalid="oInvalidObj['estado_paciente']"></Select>
+            :disabled="isEstadosPacienteLoading || bActiveEstadoPaciente"
+            :invalid="oInvalidObj['estado_paciente']"></Select>
         </div>
       </div>
-      <div class="col-span-12" v-if="nEstadoPacienteSelected > 2">
+      <div class="col-span-12" v-if="nEstadoPacienteSelected > 2 || bActiveServicios">
         <label for="paquete_servicio" class="block font-bold mb-3">Servicios</label>
         <Select id="paquete_servicio" class="w-full" v-model:model-value="nPaqueteSelected" :options="aPaquetesSelect"
-          option-label="label" option-value="value" :disabled="isPaquetesLoading"></Select>
+          option-label="label" option-value="value" :disabled="isPaquetesLoading || bActiveServicios"></Select>
       </div>
     </div>
     <Button label="Agregar" icon="pi pi-check" class="w-full md:w-auto mt-6" @click="enviarServidor"

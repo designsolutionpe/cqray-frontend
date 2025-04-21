@@ -163,7 +163,7 @@ onBeforeUnmount(() => {
             </p>
             <p
               class="bg-red-600 text-white text-center md:text-left lg:text-center md:w-max lg:w-auto font-bold rounded-full px-4 py-2 text-lg">
-              {{n_paquetes_activos.filter(i => i.id_estado_cita == 3).length.toString().padStart(3, '0')}} / {{
+              {{n_paquetes_activos.filter(i => i.cita != null).length.toString().padStart(3, '0')}} / {{
                 n_paquetes_activos.length.toString().padStart(3, '0') }}
             </p>
           </div>
@@ -289,20 +289,23 @@ onBeforeUnmount(() => {
                 scrollable scroll-height="500px" data-key="id" show-gridlines>
 
                 <template #empty>
-                  <p class="text-center font-bold">&lt;Mantenimiento&#62;</p>
+                  <p class="text-center font-bold">No hay paquetes adquiridos</p>
                 </template>
 
                 <Column field="sede.nombre" header="Sede" sortable style="min-width: 5rem"></Column>
 
+                <Column field="paquete.nombre" header="Paquete seleccionado" sortable style="min-width: 8rem"></Column>
+
                 <Column field="fecha" header="Fecha de atencion" sortable style="min-width: 5rem;">
                   <template #body="item">
-                    {{ item.data.fecha ? item.data.fecha : '---' }}
+                    {{ item.data.cita ? item.data.cita.fecha_cita : '---' }}
                   </template>
                 </Column>
 
                 <Column field="hora" header="Hora de atencion" sortable style="min-width: 5rem;">
                   <template #body="item">
-                    {{ item.data.hora ? item.data.hora : '---' }}
+                    {{ item.data.cita ? new Date(item.data.cita.fecha_cita + "T" +
+                      item.data.cita.hora_cita).toLocaleTimeString() : '---' }}
                   </template>
                 </Column>
 
@@ -314,10 +317,10 @@ onBeforeUnmount(() => {
                   </template>
                 </Column>
 
-                <Column field="id_estado_cita" header="Estado de Cita" sortable style="min-width: 8rem">
+                <Column field="cita" header="Estado de Cita" sortable style="min-width: 8rem">
                   <template #body="item">
-                    <Tag :severity="getEstadoCita(item.data.id_estado_cita, 'severity')">
-                      {{ getEstadoCita(item.data.id_estado_cita, 'text') }}
+                    <Tag :severity="getEstadoCita(item.data.cita ? item.data.cita.estado : null, 'severity')">
+                      {{ getEstadoCita(item.data.cita ? item.data.cita.estado : null, 'text') }}
                     </Tag>
                   </template>
                 </Column>
