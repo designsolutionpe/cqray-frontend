@@ -137,6 +137,13 @@ const router = createRouter({
                     //meta: { requiresAuth: true, roles: ['admin', 'user'] },
                 },
                 {
+                    path: '/gestion/pacientes/historial-clinico',
+                    name: 'paciente-historial_clinico',
+                    component: () => import('@/views/gestion/pacientes/HistorialClinico.vue'),
+                    meta: { requiresAuth: true, roles: ['Superadministrador', 'Administrador'] }
+                    //meta: { requiresAuth: true, roles: ['admin', 'user'] },
+                },
+                {
                     path: '/gestion/ventas/boleta',
                     name: 'boleta',
                     component: () => import('@/views/gestion/ventas/Boleta.vue'),

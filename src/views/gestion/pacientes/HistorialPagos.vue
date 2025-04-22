@@ -1,11 +1,12 @@
 <script setup>
 import Preloader from '@/components/Preloader.vue';
+import { getComprobantes } from '@/service/gestion/ComprobanteService';
 import { getSedes } from '@/service/mantenimiento/SedeService';
 import { handleServerError } from '@/utils/Util';
 import { FilterMatchMode } from '@primevue/core/api';
 import axios from 'axios';
 import { useToast } from 'primevue';
-import { onBeforeMount, onBeforeUnmount, onMounted, ref } from 'vue';
+import { onBeforeMount, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
 // GLOBAL VARIABLES
 
@@ -16,12 +17,14 @@ const filters = ref()
 const initFilters = () => {
   filters.value = {
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    sede: { value: null, matchMode: FilterMatchMode.EQUALS },
-    identificacion: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    historia_clinica: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    nombre: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    apellido: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    balance_pagos: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    'sede.nombre': { value: null, matchMode: FilterMatchMode.EQUALS },
+    serie: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    persona: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    total: { value: null, matchMode: FilterMatchMode.CONTAINS }
+    // historia_clinica: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    // nombre: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    // apellido: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    // balance_pagos: { value: null, matchMode: FilterMatchMode.CONTAINS },
   }
 }
 
@@ -32,7 +35,9 @@ initFilters()
 const resetFilters = () => initFilters()
 
 // Loading State
-const isPageLoading = ref(false)
+const isSedesLoading = ref(true)
+const isPagosLoading = ref(true)
+const isPageLoading = ref(true)
 
 // Table Data
 const aHistorialPagos = ref([
@@ -72,7 +77,7 @@ const cancelToken = ref()
 const toast = useToast()
 
 const cargarSedes = async () => {
-  isPageLoading.value = true
+  isSedesLoading.value = true
   try {
     const response = await getSedes(cancelToken.value.token)
     if (response) {
@@ -80,12 +85,33 @@ const cargarSedes = async () => {
         label: s.nombre
       }))
     }
-    isPageLoading.value = false
+    isSedesLoading.value = false
   }
   catch (error) {
+    isSedesLoading.value = false
     handleServerError(error, 'Obtener sedes', toast)
   }
 }
+
+const cargarComprobantes = async () => {
+  isPagosLoading.value = true
+  try {
+    const response = await getComprobantes(cancelToken.value.token)
+    if (response) {
+      aHistorialPagos.value = response.data
+      console.log('pagos', aHistorialPagos.value)
+    }
+    isPagosLoading.value = false
+  }
+  catch (error) {
+    isPagosLoading.value = false
+    handleServerError(error, 'obtener comprobantes', toast)
+  }
+}
+
+watch([isSedesLoading, isPagosLoading], ([sedes, pagos]) => {
+  isPageLoading.value = (sedes || pagos)
+})
 
 onBeforeMount(() => {
   cancelToken.value = axios.CancelToken.source()
@@ -93,6 +119,7 @@ onBeforeMount(() => {
 
 onMounted(() => {
   cargarSedes()
+  cargarComprobantes()
 })
 
 onBeforeUnmount(() => {
@@ -123,48 +150,35 @@ onBeforeUnmount(() => {
           </div>
         </template>
 
-        <Column field="sede" header="Sede" sortable :show-filter-menu="false" style="min-width: 10rem">
+        <Column field="sede.nombre" header="Sede" sortable :show-filter-menu="false" style="min-width: 10rem">
           <template #filter="{ filterModel, filterCallback }">
             <Select v-model:model-value="filterModel.value" @change="filterCallback()" :options="aSedesSelect"
               option-label="label" option-value="label" placeholder="Filtrar por sede"></Select>
           </template>
         </Column>
 
-        <Column field="identificacion" header="Identificacion" sortable :show-filter-menu="false"
-          style="min-width: 8rem;">
+        <Column field="persona" header="Persona" sortable :show-filter-menu="false" style="min-width: 10rem">
+          <template #body="item">
+            {{ `${item.data.persona.nombre} ${item.data.persona.apellido}` }}
+          </template>
+          <template #filter="{ filterModel, filterCallback }">
+            <InputText v-model:model-value="filterModel.value" @input="filterCallback()"
+              placeholder="Filtrar por persona"></InputText>
+          </template>
+        </Column>
+
+
+        <Column field="serie" header="Identificacion" sortable :show-filter-menu="false" style="min-width: 8rem;">
+          <template #body="item">
+            {{ `${item.data.serie} ${item.data.numero}` }}
+          </template>
           <template #filter="{ filterModel, filterCallback }">
             <InputText v-model:model-value="filterModel.value" @input="filterCallback()"
               placeholder="Filtrar por identificacion"></InputText>
           </template>
         </Column>
 
-        <Column field="historia_clinica" header="Historia Clinica" sortable :show-filter-menu="false"
-          style="min-width: 8rem;">
-          <template #filter="{ filterModel, filterCallback }">
-            <InputText v-model:model-value="filterModel.value" @input="filterCallback()"
-              placeholder="Filtrar por historia"></InputText>
-          </template>
-        </Column>
-
-        <Column field="nombre" header="Nombre" sortable :show-filter-menu="false" style="min-width: 8rem;">
-          <template #filter="{ filterModel, filterCallback }">
-            <InputText v-model:model-value="filterModel.value" @input="filterCallback()"
-              placeholder="Filtrar por nombre"></InputText>
-          </template>
-        </Column>
-
-        <Column field="apellido" header="Apellido" sortable :show-filter-menu="false" style="min-width: 8rem;">
-          <template #filter="{ filterModel, filterCallback }">
-            <InputText v-model:model-value="filterModel.value" @input="filterCallback()"
-              placeholder="Filtrar por apellido"></InputText>
-          </template>
-        </Column>
-
-        <Column field="balance_pagos" header="Balance pagos" sortable :show-filter-menu="false"
-          style="min-width: 8rem;">
-          <template #body="pago">
-            S/. {{ pago.data.balance_pagos }}
-          </template>
+        <Column field="total" header="Total pagado" sortable :show-filter-menu="false" style="min-width: 8rem">
           <template #filter="{ filterModel, filterCallback }">
             <InputText v-model:model-value="filterModel.value" @input="filterCallback()"
               placeholder="Filtrar por precio"></InputText>
@@ -173,8 +187,8 @@ onBeforeUnmount(() => {
 
         <Column :exportable="false" style="min-width: 10rem">
           <template #body="pagoItem">
-            <Button icon="pi pi-dollar" label="Ver pago" severity='success' rounded class="mr-2"
-              @click="onOpenPagoDialog(pagoItem.data)"></Button>
+            <Button disabled icon="pi pi-dollar" label="Ver pago" severity='success' rounded class="mr-2"
+              @click="onOpenPagoDialog(pagoItem.data)" v-tooltip.top="{ value: 'En mantenimiento' }"></Button>
           </template>
         </Column>
 

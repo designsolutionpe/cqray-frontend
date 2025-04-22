@@ -1,4 +1,5 @@
 <script setup>
+import PersonaBusqueda from '@/components/busqueda/PersonaBusqueda.vue';
 import Preloader from '@/components/Preloader.vue';
 import { createComprobante } from '@/service/gestion/ComprobanteService';
 import { searchArticulos } from '@/service/mantenimiento/ArticulosService';
@@ -7,9 +8,8 @@ import { handleServerError } from '@/utils/Util';
 import axios from 'axios';
 import { useToast } from 'primevue/usetoast';
 import { computed, onBeforeMount, onBeforeUnmount, onMounted, ref, watch } from 'vue';
-import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
-import PersonaBusqueda from '@/components/busqueda/PersonaBusqueda.vue';
+import { useStore } from 'vuex';
 
 const router = useRouter();
 const store = useStore()
@@ -18,17 +18,17 @@ const id_sede = computed(() => store.getters.id_sede)
 
 const comprobante = ref({})
 const crearDetalleVacio = () => ({
-    id_articulo: null,
-    cantidad: 1,
-    descuento: 0,
-    precio_unitario: 0,
-    total_producto: 0
+  id_articulo: null,
+  cantidad: 1,
+  descuento: 0,
+  precio_unitario: 0,
+  total_producto: 0
 });
 
 const detalles = ref([crearDetalleVacio()]);
 
 const agregarFila = () => {
-    detalles.value.push(crearDetalleVacio());
+  detalles.value.push(crearDetalleVacio());
 };
 
 const productos = ref([]);
@@ -50,30 +50,49 @@ const obtenerProductos = async () => {
   }
 };
 const obtenerNombreProducto = (id) => {
-    const producto = productos.value.find(p => p.id === id);
-    return producto ? producto.nombre : '';
+  const producto = productos.value.find(p => p.id === id);
+  return producto ? producto.nombre : '';
 };
 
 const onCellEditComplete = (event) => {
-    const { data, newValue, field } = event;
-    if (field === 'id_articulo') {
-        data[field] = newValue;
-        // Autocompletar precio si se selecciona un producto
-        const producto = productos.value.find(p => p.id === newValue);
-        if (producto) {
-            data.precio_unitario = producto.precio;
-        }
-    } else {
-        data[field] = newValue;
-    }
+  let { newData, index } = event
 
-    // Recalcular total de esa fila
-    const subtotal = data.precio_unitario * data.cantidad;
-    const descuento = subtotal * (data.descuento / 100);
-    data.total_producto = subtotal - descuento;
+  const articulo = productos.value.find(p => p.id === newData.id_articulo)
 
-    // Recalcular totales del comprobante
-    recalcularTotales();
+  newData.precio_unitario = parseFloat(articulo.precio)
+
+  console.log('articulo seleccionado', articulo)
+
+  // Recalcular total de esa fila
+  const subtotal = newData.precio_unitario * newData.cantidad;
+  const descuento = subtotal * (newData.descuento / 100);
+  newData.total_producto = subtotal - descuento;
+
+  detalles.value[index] = newData
+
+  console.log(detalles.value[index])
+
+  // Recalcular totales del comprobante
+  recalcularTotales();
+  // const { data, newValue, field } = event;
+  // if (field === 'id_articulo') {
+  //   data[field] = newValue;
+  //   // Autocompletar precio si se selecciona un producto
+  //   const producto = productos.value.find(p => p.id === newValue);
+  //   if (producto) {
+  //     data.precio_unitario = producto.precio;
+  //   }
+  // } else {
+  //   data[field] = newValue;
+  // }
+
+  // // Recalcular total de esa fila
+  // const subtotal = data.precio_unitario * data.cantidad;
+  // const descuento = subtotal * (data.descuento / 100);
+  // data.total_producto = subtotal - descuento;
+
+  // // Recalcular totales del comprobante
+  // recalcularTotales();
 };
 
 const recalcularTotales = () => {
@@ -87,12 +106,14 @@ const recalcularTotales = () => {
   });
 
   // Verificar si el IGV está marcado
-  const montoIGV = comprobante.value.igv 
+  const montoIGV = comprobante.value.igv
     ? totalGeneral - (totalGeneral / 1.18)
     : 0;
 
   // El subtotal es el total general menos el IGV
   const subtotal = totalGeneral - montoIGV;
+
+  console.log('total compro', totalGeneral)
 
   // Asignar los valores calculados al objeto comprobante
   comprobante.value.total = totalGeneral.toFixed(2); // Total general
@@ -102,23 +123,23 @@ const recalcularTotales = () => {
 };
 
 const eliminarFila = (index) => {
-    detalles.value.splice(index, 1);
-    recalcularTotales();
+  detalles.value.splice(index, 1);
+  recalcularTotales();
 };
 
 const limpiarDetalles = () => {
-    detalles.value = [crearDetalleVacio()];
-    recalcularTotales();
+  detalles.value = [crearDetalleVacio()];
+  recalcularTotales();
 };
 
 const formatCurrency = (value, moneda = 'PEN') => {
-    const currencyOptions = {
-        USD: { style: 'currency', currency: 'USD', locale: 'en-US' },
-        PEN: { style: 'currency', currency: 'PEN', locale: 'es-PE' }
-    };
+  const currencyOptions = {
+    USD: { style: 'currency', currency: 'USD', locale: 'en-US' },
+    PEN: { style: 'currency', currency: 'PEN', locale: 'es-PE' }
+  };
 
-    const { style, currency, locale } = currencyOptions[moneda] || currencyOptions['USD'];
-    return new Intl.NumberFormat(locale, { style, currency }).format(value || 0);
+  const { style, currency, locale } = currencyOptions[moneda] || currencyOptions['USD'];
+  return new Intl.NumberFormat(locale, { style, currency }).format(value || 0);
 };
 
 const cancelToken = ref()
@@ -157,7 +178,7 @@ const tipoComprobanteText = (tipo) => {
     2: 'Factura',
     3: 'Nota de Crédito'
   };
-  
+
   return tipoComprobanteMap[tipo] || 'Desconocido';
 };
 
@@ -167,7 +188,7 @@ const tipo = [
 ];
 
 const optMoneda = [
-  { label: 'PEN', value: 'PEN' }, 
+  { label: 'PEN', value: 'PEN' },
   { label: 'USD', value: 'USD' }
 ]
 
@@ -182,12 +203,12 @@ const openDialog = () => {
 };
 
 const handleSelectPersona = (persona) => {
-    selectedPersona.value = persona;
-    numeroDocumento.value = persona.numeroDocumento;
-    nombre.value = persona.nombre;
-    comprobante.value.id_persona = persona.id;
-    comprobante.value.nombre = `${persona.tipo_documento} ${persona.numero_documento} ${persona.nombreCompleto}`;
-    showDialog.value = false;
+  selectedPersona.value = persona;
+  numeroDocumento.value = persona.numeroDocumento;
+  nombre.value = persona.nombre;
+  comprobante.value.id_persona = persona.id;
+  comprobante.value.nombre = `${persona.tipo_documento} ${persona.numero_documento} ${persona.nombreCompleto}`;
+  showDialog.value = false;
 };
 
 watch([
@@ -206,7 +227,7 @@ watch(() => comprobante.value.igv, () => {
 });
 
 watch(
-  () => [comprobante.value.id_sede, comprobante.value.tipo], 
+  () => [comprobante.value.id_sede, comprobante.value.tipo],
   ([idSede, tipoArticulo]) => {
     if (idSede && tipoArticulo) {
       obtenerProductos();
@@ -216,7 +237,7 @@ watch(
 );
 
 const calculateVuelto = computed(() => {
-  comprobante.value.vuelto = (comprobante.value.pago_cliente - comprobante.value.total).toFixed(2); 
+  comprobante.value.vuelto = (comprobante.value.pago_cliente - comprobante.value.total).toFixed(2);
   return comprobante.value.vuelto;
 });
 
@@ -226,19 +247,19 @@ const routeMap = {
   3: 'notacredito'
 };
 
-function hideDialog(){
+function hideDialog() {
   const routeName = routeMap[tipoComprobanteProp.tipoComprobante];
-    if (routeName) {
-        router.push({ name: routeName });
-    } else {
-        console.warn('Tipo de comprobante no válido');
-    }
+  if (routeName) {
+    router.push({ name: routeName });
+  } else {
+    console.warn('Tipo de comprobante no válido');
+  }
 }
 
 async function saveComprobante() {
   try {
     comprobante.value.tipo_comprobante = tipoComprobanteProp.tipoComprobante;
-    comprobante.value.detalles = detalles.value; 
+    comprobante.value.detalles = detalles.value;
     const response = await createComprobante(comprobante.value, cancelToken.value.token)
     if (response) {
       toast.add({ severity: 'success', summary: 'Éxito', detail: 'Comprobante creado', life: 3000 });
@@ -251,6 +272,8 @@ async function saveComprobante() {
     handleServerError(error, 'comprobante', toast)
   }
 }
+
+const editingRow = ref([])
 
 onBeforeMount(() => {
   cancelToken.value = axios.CancelToken.source()
@@ -285,18 +308,19 @@ onBeforeUnmount(() => {
           </InputGroup>
         </div>
         <PersonaBusqueda :showDialog="showDialog" @select-persona="handleSelectPersona"
-        :numeroDocumento="numeroDocumento" :nombre="nombre" @update:visible="showDialog = $event"/>
+          :numeroDocumento="numeroDocumento" :nombre="nombre" @update:visible="showDialog = $event" />
         <div class="col-span-4">
           <label for="sede" class="block font-bold mb-3">Sede</label>
-          <Select id="sede" v-model="comprobante.id_sede" fluid :options="aSedeSelect"
-          option-label="label" option-value="value" placeholder="Seleccionar sede" />
+          <Select id="sede" v-model="comprobante.id_sede" fluid :options="aSedeSelect" option-label="label"
+            option-value="value" placeholder="Seleccionar sede" />
         </div>
       </div>
 
       <div class="grid grid-cols-12 gap-6 mb-6">
         <div class="col-span-4">
           <label for="tipo" class="block font-bold mb-3">Tipo</label>
-          <Select id="tipo" v-model="comprobante.tipo" :options="tipo" optionLabel="label" optionValue="value" placeholder="Selecciona un tipo" fluid />
+          <Select id="tipo" v-model="comprobante.tipo" :options="tipo" optionLabel="label" optionValue="value"
+            placeholder="Selecciona un tipo" fluid />
         </div>
 
         <div class="col-span-2">
@@ -311,18 +335,21 @@ onBeforeUnmount(() => {
 
         <div class="col-span-3">
           <label for="fecha_emision" class="block font-bold mb-3">Fecha de emisión</label>
-          <InputText id="fecha_emision" v-model="comprobante.fecha_emision" type="date" placeholder="Fecha de emisión" fluid />
+          <InputText id="fecha_emision" v-model="comprobante.fecha_emision" type="date" placeholder="Fecha de emisión"
+            fluid />
         </div>
       </div>
 
       <div class="grid grid-cols-12 gap-6 mb-6">
         <div class="col-span-3">
           <label for="moneda" class="block font-bold mb-3">Moneda</label>
-          <Select id="moneda" v-model="comprobante.moneda" :options="optMoneda" optionLabel="label" optionValue="value" placeholder="Selecciona la moneda" fluid />
+          <Select id="moneda" v-model="comprobante.moneda" :options="optMoneda" optionLabel="label" optionValue="value"
+            placeholder="Selecciona la moneda" fluid />
         </div>
-        <div v-if="comprobante.moneda!='PEN'" class="col-span-3">
+        <div v-if="comprobante.moneda != 'PEN'" class="col-span-3">
           <label for="tipo_cambio" class="block font-bold mb-3">Tipo de cambio</label>
-          <InputText id="tipo_cambio" v-model="comprobante.tipo_cambio" type="number" step="0.01" placeholder="Tipo de cambio" fluid />
+          <InputText id="tipo_cambio" v-model="comprobante.tipo_cambio" type="number" step="0.01"
+            placeholder="Tipo de cambio" fluid />
         </div>
         <div class="col-span-2">
           <label for="igv" class="block font-bold mb-3">IGV</label>
@@ -330,22 +357,22 @@ onBeforeUnmount(() => {
         </div>
       </div>
 
-      <Card v-if="productos.length>0" class="p-mb-4 custom-card gap-6 mb-6">
+      <Card v-if="productos.length > 0" class="p-mb-4 custom-card gap-6 mb-6">
         <template #content>
           <div class="flex gap-2 mb-3">
             <Button label="Agregar detalle" icon="pi pi-plus" @click="agregarFila" />
             <Button label="Limpiar detalles" icon="pi pi-refresh" severity="secondary" @click="limpiarDetalles" />
           </div>
-          
-          <DataTable :value="detalles" editMode="cell" @cell-edit-complete="onCellEditComplete"
-            :pt="{ table: { style: 'min-width: 50rem' } }">
+
+          <DataTable v-model:editing-rows="editingRow" :value="detalles" editMode="row"
+            @row-edit-save="onCellEditComplete" :pt="{ table: { style: 'min-width: 50rem' } }">
             <Column field="id_articulo" header="Producto" style="width: 25%">
               <template #body="{ data }">
                 <Tag>{{ obtenerNombreProducto(data.id_articulo) || 'Seleccionar producto' }}</Tag>
               </template>
               <template #editor="{ data, field }">
-                <Select v-model="data[field]" :options="productos" optionLabel="nombre" 
-                placeholder="Seleccionar producto" optionValue="id" filter fluid />
+                <Select v-model="data[field]" :options="productos" optionLabel="nombre"
+                  placeholder="Seleccionar producto" optionValue="id" filter fluid />
               </template>
             </Column>
 
@@ -363,16 +390,18 @@ onBeforeUnmount(() => {
 
             <Column field="precio_unitario" header="Precio Unitario" style="width: 20%">
               <template #editor="{ data, field }">
-                <InputNumber v-model="data[field]" autofocus/>
+                <InputNumber v-model="data[field]" autofocus />
               </template>
             </Column>
 
 
             <Column field="total_producto" header="Total" style="width: 20%">
-                <template #body="{ data }">
-                    {{ formatCurrency(data.total_producto, comprobante.moneda) }}
-                </template>
+              <template #body="{ data }">
+                {{ formatCurrency(data.total_producto, comprobante.moneda) }}
+              </template>
             </Column>
+
+            <Column :rowEditor="true" style="width: 10%; min-width: 8rem" bodyStyle="text-align:center"></Column>
 
             <Column header="Acciones" style="width: 10%">
               <template #body="{ index }">
@@ -384,7 +413,7 @@ onBeforeUnmount(() => {
         </template>
       </Card>
 
-      <div v-if="comprobante.total>0" class="grid grid-cols-12 gap-6 mb-2">
+      <div v-if="comprobante.total > 0" class="grid grid-cols-12 gap-6 mb-2">
         <!-- Columna 1 -->
         <div class="col-span-6 pr-6">
           <div class="grid grid-cols-2 gap-4">
@@ -454,7 +483,9 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .custom-card {
-  border: 2px solid var(--p-primary-color); /* Usando el color primario del tema de PrimeVue */
-  border-radius: var(--p-card-border-radius); /* Mantiene el radio de bordes por defecto */
+  border: 2px solid var(--p-primary-color);
+  /* Usando el color primario del tema de PrimeVue */
+  border-radius: var(--p-card-border-radius);
+  /* Mantiene el radio de bordes por defecto */
 }
 </style>

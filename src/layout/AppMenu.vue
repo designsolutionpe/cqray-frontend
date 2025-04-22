@@ -45,7 +45,7 @@ const menuItems = ref([
                     { label: 'Todos los pacientes', to: '/gestion/pacientes/todos' },
                     { label: 'Añadir pacientes', to: '/gestion/pacientes/agregar' },
                     { label: 'Historial de pagos', to: '/gestion/pacientes/historial-pagos' },
-                    { label: 'Historias clínicas', to: '#' },
+                    { label: 'Historias clínicas', to: '/gestion/pacientes/historial-clinico' },
                 ]
             },
         ]
@@ -440,8 +440,11 @@ const updateMenu = () => {
                 });
                 return item;
             }
-            // if (item.label === 'Gestión Ventas')
-            //     return item
+            if (item.label === 'Gestión Ventas') {
+                const show = ['Realizar Ventas'];
+                item.items = item.items.filter(subitem => show.includes(subitem.label))
+                return item
+            }
             return null;
         }).filter(item => item !== null);
     } else {
