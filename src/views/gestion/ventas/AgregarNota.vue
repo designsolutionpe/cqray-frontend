@@ -1,4 +1,5 @@
 <script setup>
+import ComprobanteBusqueda from '@/components/busqueda/ComprobanteBusqueda.vue';
 import Preloader from '@/components/Preloader.vue';
 import { createNotaCredito } from '@/service/gestion/NotaCreditoService';
 import { searchArticulos } from '@/service/mantenimiento/ArticulosService';
@@ -166,8 +167,8 @@ const optMoneda = [
 //Datos de comprobante asociado a nota de credito
 const showDialog = ref(false);
 const selectedComprobante = ref(null);
-const numeroComprobante = ref('');
-const serieComprobante = ref('');
+const serie = ref('');
+const numero = ref('');
 
 const openDialog = () => {
   showDialog.value = true;
@@ -179,10 +180,27 @@ function handleSelectClick(event) {
 
 const handleSelectComprobante = (comprobante) => {
   selectedComprobante.value = comprobante;
-  serieComprobante.value = comprobante.serie_comprobante;
-  numeroComprobante.value = comprobante.numero_comprobante;
+
+  nota.value.comprobante = comprobante.serie + '-' + comprobante.numero 
+  + ' ' + comprobante.persona.apellido + ' ' + comprobante.persona.nombre;
+
+  serie.value = comprobante.serie;
+  numero.value = comprobante.numero;
+
+  console.log("comprobante", comprobante);
+
+  nota.value.id_sede = comprobante.sede.id
   nota.value.id_comprobante = comprobante.id;
+  nota.value.tipo = comprobante.tipo;
   nota.value.tipo_comprobante = comprobante.tipo_comprobante;
+
+  nota.value.fecha_emision = comprobante.fecha_emision;
+  nota.value.moneda = comprobante.moneda;
+  nota.value.igv = comprobante.igv;
+  nota.value.tipo_cambio = comprobante.tipo_cambio;
+  detalles.value = comprobante.detalles;
+
+
   nota.value.monto_igv = comprobante.monto_igv;
   nota.value.subtotal = comprobante.subtotal;
   nota.value.total = comprobante.total;
@@ -263,6 +281,8 @@ onBeforeUnmount(() => {
                         </InputGroupAddon>
                     </InputGroup>
                 </div>
+                <ComprobanteBusqueda :showDialog="showDialog" @select-comprobante="handleSelectComprobante"
+                :serie="serie" :numero="numero" @update:visible="showDialog = $event" />
 
                 <div class="md:col-span-4 sm:col-span-12" >
                     <label for="sede" class="block font-bold mb-3">Sede</label>

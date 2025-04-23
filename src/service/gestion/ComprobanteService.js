@@ -14,6 +14,19 @@ export const getComprobantes = async (cancelToken) => {
     }
 };
 
+export const getBuscarComprobantes = async (
+    { serie = '', numero = ''}) => {
+    try {
+        const response = await api.get('/comprobantes/buscar', {
+            params: { serie, numero }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error al buscar los comprobantes:', error);
+        throw error;
+    }
+}
+
 export const createComprobante = async (data) => {
     try {
         const response = await api.post('/comprobantes', data);
