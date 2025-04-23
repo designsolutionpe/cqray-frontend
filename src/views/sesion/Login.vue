@@ -31,7 +31,7 @@ const loginUserHandler = async () => {
         token: response.token,
         nombre: response.data.persona.nombre,
         apellido: response.data.persona.apellido,
-        foto: `${import.meta.env.VITE_BASE_URL}/storage/${response.data.persona.foto}`
+        foto: `${import.meta.env.VITE_BASE_URL}/api/${response.data.persona.foto}`
       });
       isLoading.value = false
       router.push({ name: 'dashboard' });
@@ -69,8 +69,8 @@ const loginUserHandler = async () => {
         <InputGroupAddon>
           <i class="pi pi-user"></i>
         </InputGroupAddon>
-        <InputText id="login1" v-model="login" type="text" placeholder="Ingrese su usuario o correo" :disabled="isLoading"
-          class="w-full" required />
+        <InputText id="login1" v-model="login" type="text" placeholder="Ingrese su usuario o correo"
+          :disabled="isLoading" class="w-full" required />
       </InputGroup>
 
       <!-- Campo de contraseña -->
