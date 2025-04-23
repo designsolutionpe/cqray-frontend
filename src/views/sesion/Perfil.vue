@@ -25,7 +25,7 @@ const cargarUsuario = async () => {
         perfil.value = response;
 
         if (perfil.value.persona.foto) {
-            previewSrc.value = `${import.meta.env.VITE_BASE_URL}/storage/${perfil.value.persona.foto}`;
+            previewSrc.value = `${import.meta.env.VITE_BASE_URL}/api/${perfil.value.persona.foto}`;
         } else {
             previewSrc.value = null;
         }
@@ -134,7 +134,7 @@ async function savePerfil() {
                 userRole: respuesta.data.user.rol,
                 nombre: respuesta.data.persona.nombre,
                 apellido: respuesta.data.persona.apellido,
-                foto: foto ? `${import.meta.env.VITE_BASE_URL}/storage/${foto}` : null
+                foto: foto ? `${import.meta.env.VITE_BASE_URL}/api/${foto}` : null
             })
 
             toast.add({ severity: 'success', summary: 'Perfil Actualizado', life: 3000 });
@@ -221,8 +221,7 @@ onMounted(() => {
                             <label for="sede" class="block font-bold mb-2">Sede</label>
                             <Select id="sede" v-model="perfil.id_sede" :options="sedes" optionLabel="label"
                                 optionValue="value" placeholder="Selecciona una sede" fluid
-                                :disabled="userRole === 'Administrador'" 
-                            />
+                                :disabled="userRole === 'Administrador'" />
                         </div>
                     </div>
                 </div>
