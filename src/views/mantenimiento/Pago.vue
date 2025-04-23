@@ -50,7 +50,7 @@ const cargarConfiguracion = async () => {
         const response = await getConfiguracion();
         configuracion.value = response[0];
         if (configuracion.value.imagen1) {
-            previewSrc.value = `${import.meta.env.VITE_BASE_URL}/storage/${configuracion.value.imagen1}`;
+            previewSrc.value = `${import.meta.env.VITE_BASE_URL}/api/${configuracion.value.imagen1}`;
         } else {
             previewSrc.value = null;
         }
