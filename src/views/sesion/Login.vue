@@ -31,7 +31,7 @@ const loginUserHandler = async () => {
         token: response.token,
         nombre: response.data.persona.nombre,
         apellido: response.data.persona.apellido,
-        foto: `${import.meta.env.VITE_BASE_URL}/api/${response.data.persona.foto}`
+        foto: `${import.meta.env.VITE_BASE_URL}/api/images/${response.data.persona.foto}`
       });
       isLoading.value = false
       router.push({ name: 'dashboard' });

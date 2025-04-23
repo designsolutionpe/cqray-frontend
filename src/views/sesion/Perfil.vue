@@ -25,7 +25,7 @@ const cargarUsuario = async () => {
         perfil.value = response;
 
         if (perfil.value.persona.foto) {
-            previewSrc.value = `${import.meta.env.VITE_BASE_URL}/api/${perfil.value.persona.foto}`;
+            previewSrc.value = `${import.meta.env.VITE_BASE_URL}/api/images/${perfil.value.persona.foto}`;
         } else {
             previewSrc.value = null;
         }
@@ -134,7 +134,7 @@ async function savePerfil() {
                 userRole: respuesta.data.user.rol,
                 nombre: respuesta.data.persona.nombre,
                 apellido: respuesta.data.persona.apellido,
-                foto: foto ? `${import.meta.env.VITE_BASE_URL}/api/${foto}` : null
+                foto: foto ? `${import.meta.env.VITE_BASE_URL}/api/images/${foto}` : null
             })
 
             toast.add({ severity: 'success', summary: 'Perfil Actualizado', life: 3000 });

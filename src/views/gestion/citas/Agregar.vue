@@ -125,8 +125,8 @@ const cargarPacientes = async () => {
   isPacientesLoading.value = true
   try {
     const response = await getPacientes(cancelToken.value.token)
-    aPacientes.value = response
     if (response) {
+      aPacientes.value = response
       aPacientesSelect.value = response.map(d => ({
         label: `${d.persona.nombre} ${d.persona.apellido}`,
         value: d.id
@@ -135,7 +135,12 @@ const cargarPacientes = async () => {
       // SELECCIONAR EL PACIENTE OBTENIDO DESDE EL URL
       const paciente_ruta = response.filter(p => p.id == route.query.id)
 
+      oPacienteSelected.value = null
       oPacienteSelected.value = paciente_ruta.length > 0 ? paciente_ruta[0].id : response[0].id
+      
+      const paciente_obj = aPacientes.value.find(p=>p.id==oPacienteSelected.value)
+      console.log("loading paciente",paciente_obj) 
+      nEstadoPacienteSelected.value = paciente_obj.estado.id
     }
     isPacientesLoading.value = false
   }
@@ -320,6 +325,8 @@ watch(
 watch(oPacienteSelected, (id_paciente) => {
   const paciente = aPacientes.value.find(p => p.id === id_paciente)
   var proximo_estado = paciente.estado.id
+
+  console.log("update paciente",paciente)
 
   if (paciente.historial_clinico.length > 0) {
     let paciente = aPacientes.value.find(p => p.id === id_paciente)
