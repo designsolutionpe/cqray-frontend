@@ -217,6 +217,19 @@ const router = createRouter({
                 },
 
                 {
+                    path: '/mantenimiento/unidad-medida/todas',
+                    name: 'unidadMedida-todas',
+                    component: () => import('@/views/mantenimiento/unidad-medida/Todas.vue'),
+                    meta: { requiresAuth: true, roles: ['Superadministrador'] }
+                },
+                {
+                    path: '/mantenimiento/unidad-medida/agregar',
+                    name: 'unidadMedida-agregar',
+                    component: () => import('@/views/mantenimiento/unidad-medida/Agregar.vue'),
+                    meta: { requiresAuth: true, roles: ['Superadministrador'] }
+                },
+
+                {
                     path: '/mantenimiento/personas/todas',
                     name: 'persona-todas',
                     component: () => import('@/views/mantenimiento/personas/Todos.vue'),
