@@ -112,6 +112,14 @@ const menuItems = ref([
                 ]
             },
             {
+                label: 'Unidad de Medida',
+                icon: 'pi pi-fw pi-hashtag',
+                items: [
+                    { label: 'Todas las unidades', to: '/mantenimiento/unidad-medida/todas' },
+                    { label: 'Añadir unidad', to: '/mantenimiento/unidad-medida/agregar' },
+                ]
+            },
+            {
                 label: 'Compras',
                 icon: 'pi pi-fw pi-shopping-cart',
                 items: [
