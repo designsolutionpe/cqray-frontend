@@ -17,6 +17,7 @@ const toast = useToast();
 const id_sede = computed(() => store.getters.id_sede)
 
 const nota = ref({})
+
 const crearDetalleVacio = () => ({
     id_articulo: null,
     cantidad: 1,
@@ -77,13 +78,13 @@ const onCellEditComplete = (event) => {
 };
 
 const recalcularTotales = () => {
-  let totalGeneral = 0;
-  let totalDescuento = 0;
+  let totalGeneral = Number(0);
+  let totalDescuento = Number(0);
 
   // Calcular total por cada fila y agregarlo al total general
   detalles.value.forEach(detalle => {
-    totalGeneral += detalle.total_producto;
-    totalDescuento += detalle.precio_unitario * detalle.cantidad * (detalle.descuento / 100);
+    totalGeneral += parseFloat(detalle.total_producto) || 0; // Convertir a número
+    totalDescuento += parseFloat(detalle.precio_unitario) * parseFloat(detalle.cantidad) * (parseFloat(detalle.descuento) / 100) || 0;
   });
 
   // Verificar si el IGV está marcado
@@ -93,6 +94,9 @@ const recalcularTotales = () => {
 
   // El subtotal es el total general menos el IGV
   const subtotal = totalGeneral - montoIGV;
+
+  console.log("totalGeneral", totalGeneral);
+
 
   // Asignar los valores calculados al objeto comprobante
   nota.value.total = totalGeneral.toFixed(2); // Total general
@@ -164,11 +168,24 @@ const optMoneda = [
   { label: 'USD', value: 'USD' }
 ]
 
+const optMotivo = [
+  { label: 'Anulación de la Operación', value: 1 },
+  { label: 'Anulación por Error en el RUC', value: 2 },
+  { label: 'Descuento Global', value: 3 },
+  { label: 'Devolución Total', value: 4 },
+  { label: 'Corrección por error en la descripción', value: 5 },
+  { label: 'Devolución por item', value: 6 },
+  { label: 'Descuento por item', value: 7 },
+  { label: 'Otros Conceptos', value: 8 },
+  { label: 'Ajustes - montos y/o fechas de pago', value: 9 }
+];
+
 //Datos de comprobante asociado a nota de credito
 const showDialog = ref(false);
 const selectedComprobante = ref(null);
 const serie = ref('');
 const numero = ref('');
+const compSeleccionado = ref('');
 
 const openDialog = () => {
   showDialog.value = true;
@@ -179,15 +196,16 @@ function handleSelectClick(event) {
 }
 
 const handleSelectComprobante = (comprobante) => {
-  selectedComprobante.value = comprobante;
 
-  nota.value.comprobante = comprobante.serie + '-' + comprobante.numero 
-  + ' ' + comprobante.persona.apellido + ' ' + comprobante.persona.nombre;
+  selectedComprobante.value = comprobante;
 
   serie.value = comprobante.serie;
   numero.value = comprobante.numero;
 
-  console.log("comprobante", comprobante);
+  compSeleccionado.value = comprobante.serie + '-' + comprobante.numero 
+  + ' ' + comprobante.persona.apellido + ' ' + comprobante.persona.nombre;
+
+  console.log("comprobante_01", comprobante);
 
   nota.value.id_sede = comprobante.sede.id
   nota.value.id_comprobante = comprobante.id;
@@ -196,10 +214,9 @@ const handleSelectComprobante = (comprobante) => {
 
   nota.value.fecha_emision = comprobante.fecha_emision;
   nota.value.moneda = comprobante.moneda;
-  nota.value.igv = comprobante.igv;
+  nota.value.igv = Boolean(comprobante.igv);
   nota.value.tipo_cambio = comprobante.tipo_cambio;
   detalles.value = comprobante.detalles;
-
 
   nota.value.monto_igv = comprobante.monto_igv;
   nota.value.subtotal = comprobante.subtotal;
@@ -234,7 +251,13 @@ function hideDialog() {
 async function saveNota(){
     try {
         nota.value.detalles = detalles.value;
+
+        console.log("value:", nota.value);
+
         const response = await createNotaCredito(nota.value,cancelToken.value.token);
+
+        console.log("response:", response);
+
         if (response){
             toast.add({ severity: 'success', summary: 'Éxito', detail: 'Nota de crédito creada', life: 3000 });
             // Limpiar los campos después de crear la nota de crédito
@@ -275,7 +298,7 @@ onBeforeUnmount(() => {
                 <div class="md:col-span-8 sm:col-span-12">
                     <label for="comp" class="block font-bold mb-3">Comprobante</label>
                     <InputGroup fluid>
-                        <InputText id="comp" v-model="nota.comprobante" readonly fluid />
+                        <InputText id="comp" v-model="compSeleccionado" readonly fluid />
                         <InputGroupAddon>
                             <Button icon="pi pi-list" severity="info" variant="text" @click="openDialog" />
                         </InputGroupAddon>
@@ -326,6 +349,18 @@ onBeforeUnmount(() => {
                   <label for="igv" class="block font-bold mb-3">IGV</label>
                   <Checkbox id="igv" v-model="nota.igv" binary />
                 </div>
+
+                <div class="md:col-span-4 sm:col-span-12">
+                  <label for="motivo" class="block font-bold mb-3">Motivo</label>
+                  <Select id="motivo" v-model="nota.motivo" :options="optMotivo" optionLabel="label" optionValue="value" placeholder="Selecciona motivo" fluid />
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-12 gap-6 mb-6">
+              <div class="md:col-span-12 sm:col-span-12">
+                <label for="comentario" class="block font-bold mb-3">Comentario</label>
+                <Textarea id="comentario" v-model="nota.comentario" rows="3" placeholder="Escribe tu comentario aquí" fluid />
+              </div>
             </div>
 
             <Card v-if="productos.length>0" class="p-mb-4 custom-card gap-6 mb-6">

@@ -95,7 +95,11 @@ onMounted(() => {
                         {{ formatDate(slotProps.data.fecha_emision) }}
                     </template>
                 </Column>
-                <Column field="comprobante" header="Comprobante" sortable style="width: 12%;"></Column>
+                <Column field="comprobante" header="Comprobante" sortable style="width: 12%;">
+                    <template #body="slotProps">
+                        {{ slotProps.data.comprobante.serie }}-{{ slotProps.data.comprobante.numero }}
+                    </template>                
+                </Column>
                 <Column field="moneda" header="Moneda" sortable style="width: 12%;"></Column>
                 <Column field="subtotal" header="Sub Total" sortable style="width: 10%;"></Column>
                 <Column field="monto_igv" header="IGV" sortable style="width: 10%;"></Column>
@@ -109,6 +113,20 @@ onMounted(() => {
                         <Button icon="pi pi-trash" outlined rounded severity="danger" class="mr-1" @click="confirmDeleteNota(slotProps.data)" />
                     </template>
                 </Column>
+
+                <template #expansion="slotProps">
+                    <div class="p-4">
+                        <h6>Comprobante {{ slotProps.data.serie }} - {{ slotProps.data.numero }}</h6>
+                        <!-- Mostrar los detalles de los productos asociados al comprobante -->
+                        <DataTable :value="slotProps.data.detalles">
+                            <Column field="nombre_articulo" header="Artículo" />
+                            <Column field="cantidad" header="Cantidad" />
+                            <Column field="descuento" header="Descuento" />
+                            <Column field="precio_unitario" header="Precio Unitario" />
+                            <Column field="total_producto" header="Total Producto" />
+                        </DataTable>
+                    </div>
+                </template>
 
             </DataTable>
         </div>

@@ -60,17 +60,12 @@ const onCellEditComplete = (event) => {
   const articulo = productos.value.find(p => p.id === newData.id_articulo)
 
   newData.precio_unitario = parseFloat(articulo.precio)
-
-  console.log('articulo seleccionado', articulo)
-
   // Recalcular total de esa fila
   const subtotal = newData.precio_unitario * newData.cantidad;
   const descuento = subtotal * (newData.descuento / 100);
   newData.total_producto = subtotal - descuento;
 
   detalles.value[index] = newData
-
-  console.log(detalles.value[index])
 
   // Recalcular totales del comprobante
   recalcularTotales();
@@ -112,8 +107,6 @@ const recalcularTotales = () => {
 
   // El subtotal es el total general menos el IGV
   const subtotal = totalGeneral - montoIGV;
-
-  console.log('total compro', totalGeneral)
 
   // Asignar los valores calculados al objeto comprobante
   comprobante.value.total = totalGeneral.toFixed(2); // Total general
