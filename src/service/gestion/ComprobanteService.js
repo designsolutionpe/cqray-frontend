@@ -27,6 +27,23 @@ export const getBuscarComprobantes = async (
     }
 }
 
+export const getComprobantesCount = async (sede,cancelToken) => {
+  try
+  {
+    const response = await api.get(`/comprobantes/count?id_sede=${sede||""}`,{
+      cancelToken: cancelToken || null
+    });
+    if(typeof response.cancelled !== "undefined" )
+      return null
+    return response.data
+  }
+  catch(error)
+  {
+    console.error("Error al obtener la cantidas de pagos",error)
+    throw error
+  }
+}
+
 export const createComprobante = async (data) => {
     try {
         const response = await api.post('/comprobantes', data);

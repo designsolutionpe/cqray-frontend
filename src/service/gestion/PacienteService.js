@@ -43,6 +43,22 @@ export const getPacientes = async (cancelToken) => {
     }
 }
 
+export const getPacientesCount = async (sede,cancelToken) => {
+  try{
+    const response = await api.get(`/pacientes/count?id_sede=${sede||""}`,{
+      cancelToken: cancelToken || null
+    });
+    if(typeof response.cancelled !== "undefined")
+      return null
+    return response.data
+  }
+  catch(error)
+  {
+    console.error("Error al obtener cantidad de pacientes",error)
+    throw error
+  }
+}
+
 export const createPaciente = async (data) => {
     try {
         const response = await api.post('/pacientes', data, {

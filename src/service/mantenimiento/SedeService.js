@@ -14,6 +14,24 @@ export const getSedes = async (cancelToken) => {
     }
 };
 
+// Obtener Numero de Sedes
+export const getSedesCount = async (cancelToken) => {
+  try
+  {
+    const response = await api.get("/sedes/count",{
+      cancelToken: cancelToken || null
+    })
+    if(typeof response.cancelled != "undefined")
+      return null
+    return response.data
+  }
+  catch(error)
+  {
+    console.error("Error al obtener la cantidad de sedes:",error)
+    throw error;
+  }
+}
+
 // Obtener una sede por ID
 export const getSedeById = async (id, cancelToken) => {
     try {

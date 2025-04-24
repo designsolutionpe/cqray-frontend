@@ -48,6 +48,23 @@ export const getCitasPorFecha = async (fecha, idSede = null, cancelToken) => {
     }
 }
 
+export const getCitasCount = async (sede,cancelToken) => {
+  try
+  {
+    const response = await api.get(`/citas/count?id_sede=${sede || ""}`,{
+      cancelToken: cancelToken || null
+    })
+    if( typeof response.cancelled !== "undefined" )
+      return null
+    return response.data
+  }
+  catch(error)
+  {
+    console.error("Error al obtener la cantidad de citas",error)
+    throw error
+  }
+}
+
 
 // Crear una nueva cita
 export const createCita = async (data) => {
