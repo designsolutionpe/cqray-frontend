@@ -1,7 +1,7 @@
 <script setup>
 import ComprobanteBusqueda from '@/components/busqueda/ComprobanteBusqueda.vue';
 import Preloader from '@/components/Preloader.vue';
-import { createNotaCredito } from '@/service/gestion/NotaCreditoService';
+import { createNotaCredito, getUltimoNotaCredito } from '@/service/gestion/NotaCreditoService';
 import { searchArticulos } from '@/service/mantenimiento/ArticulosService';
 import { getSedes } from '@/service/mantenimiento/SedeService';
 import { handleServerError } from '@/utils/Util';
@@ -94,10 +94,6 @@ const recalcularTotales = () => {
 
   // El subtotal es el total general menos el IGV
   const subtotal = totalGeneral - montoIGV;
-
-  console.log("totalGeneral", totalGeneral);
-
-
   // Asignar los valores calculados al objeto comprobante
   nota.value.total = totalGeneral.toFixed(2); // Total general
   nota.value.subtotal = subtotal.toFixed(2); // Total sin IGV
@@ -147,6 +143,34 @@ const cargarSedes = async () => {
     handleServerError(error, 'sedes', toast)
   }
 }
+
+const cargarUltimoNotaCredito = async () => {
+  try {
+    const response = await getUltimoNotaCredito(cancelToken.value.token)
+    if (response) {
+      const { numero } = response
+      const tipo = 'NOT'
+      var newNumero = 1
+
+      nota.value = {
+        ...nota.value,
+        serie: tipo,
+        numero: newNumero.toString().padStart(8, '0')
+      }
+
+      if (numero > 0) {
+        newNumero = parseInt(numero) + 1
+        nota.value = {
+          ...nota.value,
+          serie: tipo,
+          numero: newNumero.toString().padStart(8, '0')
+        }
+      }
+    }
+  } catch (error) {
+    handleServerError(error, 'último número de nota de crédito', toast)
+  }
+} 
 
 const tipoComprobanteText = (tipo) => {
   const tipoComprobanteMap = {
@@ -278,6 +302,7 @@ onBeforeMount(() => {
 
 onMounted(() => {
   cargarSedes()
+  cargarUltimoNotaCredito()
 })
 
 onBeforeUnmount(() => {
@@ -320,6 +345,7 @@ onBeforeUnmount(() => {
                   <Select id="tipo" v-model="nota.tipo" :options="tipo" optionLabel="label" optionValue="value" placeholder="Selecciona un tipo" fluid />
                 </div>
 
+                <!--
                 <div class="md:col-span-2 sm:col-span-6">
                     <label for="serie" class="block font-bold mb-3">Serie</label>
                     <InputText id="serie" v-model="nota.serie" type="text" placeholder="Serie" fluid />
@@ -329,6 +355,7 @@ onBeforeUnmount(() => {
                     <label for="numero" class="block font-bold mb-3">Número</label>
                     <InputText id="numero" v-model="nota.numero" type="text" placeholder="Número del comprobante" fluid />
                 </div>
+                -->
 
                 <div class="md:col-span-3 sm:col-span-6">
                     <label for="fecha_emision" class="block font-bold mb-3">Fecha de emisión</label>

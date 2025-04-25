@@ -14,6 +14,20 @@ export const getNotaCreditos = async (cancelToken) => {
     }
 }
 
+export const getUltimoNotaCredito = async (cancelToken) => {
+    try {
+        const response = await api.get('/notas-creditos/last', {
+            cancelToken: cancelToken || null
+        });
+        if (typeof response.cancelled !== 'undefined')
+            return null;
+        return response.data;
+    } catch (error) {
+        console.error('Error al obtener la última nota de crédito:', error);
+        throw error;
+    }
+}
+
 export const createNotaCredito = async (data) => {
     try {
         const response = await api.post('/notas-creditos', data);
