@@ -25,3 +25,14 @@ export const updateUnidadMedidad = async (id, data) => {
     throw error
   }
 }
+
+export const deleteUnidadMedida = async (id) => {
+  try {
+    const response = await api.delete(`/articulos/medidas/${id}`);
+    return response.data
+  }
+  catch (error) {
+    console.error('Error al actualizar la unidad de medida', error)
+    throw error
+  }
+}

@@ -1,7 +1,7 @@
 <script setup>
 import PersonaBusqueda from '@/components/busqueda/PersonaBusqueda.vue';
 import Preloader from '@/components/Preloader.vue';
-import { createComprobante } from '@/service/gestion/ComprobanteService';
+import { createComprobante, getUltimoComprobante } from '@/service/gestion/ComprobanteService';
 import { searchArticulos } from '@/service/mantenimiento/ArticulosService';
 import { getSedes } from '@/service/mantenimiento/SedeService';
 import { handleServerError } from '@/utils/Util';
@@ -158,6 +158,28 @@ const cargarSedes = async () => {
   }
 }
 
+const cargarUltimoComprobante = async () => {
+  try {
+    const response = await getUltimoComprobante(cancelToken.value.token)
+    if (response) {
+      console.log('ultimo', response)
+      const { numero } = response
+      const tipos = ['BOL', 'FAC'].find((d, i) => tipoComprobanteProp.tipoComprobante == (i + 1))
+      var newNumero = 1
+      if (response.length > 0)
+        newNumero = parseInt(numero) + 1
+      comprobante.value = {
+        ...comprobante.value,
+        serie: tipos,
+        numero: newNumero.toString().padStart(8, '0')
+      }
+    }
+  }
+  catch (error) {
+    handleServerError(error, '', toast)
+  }
+}
+
 const tipoComprobanteProp = defineProps({
   tipoComprobante: {
     type: Number,
@@ -251,6 +273,7 @@ function hideDialog() {
 
 async function saveComprobante() {
   try {
+    console.log('compr', comprobante.value)
     comprobante.value.tipo_comprobante = tipoComprobanteProp.tipoComprobante;
     comprobante.value.detalles = detalles.value;
     const response = await createComprobante(comprobante.value, cancelToken.value.token)
@@ -274,6 +297,7 @@ onBeforeMount(() => {
 
 onMounted(() => {
   cargarSedes()
+  cargarUltimoComprobante()
 })
 
 onBeforeUnmount(() => {
@@ -316,7 +340,7 @@ onBeforeUnmount(() => {
             placeholder="Selecciona un tipo" fluid />
         </div>
 
-        <div class="col-span-2">
+        <!-- <div class="col-span-2">
           <label for="serie" class="block font-bold mb-3">Serie</label>
           <InputText id="serie" v-model="comprobante.serie" type="text" placeholder="Serie" fluid />
         </div>
@@ -324,7 +348,7 @@ onBeforeUnmount(() => {
         <div class="col-span-3">
           <label for="numero" class="block font-bold mb-3">Número</label>
           <InputText id="numero" v-model="comprobante.numero" type="text" placeholder="Número del comprobante" fluid />
-        </div>
+        </div> -->
 
         <div class="col-span-3">
           <label for="fecha_emision" class="block font-bold mb-3">Fecha de emisión</label>
