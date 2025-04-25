@@ -50,7 +50,7 @@ const cargarConfiguracion = async () => {
         const response = await getConfiguracion();
         configuracion.value = response[0];
         if (configuracion.value.imagen1) {
-            previewSrc.value = `${import.meta.env.VITE_BASE_URL}/api/${configuracion.value.imagen1}`;
+            previewSrc.value = `${import.meta.env.VITE_BASE_URL}/storage/${configuracion.value.imagen1}`;
         } else {
             previewSrc.value = null;
         }
@@ -186,100 +186,95 @@ onMounted(() => {
 
 <template>
     <div>
-        <div class="grid grid-cols-12 gap-3">
-
-
-        <div class="card col-span-9">
-            <Toolbar class="mb-6">
-                <template #start>
-                    <Button label="Nuevo Método" icon="pi pi-plus" severity="secondary" class="mr-2" @click="openNew" />
-                </template>
-            </Toolbar>
-
-            <DataTable 
-                ref="dt"
-                :value="pagos"
-                dataKey="id"
-                :paginator="true"
-                :rows="10"
-                :filters="filters"
-                :rowsPerPageOptions="[5,10,25]"
-                paginatorTemplate="'FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown'"
-                currentPageReportTemplate="Mostrando {first} de {last} - {totalRecords} pagos"
-                >
-                <template #header>
-                    <div class="flex flex-wrap gap-2 items-center justify-between">
-                        <h4 class="m-0">Configuración de Pagos</h4>
-                        <IconField>
-                            <InputIcon>
-                                <i class="pi pi-search" />
-                            </InputIcon>
-                            <InputText v-model="filters['global'].value" placeholder="Buscar..." />
-                        </IconField>
-                    </div>
-                </template>
-
-                <Column field="id" header="#" sortable style="width: 5%" />
-                <Column field="sede.nombre" header="Sede" sortable style="width: 15%" />
-                <Column field="metodo_pago" header="Método Pago" sortable style="width: 15%" />
-                <Column field="detalle_concepto" header="Detalle" sortable style="width: 20%" />
-                <Column field="numero_cuenta" header="Número Cuenta" sortable style="width: 20%" />
-                <Column header="Estado" sortable style="width: 10%">
-                    <template #body="slotProps">
-                        <Tag :severity="slotProps.data.estado ? 'success' : 'danger'">
-                            {{ slotProps.data.estado ? 'Activo' : 'Inactivo' }}
-                        </Tag>
+        <div class="grid grid-cols-12 gap-2 mb-6">
+            <div class="card lg:col-span-9 md:col-span-8 sm:col-span-12 col-span-12">
+                <Toolbar class="mb-6">
+                    <template #start>
+                        <Button label="Nuevo Método" icon="pi pi-plus" severity="secondary" class="mr-2" @click="openNew" />
                     </template>
-                </Column>
-                    
-                <Column :exportable="false" style="width: 25%">
-                    <template #body="slotProps">
-                        <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="editPago(slotProps.data)" />
-                        <Button icon="pi pi-trash" outlined rounded severity="danger" @click="confirmDeletePago(slotProps.data)" />
+                </Toolbar>
+                <DataTable 
+                    ref="dt"
+                    :value="pagos"
+                    dataKey="id"
+                    :paginator="true"
+                    :rows="10"
+                    :filters="filters"
+                    :rowsPerPageOptions="[5,10,25]"
+                    paginatorTemplate="'FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown'"
+                    currentPageReportTemplate="Mostrando {first} de {last} - {totalRecords} pagos"
+                    >
+                    <template #header>
+                        <div class="flex flex-wrap gap-2 items-center justify-between">
+                            <h4 class="m-0">Configuración de Pagos</h4>
+                            <IconField>
+                                <InputIcon>
+                                    <i class="pi pi-search" />
+                                </InputIcon>
+                                <InputText v-model="filters['global'].value" placeholder="Buscar..." />
+                            </IconField>
+                        </div>
                     </template>
-                </Column>
-            </DataTable>
-        </div>
-
-        <div class="card col-span-3 text-center">
-            <h5 class="m-0">Configuración de documentos</h5>
-            <br />
-            <h6 class="m-0">Logotipo para documentos</h6>
-            <br />
-            <div>
-                <label for="foto" class="block font-semi-bold mb-3">Tamaño recomendado 200 x 100</label>
-                <div class="flex flex-col items-center gap-4">
-                    <FileUpload mode="basic" name="foto" accept="image/*" chooseLabel="Subir imagen" 
-                    :maxFileSize="1000000" @select="onFileSelect" customUpload auto class="p-button-outlined"/>
-                    <div v-if="previewSrc" class="relative flex items-center mt-4">
-                        <img :src="previewSrc" alt="Foto seleccionada" class="w-32 h-32 rounded-lg shadow" />
-                        <Button icon="pi pi-trash" class="ml-2 p-2 rounded-full" severity="danger" @click="removeImage" />
+                    <Column field="id" header="#" sortable style="width: 5%" />
+                    <Column field="sede.nombre" header="Sede" sortable style="width: 15%" />
+                    <Column field="metodo_pago" header="Método Pago" sortable style="width: 15%" />
+                    <Column field="detalle_concepto" header="Detalle" sortable style="width: 20%" />
+                    <Column field="numero_cuenta" header="Número Cuenta" sortable style="width: 20%" />
+                    <Column header="Estado" sortable style="width: 10%">
+                        <template #body="slotProps">
+                            <Tag :severity="slotProps.data.estado ? 'success' : 'danger'">
+                                {{ slotProps.data.estado ? 'Activo' : 'Inactivo' }}
+                            </Tag>
+                        </template>
+                    </Column>
+                    <Column :exportable="false" style="width: 25%">
+                        <template #body="slotProps">
+                            <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="editPago(slotProps.data)" />
+                            <Button icon="pi pi-trash" outlined rounded severity="danger" @click="confirmDeletePago(slotProps.data)" />
+                        </template>
+                    </Column>
+                </DataTable>
+            </div>
+            <div class="card lg:col-span-3 md:col-span-4 sm:col-span-12 col-span-12 text-center">
+                <h5 class="mb-2">Configuración de documentos</h5>
+                <h6 class="mb-0">Logotipo para documentos</h6>
+                <div>
+                    <label for="foto" class="block font-semi-bold mb-2">Tamaño recomendado 200 x 100</label>
+                    <div class="flex flex-col items-center gap-4">
+                        <FileUpload mode="basic" name="foto" accept="image/*" chooseLabel="Subir imagen" 
+                        :maxFileSize="1000000" @select="onFileSelect" customUpload auto class="p-button-outlined"/>
+                        <div v-if="previewSrc" class="relative flex items-center mt-4">
+                            <img :src="previewSrc" alt="Foto seleccionada" class="w-32 h-32 rounded-lg shadow" />
+                            <Button icon="pi pi-trash" class="ml-2 p-2 rounded-full" severity="danger" @click="removeImage" />
+                        </div>
+                        <Button label="Guardar" icon="pi pi-check" @click="saveConfiguracion" />
                     </div>
-                    <Button label="Guardar" icon="pi pi-check" @click="saveConfiguracion" />
                 </div>
             </div>
         </div>
 
-        </div>
-
-        <div class="card" :style="{backgroundColor: isDarkTheme ? '#ff784e' : '#ffffff',borderRadius: '8px'}">
-            <div class="grid grid-cols-12 gap-3">
-                <div class="col-span-5">
-                    <h2 class="p-text-center p-mb-2">Soporte inmediato</h2>
+        <div class="card border-2 border-blue-500" :style="{backgroundColor: isDarkTheme ? '#ff784e' : '#ffffff',borderRadius: '20px'}">
+            <div class="grid lg:grid-cols-12 md:grid-cols-12 sm:grid-cols-12 gap-2">
+                <div class="lg:col-span-3 md:col-span-4 sm:col-span-4 col-span-4">
+                    <p class="p-text-center p-mb-2 lg:text-4xl md:text-3xl sm:text-3xl text-3xl font-bold">
+                        Soporte inmediato
+                    </p>
                     <div class="p-d-flex p-ai-center" style="flex: 1; justify-content: center;">
                         <Button label="Ingresar ahora" icon="pi pi-arrow-right" class="p-button-primary" 
                         @click="openWhatsApp" />
                     </div>
                 </div>
-                <div class="col-span-5">
-                    <p class="p-text-center p-mb-4">
-                        Nuestro equipo de especialistas podrá ayudarte ante cualquier inquietud 
-                        o requerimiento, no dudes en ponerte en contacto con nosotros.
+                <div class="lg:col-span-6 md:col-span-5 sm:col-span-4 col-span-4 justify-center">
+                    <p class="p-text-center p-mb-2 lg:text-xl md:text-lg sm:text-base">
+                        Nuestro equipo de especialistas podrá ayudarte ante cualquier inquietud.
+                    </p>
+                    <p class="p-text-center p-mb-4 lg:text-xl md:text-lg sm:text-base">
+                        No dudes en ponerte en contacto con nosotros.
                     </p>
                 </div>
-                <div class="col-span-2">
-                    <img src="@/assets/mesa_ayuda.png" alt="Mesa de ayuda" 
-                    style="max-width: 100px; height: auto;" />
+                <div class="lg:col-span-3 md:col-span-3 sm:col-span-4 col-span-4 justify-center">
+                    <img src="@/assets/mesa_ayuda.png" alt="Mesa de ayuda"
+                    class="w-full max-w-md h-auto" />
                 </div>
             </div>
         </div>
