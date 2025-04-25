@@ -1,6 +1,7 @@
 <script setup>
 import Preloader from '@/components/Preloader.vue';
-import { getUnidadMedidas, updateUnidadMedidad } from '@/service/mantenimiento/UnidadMedidaService';
+import YesNoDialog from '@/components/YesNoDialog.vue';
+import { deleteUnidadMedida, getUnidadMedidas, updateUnidadMedidad } from '@/service/mantenimiento/UnidadMedidaService';
 import { handleServerError } from '@/utils/Util';
 import { FilterMatchMode } from '@primevue/core/api';
 import axios from 'axios';
@@ -117,10 +118,33 @@ const updateUnidad = async () => {
   }
 }
 
+const deleteDialog = ref()
+
+const onDeleteDialog = (unidad) => {
+  oUnidadSelected.value = {
+    ...oUnidadSelected.value,
+    ...unidad
+  }
+  deleteDialog.value.showDialog()
+}
+
+const deleteUnidad = async () => {
+  try {
+    const response = await deleteUnidadMedida(oUnidadSelected.value.id)
+    cargarUnidadMedidas()
+  }
+  catch (error) {
+    handleServerError(error, 'Actualizando la unidad', toast)
+  }
+}
+
 </script>
 <template>
   <div class="card relative overflow-hidden">
     <Preloader v-if="isPageLoading"></Preloader>
+    <YesNoDialog ref="deleteDialog"
+      title="Deseas eliminar esta medida? PRECAUCION: ESTA ACCION ES IRREVERSIBLE Y AFECTARA A TODOS LOS PRODUCTOS/SERVICIOS ASOCIADOS"
+      @affirmation="deleteUnidad"></YesNoDialog>
     <div class="flex flex-col gap-4">
       <p class="text-2xl font-bold text-secondary">Todas las unidades de medida</p>
       <DataTable :value="aUnidades" removable-sort table-style="min-width: 50rem" data-key="id" show-gridlines
@@ -163,7 +187,8 @@ const updateUnidad = async () => {
         <Column :exportable="false" style="width: 8.2rem" header="Acciones">
           <template #body="item">
             <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="onOpenDialog(item.data.id)"></Button>
-            <Button icon="pi pi-trash" outlined rounded severity="danger" class="mr-2" @click="null"></Button>
+            <Button icon="pi pi-trash" outlined rounded severity="danger" class="mr-2"
+              @click="onDeleteDialog(item.data)"></Button>
           </template>
         </Column>
       </DataTable>

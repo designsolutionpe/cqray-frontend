@@ -14,8 +14,23 @@ export const getComprobantes = async (cancelToken) => {
     }
 };
 
+export const getUltimoComprobante = async (cancelToken) => {
+    try {
+        const response = await api.get('/comprobantes/last', {
+            cancelToken: cancelToken || null
+        });
+        if (typeof response.cancelled !== 'undefined')
+            return null;
+        return response.data;
+    }
+    catch (error) {
+        console.error('Error al obtener los comprobantes:', error);
+        throw error;
+    }
+}
+
 export const getBuscarComprobantes = async (
-    { serie = '', numero = ''}) => {
+    { serie = '', numero = '' }) => {
     try {
         const response = await api.get('/comprobantes/buscar', {
             params: { serie, numero }
@@ -27,21 +42,19 @@ export const getBuscarComprobantes = async (
     }
 }
 
-export const getComprobantesCount = async (sede,cancelToken) => {
-  try
-  {
-    const response = await api.get(`/comprobantes/count?id_sede=${sede||""}`,{
-      cancelToken: cancelToken || null
-    });
-    if(typeof response.cancelled !== "undefined" )
-      return null
-    return response.data
-  }
-  catch(error)
-  {
-    console.error("Error al obtener la cantidas de pagos",error)
-    throw error
-  }
+export const getComprobantesCount = async (sede, cancelToken) => {
+    try {
+        const response = await api.get(`/comprobantes/count?id_sede=${sede || ""}`, {
+            cancelToken: cancelToken || null
+        });
+        if (typeof response.cancelled !== "undefined")
+            return null
+        return response.data
+    }
+    catch (error) {
+        console.error("Error al obtener la cantidas de pagos", error)
+        throw error
+    }
 }
 
 export const createComprobante = async (data) => {
