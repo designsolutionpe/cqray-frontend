@@ -448,6 +448,11 @@ const updateMenu = () => {
                 });
                 return item;
             }
+            if (item.label === 'Mantenimiento') {
+                const show = ['Artículos'];
+                item.items = item.items.filter(subitem => show.includes(subitem.label))
+                return item
+            }
             if (item.label === 'Gestión Ventas') {
                 const show = ['Realizar Ventas'];
                 item.items = item.items.filter(subitem => show.includes(subitem.label))

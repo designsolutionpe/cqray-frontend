@@ -166,7 +166,7 @@ const cargarUltimoComprobante = async () => {
       const { numero } = response
       const tipos = ['BOL', 'FAC'].find((d, i) => tipoComprobanteProp.tipoComprobante == (i + 1))
       var newNumero = 1
-      if (response.length > 0)
+      if (response)
         newNumero = parseInt(numero) + 1
       comprobante.value = {
         ...comprobante.value,
