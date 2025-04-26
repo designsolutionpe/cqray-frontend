@@ -123,9 +123,9 @@ const menuItems = ref([
                 label: 'Compras',
                 icon: 'pi pi-fw pi-shopping-cart',
                 items: [
-                    { label: 'Registrar proveedor', to: '#' },
+                    { label: 'Todas las compras', to: '#' },
                     { label: 'Ingresar compra', to: '#' },
-                    { label: 'Ver lista de compras', to: '#' },
+                    { label: 'Registrar proveedor', to: '#' },
                 ]
             },
             {

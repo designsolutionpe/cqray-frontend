@@ -51,7 +51,10 @@ async function saveSede() {
     direccion: sede.value.direccion || null,
     telefono: sede.value.telefono || null,
     email: sede.value.email || null,
-    foto: selectedFile.value || null
+    foto: selectedFile.value || null,
+    ruc: sede.value.ruc || null,
+    razon_social: sede.value.razon_social || null,
+    direccion_fiscal: sede.value.direccion_fiscal || null
   }
 
   for (let key in fields) {
@@ -78,7 +81,7 @@ async function saveSede() {
 <template>
   <div class="card xl:w-1/2 relative overflow-hidden">
     <Preloader v-if="isLoading"></Preloader>
-    <p class="text-3xl font-bold">Agregar nueva sede</p>
+    <p class="text-3xl font-bold text-secondary">Agregar nueva sede</p>
     <div class="grid grid-cols-12 gap-y-6 md:gap-6">
       <div class="col-span-12">
         <label for="nombre" class="block font-bold mb-3">Nombre</label>
@@ -110,6 +113,21 @@ async function saveSede() {
             <Button icon="pi pi-trash" class="ml-2 p-2 rounded-full" severity="danger" @click="removeImage" />
           </div>
         </div>
+      </div>
+
+      <div class="col-span-12">
+        <label for="ruc" class="block font-bold mb-3">RUC</label>
+        <InputText id="ruc" v-model:modelValue="sede.ruc" fluid></InputText>
+      </div>
+
+      <div class="col-span-12">
+        <label for="razon_social" class="block font-bold mb-3">Razon Social</label>
+        <InputText id="razon_social" v-model:modelValue="sede.razon_social" fluid></InputText>
+      </div>
+
+      <div class="col-span-12">
+        <label for="direccion_fiscal" class="block font-bold mb-3">Direccion Fiscal</label>
+        <InputText id="direccion_fiscal" v-model:modelValue="sede.direccion_fiscal" fluid></InputText>
       </div>
 
       <Button class="col-span-12" label="Agregar" icon="pi pi-check" @click="saveSede" />

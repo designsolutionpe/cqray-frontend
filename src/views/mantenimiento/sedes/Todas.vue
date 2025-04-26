@@ -127,19 +127,26 @@ const oSedeData = ref({
   nombre: null,
   direccion: null,
   telefono: null,
-  email: null
+  email: null,
+  ruc: null,
+  razon_social: null,
+  direccion_fiscal: null
 })
 
 const bViewDialog = ref(false)
 const isUpdateLoading = ref(false)
 
 const updateSedeData = (sede) => {
+  console.log('sede seleccionada', sede)
   oSedeData.value = {
     id: sede.id,
     nombre: sede.nombre,
     direccion: sede.direccion,
     telefono: sede.telefono,
-    email: sede.email
+    email: sede.email,
+    ruc: sede.ruc,
+    razon_social: sede.razon_social,
+    direccion_fiscal: sede.direccion_fiscal
   }
 }
 
@@ -313,6 +320,24 @@ onBeforeUnmount(() => {
           <div class="flex flex-col gap-3">
             <label for="email_sede" class="font-bold block">Email</label>
             <InputText id="email_sede" v-model:model-value="oSedeData.email"></InputText>
+          </div>
+
+          <!-- RUC -->
+          <div class="flex flex-col gap-3">
+            <label for="ruc_sede" class="font-bold block">RUC</label>
+            <InputText id="ruc_sede" v-model:model-value="oSedeData.ruc"></InputText>
+          </div>
+
+          <!-- Razon Social -->
+          <div class="flex flex-col gap-3">
+            <label for="razon_social_sede" class="font-bold block">Razon Social</label>
+            <InputText id="razon_social_sede" v-model:model-value="oSedeData.razon_social"></InputText>
+          </div>
+
+          <!-- Direccion Fiscal -->
+          <div class="flex flex-col gap-3">
+            <label for="direccion_fiscal_sede" class="font-bold block">Direccion Fiscal</label>
+            <InputText id="direccion_fiscal_sede" v-model:model-value="oSedeData.direccion_fiscal"></InputText>
           </div>
 
         </div>
