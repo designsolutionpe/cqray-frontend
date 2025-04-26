@@ -315,7 +315,7 @@ onBeforeUnmount(() => {
       </h2>
 
       <div class="grid grid-cols-12 gap-6 mb-6">
-        <div class="col-span-8">
+        <div class="col-span-12 sm:col-span-8">
           <label for="nomb" class="block font-bold mb-3">Nombre</label>
           <InputGroup>
             <InputText id="nomb" v-model="comprobante.nombre" readonly fluid />
@@ -326,7 +326,7 @@ onBeforeUnmount(() => {
         </div>
         <PersonaBusqueda :showDialog="showDialog" @select-persona="handleSelectPersona"
           :numeroDocumento="numeroDocumento" :nombre="nombre" @update:visible="showDialog = $event" />
-        <div class="col-span-4">
+        <div class="col-span-12 sm:col-span-4">
           <label for="sede" class="block font-bold mb-3">Sede</label>
           <Select id="sede" v-model="comprobante.id_sede" fluid :options="aSedeSelect" option-label="label"
             option-value="value" placeholder="Seleccionar sede" />
@@ -334,7 +334,7 @@ onBeforeUnmount(() => {
       </div>
 
       <div class="grid grid-cols-12 gap-6 mb-6">
-        <div class="col-span-4">
+        <div class="col-span-12 sm:col-span-6">
           <label for="tipo" class="block font-bold mb-3">Tipo</label>
           <Select id="tipo" v-model="comprobante.tipo" :options="tipo" optionLabel="label" optionValue="value"
             placeholder="Selecciona un tipo" fluid />
@@ -350,7 +350,7 @@ onBeforeUnmount(() => {
           <InputText id="numero" v-model="comprobante.numero" type="text" placeholder="Número del comprobante" fluid />
         </div> -->
 
-        <div class="col-span-3">
+        <div class="col-span-12 sm:col-span-6">
           <label for="fecha_emision" class="block font-bold mb-3">Fecha de emisión</label>
           <InputText id="fecha_emision" v-model="comprobante.fecha_emision" type="date" placeholder="Fecha de emisión"
             fluid />
@@ -358,12 +358,12 @@ onBeforeUnmount(() => {
       </div>
 
       <div class="grid grid-cols-12 gap-6 mb-6">
-        <div class="col-span-3">
+        <div class="col-span-12 sm:col-span-5">
           <label for="moneda" class="block font-bold mb-3">Moneda</label>
           <Select id="moneda" v-model="comprobante.moneda" :options="optMoneda" optionLabel="label" optionValue="value"
             placeholder="Selecciona la moneda" fluid />
         </div>
-        <div v-if="comprobante.moneda != 'PEN'" class="col-span-3">
+        <div v-if="comprobante.moneda != 'PEN'" class="col-span-10 sm:col-span-5">
           <label for="tipo_cambio" class="block font-bold mb-3">Tipo de cambio</label>
           <InputText id="tipo_cambio" v-model="comprobante.tipo_cambio" type="number" step="0.01"
             placeholder="Tipo de cambio" fluid />
@@ -432,7 +432,7 @@ onBeforeUnmount(() => {
 
       <div v-if="comprobante.total > 0" class="grid grid-cols-12 gap-6 mb-2">
         <!-- Columna 1 -->
-        <div class="col-span-6 pr-6">
+        <div class="col-span-12 sm:col-span-6 sm:pr-6">
           <div class="grid grid-cols-2 gap-4">
             <!-- Subtotal -->
             <div class="col-span-1">
@@ -469,7 +469,7 @@ onBeforeUnmount(() => {
         </div>
 
         <!-- Columna 2 -->
-        <div class="col-span-6 pl-6">
+        <div class="col-span-12 sm:col-span-6 sm:pl-6">
           <div class="grid grid-cols-2 gap-4">
             <!-- Pago Cliente -->
             <div class="col-span-1">

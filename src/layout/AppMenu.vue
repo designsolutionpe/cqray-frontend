@@ -116,7 +116,7 @@ const menuItems = ref([
                 icon: 'pi pi-fw pi-hashtag',
                 items: [
                     { label: 'Todas las unidades', to: '/mantenimiento/unidad-medida/todas' },
-                    // { label: 'Añadir unidad', to: '/mantenimiento/unidad-medida/agregar' },
+                    { label: 'Añadir unidad', to: '/mantenimiento/unidad-medida/agregar' },
                 ]
             },
             {

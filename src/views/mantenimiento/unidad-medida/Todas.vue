@@ -111,6 +111,11 @@ const updateUnidad = async () => {
     console.log('response', response)
     isUpdatingUnidad.value = false
     resetAll()
+    toast.add({
+      severity: 'success',
+      summary: 'Se ha actualizado la unidad de medida  exitosamente',
+      life: 5000
+    })
   }
   catch (error) {
     isUpdatingUnidad.value = false
@@ -131,6 +136,11 @@ const onDeleteDialog = (unidad) => {
 const deleteUnidad = async () => {
   try {
     const response = await deleteUnidadMedida(oUnidadSelected.value.id)
+    toast.add({
+      severity: 'success',
+      summary: 'Se ha eliminado la unidad de medida exitosamente',
+      life: 5000
+    })
     cargarUnidadMedidas()
   }
   catch (error) {

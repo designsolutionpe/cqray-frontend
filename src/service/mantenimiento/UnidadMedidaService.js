@@ -15,6 +15,19 @@ export const getUnidadMedidas = async (cancelToken) => {
   }
 }
 
+export const createUnidadMedida = async (data) => {
+  try
+  {
+    const response = await api.post("/articulos/medidas",data);
+    return response.data
+  }
+  catch(error)
+  {
+    console.error("Error al crear la unidad de medida",error)
+    throw error
+  }
+}
+
 export const updateUnidadMedidad = async (id, data) => {
   try {
     const response = await api.put(`/articulos/medidas/${id}`, data)
