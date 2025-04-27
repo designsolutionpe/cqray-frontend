@@ -149,6 +149,7 @@ const menuItems = ref([
                     { label: 'Boleta', to: '/gestion/ventas/boleta' },
                     { label: 'Factura', to: '/gestion/ventas/factura' },
                     { label: 'Nota de crédito', to: '/gestion/ventas/notacredito' },
+                    { label: 'Constancia de Pago', to: '/gestion/ventas/constanciapago' },
                 ]
             },
             {

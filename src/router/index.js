@@ -179,6 +179,18 @@ const router = createRouter({
                     component: () => import('@/views/gestion/ventas/AgregarNota.vue'),
                     meta: { requiresAuth: true, roles: ['Superadministrador', 'Administrador'] }
                 },
+                {
+                    path: '/gestion/ventas/constanciapago',
+                    name: 'constanciapago',
+                    component: () => import('@/views/gestion/ventas/ConstanciaPago.vue'),
+                    meta: { requiresAuth: true, roles: ['Superadministrador', 'Administrador'] }
+                },
+                {
+                    path: '/gestion/ventas/agregarconstanciapago',
+                    name: 'agregarconstanciapago',
+                    component: () => import('@/views/gestion/ventas/AgregarConstanciaPago.vue'),
+                    meta: { requiresAuth: true, roles: ['Superadministrador', 'Administrador'] }
+                },
                 // {
                 //     path: '/mantenimiento/sede',
                 //     name: 'sede',

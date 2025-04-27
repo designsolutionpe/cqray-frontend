@@ -1,10 +1,10 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue';
 import { getComprobantes } from '@/service/gestion/ComprobanteService';
+import { formatDate } from '@/utils/Util';
 import { FilterMatchMode } from '@primevue/core/api';
 import { useToast } from 'primevue/usetoast';
+import { onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
-import { formatDate } from '@/utils/Util';
 
 const router = useRouter();
 const toast = useToast();
@@ -14,26 +14,28 @@ const filters = ref({
 });
 
 const routeMap = {
-  1: 'agregarboleta',
-  2: 'agregarfactura',
-  3: 'agregarnota'
+    1: 'agregarboleta',
+    2: 'agregarfactura',
+    3: 'agregarnota',
+    4: 'agregarconstanciapago'
 };
 
 const tipoComprobanteProp = defineProps({
-  tipoComprobante: {
-    type: Number,
-    required: true
-  }
+    tipoComprobante: {
+        type: Number,
+        required: true
+    }
 });
 
 const tipoComprobanteText = (tipo) => {
-  const tipoComprobanteMap = {
-    1: 'Boleta',
-    2: 'Factura',
-    3: 'Nota de Crédito'
-  };
-  
-  return tipoComprobanteMap[tipo] || 'Desconocido';
+    const tipoComprobanteMap = {
+        1: 'Boleta',
+        2: 'Factura',
+        3: 'Nota de Crédito',
+        4: 'Constancia de Pago'
+    };
+
+    return tipoComprobanteMap[tipo] || 'Desconocido';
 };
 
 const comprobantes = ref([]);
@@ -64,15 +66,15 @@ function openNew() {
     }
 }
 
-function viewComprobante(){
+function viewComprobante() {
 
 }
 
-function editComprobante(){
+function editComprobante() {
 
 }
 
-function confirmDeleteComprobante(){
+function confirmDeleteComprobante() {
 
 }
 
@@ -95,17 +97,11 @@ watch(() => tipoComprobanteProp.tipoComprobante, () => {
                 </template>
             </Toolbar>
 
-            <DataTable
-                ref="dt"
-                :value="filteredComprobantes"
-                dataKey="id"
-                :paginator="true"
-                :rows="10"
+            <DataTable ref="dt" :value="filteredComprobantes" dataKey="id" :paginator="true" :rows="10"
                 :rowsPerPageOptions="[5, 10, 25, 50, 100]"
                 paginatorTemplate="'FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown'"
                 currentPageReportTemplate="Mostrando {first} de {last} - {totalRecords} comprobantes"
-                v-model:expandedRows="expandedRows"
-            >
+                v-model:expandedRows="expandedRows">
                 <template #header>
                     <div class="flex flex-wrap gap-2 items-center justify-between">
                         <h4 class="m-0"> {{ tipoComprobanteText(tipoComprobanteProp.tipoComprobante) }}</h4>
@@ -137,7 +133,8 @@ watch(() => tipoComprobanteProp.tipoComprobante, () => {
                         <Button icon="pi pi-eye" outlined rounded severity="info" class="mr-1" @click="viewComprobante(slotProps.data)" />
                         <Button icon="pi pi-pencil" outlined rounded class="mr-1" @click="editComprobante(slotProps.data)" />
                         -->
-                        <Button icon="pi pi-trash" outlined rounded severity="danger" class="mr-1" @click="confirmDeleteComprobante(slotProps.data)" />
+                        <Button icon="pi pi-trash" outlined rounded severity="danger" class="mr-1"
+                            @click="confirmDeleteComprobante(slotProps.data)" />
                     </template>
                 </Column>
 

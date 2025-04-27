@@ -333,7 +333,7 @@ onBeforeUnmount(() => {
       </template>
 
       <!-- Sede Inicial -->
-      <Column field="sede.nombre" header="Creado en" :show-filter-menu="false" sortable style="min-width: 8rem">
+      <Column field="sede.nombre" header="Creado en" :show-filter-menu="false" frozen sortable style="min-width: 8rem">
         <template #body="pacienteItem">
           {{ pacienteItem.data.sede.nombre.toUpperCase() }}
         </template>
@@ -433,7 +433,7 @@ onBeforeUnmount(() => {
       </Column>
 
       <!-- Acciones -->
-      <Column :exportable="false" style="min-width: 15rem">
+      <Column :exportable="false" style="min-width: 15rem" :frozen="true">
         <template #body="pacienteItem">
           <Button icon="pi pi-eye" outlined rounded severity="info" class="mr-2"
             @click="onOpenViewDialog(pacienteItem.data)"></Button>

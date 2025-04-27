@@ -317,6 +317,10 @@ onBeforeUnmount(() => {
                   </template>
                 </Column>
 
+                <Column header="Fraccion de pago" sortable style="min-width: 5">
+                  <template #body="item">{{ item.data.estado_pago != 2 ? '1/1' : '0/1' }}</template>
+                </Column>
+
                 <Column field="cita" header="Estado de Cita" sortable style="min-width: 8rem">
                   <template #body="item">
                     <Tag :severity="getEstadoCita(item.data.cita ? item.data.cita.estado : null, 'severity')">

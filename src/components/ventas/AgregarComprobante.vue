@@ -4,6 +4,7 @@ import Preloader from '@/components/Preloader.vue';
 import { createComprobante, getUltimoComprobante } from '@/service/gestion/ComprobanteService';
 import { searchArticulos } from '@/service/mantenimiento/ArticulosService';
 import { getSedes } from '@/service/mantenimiento/SedeService';
+import { getTiposPagos } from '@/service/mantenimiento/TipoPagoService';
 import { handleServerError } from '@/utils/Util';
 import axios from 'axios';
 import { useToast } from 'primevue/usetoast';
@@ -69,25 +70,6 @@ const onCellEditComplete = (event) => {
 
   // Recalcular totales del comprobante
   recalcularTotales();
-  // const { data, newValue, field } = event;
-  // if (field === 'id_articulo') {
-  //   data[field] = newValue;
-  //   // Autocompletar precio si se selecciona un producto
-  //   const producto = productos.value.find(p => p.id === newValue);
-  //   if (producto) {
-  //     data.precio_unitario = producto.precio;
-  //   }
-  // } else {
-  //   data[field] = newValue;
-  // }
-
-  // // Recalcular total de esa fila
-  // const subtotal = data.precio_unitario * data.cantidad;
-  // const descuento = subtotal * (data.descuento / 100);
-  // data.total_producto = subtotal - descuento;
-
-  // // Recalcular totales del comprobante
-  // recalcularTotales();
 };
 
 const recalcularTotales = () => {
@@ -137,7 +119,9 @@ const formatCurrency = (value, moneda = 'PEN') => {
 
 const cancelToken = ref()
 const aSedeSelect = ref([])
+const aTiposPagoSelect = ref([])
 const isSedeLoading = ref(true)
+const isTiposPagoLoading = ref(true)
 const isPageLoading = ref(true)
 
 const cargarSedes = async () => {
@@ -164,10 +148,11 @@ const cargarUltimoComprobante = async () => {
     if (response) {
       console.log('ultimo', response)
       const { numero } = response
-      const tipos = ['BOL', 'FAC'].find((d, i) => tipoComprobanteProp.tipoComprobante == (i + 1))
+      const tipos = ['BOL', 'FAC', , 'CONST'].find((d, i) => tipoComprobanteProp.tipoComprobante == (i + 1))
       var newNumero = 1
-      if (response)
+      if (numero)
         newNumero = parseInt(numero) + 1
+      console.log('NUMERO', numero, newNumero)
       comprobante.value = {
         ...comprobante.value,
         serie: tipos,
@@ -177,6 +162,24 @@ const cargarUltimoComprobante = async () => {
   }
   catch (error) {
     handleServerError(error, '', toast)
+  }
+}
+
+const cargarTiposPago = async () => {
+  isTiposPagoLoading.value = true
+  try {
+    const response = await getTiposPagos(cancelToken.value.token);
+    if (response) {
+      aTiposPagoSelect.value = response.map(t => ({
+        label: t.nombre,
+        value: t.id
+      }))
+    }
+    isTiposPagoLoading.value = false
+  }
+  catch (error) {
+    isTiposPagoLoading.value = false
+    handleServerError(error, 'Obtener tipos de pagos', toast)
   }
 }
 
@@ -191,7 +194,8 @@ const tipoComprobanteText = (tipo) => {
   const tipoComprobanteMap = {
     1: 'Boleta',
     2: 'Factura',
-    3: 'Nota de Crédito'
+    3: 'Nota de Crédito',
+    4: 'Constancia de Pago'
   };
 
   return tipoComprobanteMap[tipo] || 'Desconocido';
@@ -252,14 +256,22 @@ watch(
 );
 
 const calculateVuelto = computed(() => {
-  comprobante.value.vuelto = (comprobante.value.pago_cliente - comprobante.value.total).toFixed(2);
+  let calc = comprobante.value.pago_cliente - comprobante.value.total
+  comprobante.value.vuelto = (calc < 0 ? 0 : calc).toFixed(2);
   return comprobante.value.vuelto;
 });
+
+const calculateDeuda = computed(() => {
+  let calc = comprobante.value.total - comprobante.value.pago_cliente
+  comprobante.value.deuda = (calc > 0 ? calc : 0).toFixed(2)
+  return comprobante.value.deuda
+})
 
 const routeMap = {
   1: 'boleta',
   2: 'factura',
-  3: 'notacredito'
+  3: 'notacredito',
+  4: 'constanciapago'
 };
 
 function hideDialog() {
@@ -297,6 +309,7 @@ onBeforeMount(() => {
 
 onMounted(() => {
   cargarSedes()
+  cargarTiposPago()
   cargarUltimoComprobante()
 })
 
@@ -335,7 +348,7 @@ onBeforeUnmount(() => {
 
       <div class="grid grid-cols-12 gap-6 mb-6">
         <div class="col-span-12 sm:col-span-6">
-          <label for="tipo" class="block font-bold mb-3">Tipo</label>
+          <label for="tipo" class="block font-bold mb-3">Articulo de compra</label>
           <Select id="tipo" v-model="comprobante.tipo" :options="tipo" optionLabel="label" optionValue="value"
             placeholder="Selecciona un tipo" fluid />
         </div>
@@ -433,7 +446,7 @@ onBeforeUnmount(() => {
       <div v-if="comprobante.total > 0" class="grid grid-cols-12 gap-6 mb-2">
         <!-- Columna 1 -->
         <div class="col-span-12 sm:col-span-6 sm:pr-6">
-          <div class="grid grid-cols-2 gap-4">
+          <div class="grid grid-cols-2 gap-4 items-center">
             <!-- Subtotal -->
             <div class="col-span-1">
               <label for="subtotal" class="block font-bold mb-3">Subtotal</label>
@@ -470,7 +483,17 @@ onBeforeUnmount(() => {
 
         <!-- Columna 2 -->
         <div class="col-span-12 sm:col-span-6 sm:pl-6">
-          <div class="grid grid-cols-2 gap-4">
+          <div class="grid grid-cols-2 gap-4 items-center">
+
+            <!-- Tipo de pago -->
+            <div class="col-span-1">
+              <label for="tipo_pago" class="block font-bold mb-3">Tipo de Pago</label>
+            </div>
+            <div class="col-span-1">
+              <Select id="tipo_pago" v-model="comprobante.id_tipo_pago" :options="aTiposPagoSelect" option-label="label"
+                option-value="value" placeholder="Selecciona el tipo de pago" fluid></Select>
+            </div>
+
             <!-- Pago Cliente -->
             <div class="col-span-1">
               <label for="pago_cliente" class="block font-bold mb-3">Pago Cliente</label>
@@ -486,6 +509,15 @@ onBeforeUnmount(() => {
             <div class="col-span-1">
               <InputText id="vuelto" :value="calculateVuelto" type="number" step="0.01" readonly fluid />
             </div>
+
+            <!-- Deuda -->
+            <div class="col-span-1">
+              <label for="deuda" class="block font-bold mb-3">Deuda</label>
+            </div>
+            <div class="col-span-1">
+              <InputText id="deuda" :value="calculateDeuda" type="number" step="0.01" readonly fluid />
+            </div>
+
           </div>
         </div>
       </div>
