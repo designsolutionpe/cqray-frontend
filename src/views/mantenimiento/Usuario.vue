@@ -58,34 +58,34 @@ const submitted = ref(false);
 const usuario = ref();
 
 const cargarUsuarios = async () => {
-  try {
-    const response = await getUsuarios();
-    usuarios.value = response.map(u => ({
-      ...u,
-      persona: u.persona || { nombre: '', apellido: '', tipo_documento: '' }
-    }));
-  } catch (error) {
-    console.error('Error al obtener los usuarios:', error);
-  }
+    try {
+        const response = await getUsuarios();
+        usuarios.value = response.map(u => ({
+            ...u,
+            persona: u.persona || { nombre: '', apellido: '', tipo_documento: '' }
+        }));
+    } catch (error) {
+        console.error('Error al obtener los usuarios:', error);
+    }
 };
 
-function openNew(){
+function openNew() {
     usuario.value = {}
     submitted.value = false;
     usuarioDialog.value = true;
 }
 
-function editUsuario(usu){
+function editUsuario(usu) {
     usuario.value = { ...usu };
     usuarioDialog.value = true;
 }
 
-function confirmDeleteUsuario(usu){
+function confirmDeleteUsuario(usu) {
     usuario.value = usu;
     deleteUsuarioDialog.value = true;
 }
 
-async function delUsuario(){
+async function delUsuario() {
     try {
         await deleteUsuario(usuario.value.id);
         deleteUsuarioDialog.value = false;
@@ -98,7 +98,7 @@ async function delUsuario(){
     }
 }
 
-function hideDialog(){
+function hideDialog() {
     usuarioDialog.value = false;
     submitted.value = false;
 }
@@ -106,8 +106,8 @@ function hideDialog(){
 
 async function saveUsuario() {
     submitted.value = true;
-    
-    if (usuario?.value.login?.trim() && usuario?.value.email?.trim()) { 
+
+    if (usuario?.value.login?.trim() && usuario?.value.email?.trim()) {
         const sanitizeValue = (value) => {
             return value && typeof value === 'string' ? value.trim() : '';
         };
@@ -144,7 +144,7 @@ async function saveUsuario() {
 }
 
 const openDialog = () => {
-  showDialog.value = true;
+    showDialog.value = true;
 };
 
 // Variables para almacenar la persona seleccionada
@@ -164,7 +164,7 @@ const handleSelectPersona = (persona) => {
     showDialog.value = false;
 };
 
-onMounted( () => {
+onMounted(() => {
     cargarSedes();
     cargarUsuarios();
 })
@@ -175,21 +175,15 @@ onMounted( () => {
         <div class="card">
             <Toolbar class="mb-6">
                 <template #start>
-                    <Button label="Nuevo Usuario" icon="pi pi-plus" severity="secondary" class="mr-2" @click="openNew" />
+                    <Button label="Nuevo Usuario" icon="pi pi-plus" severity="secondary" class="mr-2"
+                        @click="openNew" />
                 </template>
             </Toolbar>
 
-            <DataTable 
-                ref="dt"
-                :value="usuarios"
-                dataKey="id"
-                :paginator="true"
-                :rows="10"
-                :filters="filters"
-                :rowsPerPageOptions="[5,10,25,50,100]"
+            <DataTable ref="dt" :value="usuarios" dataKey="id" :paginator="true" :rows="10" :filters="filters"
+                :rowsPerPageOptions="[5, 10, 25, 50, 100]"
                 paginatorTemplate="'FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown'"
-                currentPageReportTemplate="Mostrando {first} de {last} - {totalRecords} usuarios"    
-                >
+                currentPageReportTemplate="Mostrando {first} de {last} - {totalRecords} usuarios">
                 <template #header>
                     <div class="flex flex-wrap gap-2 items-center justify-between">
                         <h4 class="m-0">Usuarios</h4>
@@ -202,25 +196,30 @@ onMounted( () => {
                     </div>
                 </template>
 
-                <Column field="id" header="#" sortable style="min-width: 5rem"></Column>
+                <Column header="#" sortable style="min-width: 5rem">
+                    <template #body="item">{{ item.index + 1 }}</template>
+                </Column>
                 <Column field="login" header="Login" sortable style="min-width: 6rem"></Column>
                 <!--
                 <Column field="persona.tipo_documento || persona.numero_documento" header="Tipo Documento" sortable style="min-width: 6rem"></Column>
                 -->
                 <Column header="Tipo Documento" sortable style="min-width: 6rem">
                     <template #body="slotProps">
-                        {{ `${slotProps.data.persona.tipo_documento || ''} ${slotProps.data.persona.numero_documento || ''}` }}
+                        {{ `${slotProps.data.persona.tipo_documento || ''} ${slotProps.data.persona.numero_documento ||
+                            ''}` }}
                     </template>
                 </Column>
-                
+
                 <Column field="persona.apellido" header="Apellidos" sortable style="min-width: 10rem"></Column>
                 <Column field="persona.nombre" header="Nombres" sortable style="min-width: 10rem"></Column>
                 <Column field="rol" header="Rol" sortable style="min-width: 8rem"></Column>
 
                 <Column :exportable="false" style="min-width: 12rem">
                     <template #body="slotProps">
-                        <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="editUsuario(slotProps.data)" />
-                        <Button icon="pi pi-trash" outlined rounded severity="danger" @click="confirmDeleteUsuario(slotProps.data)" />
+                        <Button icon="pi pi-pencil" outlined rounded class="mr-2"
+                            @click="editUsuario(slotProps.data)" />
+                        <Button icon="pi pi-trash" outlined rounded severity="danger"
+                            @click="confirmDeleteUsuario(slotProps.data)" />
                     </template>
                 </Column>
             </DataTable>
@@ -230,7 +229,8 @@ onMounted( () => {
                     <div class="grid grid-cols-12 gap-3">
                         <div class="col-span-4">
                             <label for="sede" class="block font-bold mb-3">Rol</label>
-                            <Select id="sede" v-model="usuario.rol" :options="roles" optionLabel="label" optionValue="value" placeholder="Seleccione un rol" fluid />
+                            <Select id="sede" v-model="usuario.rol" :options="roles" optionLabel="label"
+                                optionValue="value" placeholder="Seleccione un rol" fluid />
                         </div>
                         <div class="col-span-8">
                             <label for="nomb" class="block font-bold mb-3">Nombre</label>
@@ -243,7 +243,7 @@ onMounted( () => {
                         </div>
 
                         <PersonaBusqueda :showDialog="showDialog" @select-persona="handleSelectPersona"
-                        :numeroDocumento="numeroDocumento" :nombre="nombre" @update:visible="showDialog = $event"/>
+                            :numeroDocumento="numeroDocumento" :nombre="nombre" @update:visible="showDialog = $event" />
                     </div>
 
                     <div class="grid grid-cols-12 gap-3">
@@ -267,13 +267,15 @@ onMounted( () => {
                         <div class="col-span-5">
                             <label for="clave" class="block font-bold mb-3">Clave</label>
                             <InputText id="clave" v-model="usuario.password" type="password" required="true" fluid />
-                            <small v-if="submitted && !usuario.password" class="text-red-500">Clave es requerida.</small>
+                            <small v-if="submitted && !usuario.password" class="text-red-500">Clave es
+                                requerida.</small>
                         </div>
 
                         <!-- Campo Sede (Combo) -->
                         <div class="col-span-7">
                             <label for="sede" class="block font-bold mb-3">Sede</label>
-                            <Select id="sede" v-model="usuario.id_sede" :options="sedes" optionLabel="label" optionValue="value" placeholder="Seleccione una sede" fluid />
+                            <Select id="sede" v-model="usuario.id_sede" :options="sedes" optionLabel="label"
+                                optionValue="value" placeholder="Seleccione una sede" fluid />
                         </div>
                     </div>
                 </div>
@@ -283,7 +285,8 @@ onMounted( () => {
                 </template>
             </Dialog>
 
-            <Dialog v-model:visible="deleteUsuarioDialog" :style="{ 'width': '450px' }" header="Confirmar" :modal="true">
+            <Dialog v-model:visible="deleteUsuarioDialog" :style="{ 'width': '450px' }" header="Confirmar"
+                :modal="true">
                 <div class="flex items-center gap-4">
                     <i class="pi pi-exclamation-triangle !text-3xl" />
                     <p>¿Está seguro de que desea eliminar el usuario <strong>{{ usuario?.login }}</strong>?</p>
@@ -292,7 +295,7 @@ onMounted( () => {
                     <Button label="No" icon="pi pi-times" text @click="deleteUsuarioDialog = false" />
                     <Button label="Si" icon="pi pi-check" severity="danger" @click="delUsuario" />
                 </template>
-            </Dialog>    
+            </Dialog>
         </div>
     </div>
 </template>

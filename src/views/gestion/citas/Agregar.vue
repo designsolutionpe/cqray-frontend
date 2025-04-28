@@ -137,9 +137,9 @@ const cargarPacientes = async () => {
 
       oPacienteSelected.value = null
       oPacienteSelected.value = paciente_ruta.length > 0 ? paciente_ruta[0].id : response[0].id
-      
-      const paciente_obj = aPacientes.value.find(p=>p.id==oPacienteSelected.value)
-      console.log("loading paciente",paciente_obj) 
+
+      const paciente_obj = aPacientes.value.find(p => p.id == oPacienteSelected.value)
+      console.log("loading paciente", paciente_obj)
       nEstadoPacienteSelected.value = paciente_obj.estado.id
     }
     isPacientesLoading.value = false
@@ -326,26 +326,27 @@ watch(oPacienteSelected, (id_paciente) => {
   const paciente = aPacientes.value.find(p => p.id === id_paciente)
   var proximo_estado = paciente.estado.id
 
-  console.log("update paciente",paciente)
+  console.log("update paciente", paciente)
 
-  if (paciente.historial_clinico.length > 0) {
-    let paciente = aPacientes.value.find(p => p.id === id_paciente)
-    var paquete_activo = paciente.historial_clinico.filter(q => q.activo)
-    if (paquete_activo.length > 0) {
-      paquete_activo = paquete_activo[0].paquete.nombre.toLowerCase()
-      const estado_paciente = aEstadosPacienteSelect.value.find(e => paquete_activo.includes(e.label.toLowerCase())).value
-      if (estado_paciente != undefined) {
-        proximo_estado = estado_paciente
-        nPaqueteSelected.value = paciente.historial_clinico.length > 0 ? paciente.historial_clinico.filter(q => q.activo)[0].id_articulo : null
-      }
-    }
-    else {
-      nPaqueteSelected.value = null
-    }
-  }
-  else {
-    nPaqueteSelected.value = null
-  }
+  // if (paciente.historial_clinico.length > 0) {
+  //   let paciente = aPacientes.value.find(p => p.id === id_paciente)
+  //   var paquete_activo = paciente.historial_clinico.filter(q => q.activo)
+  //   if (paquete_activo.length > 0) {
+  //     paquete_activo = paquete_activo[0].paquete.nombre.toLowerCase()
+  //     console.log('estados', aEstadosPacienteSelect.value, 'paquete', paquete_activo)
+  //     const estado_paciente = aEstadosPacienteSelect.value.find(e => paquete_activo.includes(e.label.toLowerCase())).value
+  //     if (estado_paciente != undefined) {
+  //       proximo_estado = estado_paciente
+  //       nPaqueteSelected.value = paciente.historial_clinico.length > 0 ? paciente.historial_clinico.filter(q => q.activo)[0].id_articulo : null
+  //     }
+  //   }
+  //   else {
+  //     nPaqueteSelected.value = null
+  //   }
+  // }
+  // else {
+  //   nPaqueteSelected.value = null
+  // }
 
   sHistorialClinica.value = paciente.historia_clinica
   sNumeroPaciente.value = paciente.persona.telefono || ''

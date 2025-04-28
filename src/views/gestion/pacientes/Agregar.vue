@@ -227,8 +227,10 @@ onBeforeUnmount(() => {
       </div>
       <div class="col-span-4 md:col-span-3">
         <label for="numero_documento" class="block font-bold mb-3">Numero Documento</label>
-        <InputText id="numero_documento" v-model:model-value="oPacienteInfo.numero_documento" fluid
-          :invalid="oInvalid.numero_documento"></InputText>
+        <!-- <InputText id="numero_documento" v-model:model-value="oPacienteInfo.numero_documento" fluid
+          :invalid="oInvalid.numero_documento"></InputText> -->
+        <InputNumber id="numero_documento" v-model="oPacienteInfo.numero_documento" fluid
+          :invalid="oInvalid.numero_documento" :use-grouping="false"></InputNumber>
         <small v-if="oInvalid.numero_documento" class="text-red-500">Este campo es requerido*</small>
       </div>
     </div>
