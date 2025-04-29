@@ -1,5 +1,6 @@
 <script setup>
-import { onMounted, ref, watch } from 'vue'
+import { onMounted, ref, watch, computed } from 'vue'
+import { useStore } from 'vuex'
 
 const props = defineProps({
   aServicios: {
@@ -13,6 +14,9 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['updateExtraInfo'])
+
+const store = useStore()
+const id_sede = computed(()=> store.getters.id_sede )
 
 const aServicios = ref([])
 const aServiciosSelect = ref([])
@@ -57,7 +61,8 @@ watch(
   () => [props.nEstadoPaciente, aServicios.value],
   ([estado]) => {
     bDisableMax.value = true
-    aServiciosSelect.value = aServicios.value.filter(s => s.id_estado_paciente === estado).map(s => ({
+    console.log("id_sede",id_sede.value)
+    aServiciosSelect.value = aServicios.value.filter(s => (s.id_estado_paciente === estado) && (id_sede.value ? s.id_sede == id_sede.value : true)).map(s => ({
       label: s.nombre,
       value: s.id
     }))

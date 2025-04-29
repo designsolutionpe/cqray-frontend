@@ -8,7 +8,8 @@ import { handleServerError } from '@/utils/Util';
 import { FilterMatchMode } from '@primevue/core/api';
 import axios from 'axios';
 import { useToast } from 'primevue';
-import { onBeforeMount, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { onBeforeMount, onBeforeUnmount, onMounted, ref, watch, computed } from 'vue';
+import { useStore } from 'vuex'
 
 // Global
 const aServicios = ref([])
@@ -16,6 +17,9 @@ const aSedes = ref([])
 const aCategorias = ref([])
 const aMedidas = ref([])
 const aEstadoPaciente = ref([])
+
+const store = useStore()
+const id_sede = computed(()=>store.getters.id_sede)
 
 // Filters
 
@@ -86,6 +90,10 @@ const cargarSedes = async () => {
         label: s.nombre,
         value: s.id
       }))
+      const sede = id_sede.value ? aSedes.value.find( s => s.value == id_sede.value ).label : null
+      console.log("sede",sede)
+      filters.value["sede.nombre"] = { value: sede , matchMode: FilterMatchMode.CONTAINS }
+      console.log('sede filter',filters.value)
     }
     isSedesLoading.value = false
   }
