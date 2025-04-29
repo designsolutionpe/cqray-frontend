@@ -1,6 +1,7 @@
 <script setup>
 import Preloader from '@/components/Preloader.vue';
 import YesNoDialog from '@/components/YesNoDialog.vue';
+import { getPacienteEstados } from '@/service/gestion/PacienteService';
 import { createArticuloServicio, deleteArticuloServicio, getArticulosServicios, getCategorias, getMedidas, updateArticuloServicio } from '@/service/mantenimiento/ArticulosService';
 import { getSedes } from '@/service/mantenimiento/SedeService';
 import { handleServerError } from '@/utils/Util';
@@ -14,6 +15,7 @@ const aServicios = ref([])
 const aSedes = ref([])
 const aCategorias = ref([])
 const aMedidas = ref([])
+const aEstadoPaciente = ref([])
 
 // Filters
 
@@ -39,16 +41,18 @@ const isServiciosLoading = ref(true)
 const isSedesLoading = ref(true)
 const isCategoriasLoading = ref(true)
 const isMedidasLoading = ref(true)
+const isEstadoPacienteLoading = ref(true)
 
 watch([
   isServiciosLoading,
   isSedesLoading,
   isCategoriasLoading,
-  isMedidasLoading
+  isMedidasLoading,
+  isEstadoPacienteLoading
 ], (values) => {
-  const [servicios, sedes, categorias, medidas] = values
+  const [servicios, sedes, categorias, medidas, estado_paciente] = values
 
-  isPageLoading.value = (servicios || sedes || categorias || medidas)
+  isPageLoading.value = (servicios || sedes || categorias || medidas || estado_paciente)
 })
 
 // Peticiones
@@ -129,11 +133,31 @@ const cargarMedidas = async () => {
   }
 }
 
+const cargarEstadoPaciente = async () => {
+  isEstadoPacienteLoading.value = true
+  try {
+    const response = await getPacienteEstados(cancelToken.value.token)
+    if (response) {
+      console.log('estado pacientes', response)
+      aEstadoPaciente.value = response.map(e => ({
+        label: e.nombre,
+        value: e.id
+      }))
+    }
+    isEstadoPacienteLoading.value = false
+  }
+  catch (error) {
+    isEstadoPacienteLoading.value = false
+    handleServerError(error, 'Obtener estados', toast)
+  }
+}
+
 const cargarTodo = () => {
   cargarServicios()
   cargarSedes()
   cargarCategorias()
   cargarMedidas()
+  cargarEstadoPaciente()
 }
 
 onBeforeMount(() => {
@@ -161,6 +185,7 @@ const nSedeSelected = ref()
 const nCategoriaSelected = ref()
 const nTipoArticulo = ref()
 const nMedidaSelected = ref()
+const nEstadoPacienteSelected = ref()
 const nCantidad = ref()
 const sNombreInput = ref()
 const sDetalleInput = ref()
@@ -172,6 +197,7 @@ watch(
     nCategoriaSelected,
     nTipoArticulo,
     nMedidaSelected,
+    nEstadoPacienteSelected,
     nCantidad,
     sNombreInput,
     sDetalleInput,
@@ -183,6 +209,7 @@ watch(
       id_categoria,
       tipo_articulo,
       id_unidad_medida,
+      id_estado_paciente,
       cantidad,
       nombre,
       detalle,
@@ -195,6 +222,7 @@ watch(
       id_categoria,
       tipo_articulo,
       id_unidad_medida,
+      id_estado_paciente,
       cantidad,
       nombre,
       detalle,
@@ -209,6 +237,7 @@ const updateServicioData = (data) => {
   nCategoriaSelected.value = data.id_categoria
   nTipoArticulo.value = data.tipo_articulo
   nMedidaSelected.value = data.id_unidad_medida
+  nEstadoPacienteSelected.value = data.id_estado_paciente
   nCantidad.value = data.cantidad
   sNombreInput.value = data.nombre
   sDetalleInput.value = data.detalle
@@ -275,6 +304,7 @@ const onOpenCrearDialog = () => {
   nCategoriaSelected.value = null
   nTipoArticulo.value = null
   nMedidaSelected.value = null
+  nEstadoPacienteSelected.value = null
   nCantidad.value = null
   sNombreInput.value = null
   sDetalleInput.value = null
@@ -392,6 +422,11 @@ const onCreateServicio = async () => {
       <div>
         <label for="categoria" class="block font-bold mb-3">Categoria</label>
         <Select fluid id="categoria" v-model:model-value="nCategoriaSelected" :options="aCategorias"
+          option-label="label" option-value="value"></Select>
+      </div>
+      <div>
+        <label for="estado_paciente" class="block font-bold mb-3">Estado paciente a vincular</label>
+        <Select fluid id="estado_paciente" v-model:model-value="nEstadoPacienteSelected" :options="aEstadoPaciente"
           option-label="label" option-value="value"></Select>
       </div>
       <div>

@@ -122,6 +122,11 @@ watch(() => tipoComprobanteProp.tipoComprobante, () => {
                         {{ formatDate(slotProps.data.fecha_emision) }}
                     </template>
                 </Column>
+                <Column field="persona" header="Paciente" sortable style="min-width: 12%;">
+                    <template #body="item">
+                        {{ item.data.persona.nombre }} {{ item.data.persona.apellido }}
+                    </template>
+                </Column>
                 <Column field="moneda" header="Moneda" sortable style="width: 12%;"></Column>
                 <Column field="subtotal" header="Sub Total" sortable style="width: 10%;"></Column>
                 <Column field="monto_igv" header="IGV" sortable style="width: 10%;"></Column>

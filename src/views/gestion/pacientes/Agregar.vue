@@ -1,13 +1,14 @@
 <script setup>
+import RegulatePackage from '@/components/gestion/pacientes/RegulatePackage.vue';
 import Preloader from '@/components/Preloader.vue';
 import { createPaciente, getPacienteEstados } from '@/service/gestion/PacienteService';
+import { getArticulosServicios } from '@/service/mantenimiento/ArticulosService';
 import { getSedes } from '@/service/mantenimiento/SedeService';
 import { handleServerError } from '@/utils/Util';
 import axios from 'axios';
 import { useToast } from 'primevue';
 import { computed, onBeforeMount, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useStore } from 'vuex';
-import RegulatePackage from '@/components/gestion/pacientes/RegulatePackage.vue'
 
 
 const store = useStore()
@@ -65,6 +66,7 @@ const aEstadoPacienteSelect = ref([])
 // Loading State Variables
 const isSedeLoading = ref(true)
 const isEstadoPacienteLoading = ref(true)
+const isPaquetesLoading = ref(true)
 const isPageLoading = ref(true)
 
 const resetInputs = () => {
@@ -117,12 +119,28 @@ const cargarEstadoPaciente = async () => {
         ...oPacienteInfo.value,
         estado: response[0].id
       }
-      console.log('paciente estad',oPacienteInfo.value)
+      console.log('paciente estad', oPacienteInfo.value)
     }
     isEstadoPacienteLoading.value = false
   }
   catch (error) {
     handleServerError(error, 'Estados paciente', toast)
+  }
+}
+
+const aPaquetes = ref([])
+
+const cargarPaquetes = async () => {
+  isPaquetesLoading.value = true
+  try {
+    const response = await getArticulosServicios(cancelToken.value.token)
+    if (response) {
+      aPaquetes.value = response
+    }
+  }
+  catch (error) {
+    isPaquetesLoading.value = false
+    handleServerError(error, 'paquetes', toast)
   }
 }
 
@@ -170,6 +188,7 @@ const crearPaciente = async () => {
     const response = await createPaciente(formData)
     cargarSedes()
     cargarEstadoPaciente()
+    cargarPaquetes()
     resetInputs()
     toast.add({
       severity: 'success',
@@ -192,45 +211,32 @@ const crearPaciente = async () => {
 watch([
   isSedeLoading,
   isEstadoPacienteLoading
-], () => {
-  if (
-    isSedeLoading.value ||
-    isEstadoPacienteLoading.value
-  )
-    isPageLoading.value = true
-  else
-    isPageLoading.value = false
+], ([sede, estado]) => {
+  isPageLoading.value = (sede || estado)
 })
 
 const bSelectPackage = ref(false)
+const bMoreInfo = ref(false)
 
 // Check if estado is not Nuevo or Reporte
 
 const onEstadoChanged = e => {
-  const eatado = e.value
+  const estado = e.value
 
-  const selected = aEstadoPacienteSelect.value.find(e => e.value == estado )
+  const selected = aEstadoPacienteSelect.value.find(e => e.value == estado)
 
-  const aCheckers = ["nuevo","reporte"]
+  const aCheckers = ["nuevo", "reporte"]
 
-  bSelectPackage.value = ( selected && !aCheckers.includes( selected.label.toLowerCase()))
+  bSelectPackage.value = (selected && !aCheckers.includes(selected.label.toLowerCase()))
+
+  if (!bSelectPackage.value)
+    bMoreInfo.value = false
 }
 
-/*
-watch(
-  oPacienteInfo.value,
-  ({estado}) => {
-    console.log("paciente change") 
-    const selected = aEstadoPacienteSelect.value.find( e => e.value == estado )
+const onGetExtraInfo = (info) => {
+  console.log('extra info', info)
+}
 
-    console.log('selected',selected)
-
-    const aCheckers = ["nuevo","reporte"]
-
-    bSelectPackage.value = ( selected && !aCheckers.includes(selected.label.toLowerCase()) )
-  }, { immediate: true }
-)
-*/
 onBeforeMount(() => {
   cancelToken.value = axios.CancelToken.source()
 })
@@ -240,6 +246,7 @@ onBeforeMount(() => {
 onMounted(() => {
   cargarSedes()
   cargarEstadoPaciente()
+  cargarPaquetes()
 })
 
 onBeforeUnmount(() => {
@@ -342,16 +349,24 @@ onBeforeUnmount(() => {
       <small v-if="oInvalid.id_sede" class="text-red-500">Este campo es requerido*</small>
     </div>
 
-    <div>
-      <label for="estado_paciente" class="block font-bold mb-3">Estado paciente</label>
-      <Select id="estado_paciente" v-model:model-value="oPacienteInfo.estado" fluid :options="aEstadoPacienteSelect"
-        option-label="label" option-value="value" :invalid="oInvalid.estado" @change="onEstadoChanged"></Select>
-      <small v-if="oInvalid.estado" class="text-red-500">Este campo es requerido*</small>
+    <div class="grid grid-cols-4 gap-3 items-center justify-between">
+      <div :class="{ 'col-span-3': bSelectPackage, 'col-span-4': !bSelectPackage }">
+        <label for="estado_paciente" class="block font-bold mb-3">Estado paciente</label>
+        <Select id="estado_paciente" v-model:model-value="oPacienteInfo.estado" fluid :options="aEstadoPacienteSelect"
+          option-label="label" option-value="value" :invalid="oInvalid.estado" @change="onEstadoChanged"></Select>
+        <small v-if="oInvalid.estado" class="text-red-500">Este campo es requerido*</small>
+      </div>
+      <div v-if="bSelectPackage" class="col-span-1">
+        <label for="more_info" class="block font-bold mb-3">Paciente en tratamiento</label>
+        <Checkbox id="more_info" binary v-model:model-value="bMoreInfo"></Checkbox>
+      </div>
     </div>
 
-    <RegulatePackage v-if="bSelectPackage" :isPageLoading="isPageLoading"></RegulatePackage>
+    <RegulatePackage v-if="bMoreInfo" :aServicios="aPaquetes" :n-estado-paciente="oPacienteInfo.estado"
+      v-on:update-extra-info="onGetExtraInfo">
+    </RegulatePackage>
 
-    <Button  label="Crear paciente" icon="pi pi-check" @click="crearPaciente"></Button>
+    <Button label="Crear paciente" icon="pi pi-check" @click="crearPaciente"></Button>
 
   </div>
 </template>
