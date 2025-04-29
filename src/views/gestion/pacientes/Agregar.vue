@@ -7,6 +7,7 @@ import axios from 'axios';
 import { useToast } from 'primevue';
 import { computed, onBeforeMount, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useStore } from 'vuex';
+import RegulatePackage from '@/components/gestion/pacientes/RegulatePackage.vue'
 
 
 const store = useStore()
@@ -112,6 +113,11 @@ const cargarEstadoPaciente = async () => {
         label: e.nombre,
         value: e.id
       }))
+      oPacienteInfo.value = {
+        ...oPacienteInfo.value,
+        estado: response[0].id
+      }
+      console.log('paciente estad',oPacienteInfo.value)
     }
     isEstadoPacienteLoading.value = false
   }
@@ -196,6 +202,35 @@ watch([
     isPageLoading.value = false
 })
 
+const bSelectPackage = ref(false)
+
+// Check if estado is not Nuevo or Reporte
+
+const onEstadoChanged = e => {
+  const eatado = e.value
+
+  const selected = aEstadoPacienteSelect.value.find(e => e.value == estado )
+
+  const aCheckers = ["nuevo","reporte"]
+
+  bSelectPackage.value = ( selected && !aCheckers.includes( selected.label.toLowerCase()))
+}
+
+/*
+watch(
+  oPacienteInfo.value,
+  ({estado}) => {
+    console.log("paciente change") 
+    const selected = aEstadoPacienteSelect.value.find( e => e.value == estado )
+
+    console.log('selected',selected)
+
+    const aCheckers = ["nuevo","reporte"]
+
+    bSelectPackage.value = ( selected && !aCheckers.includes(selected.label.toLowerCase()) )
+  }, { immediate: true }
+)
+*/
 onBeforeMount(() => {
   cancelToken.value = axios.CancelToken.source()
 })
@@ -310,11 +345,13 @@ onBeforeUnmount(() => {
     <div>
       <label for="estado_paciente" class="block font-bold mb-3">Estado paciente</label>
       <Select id="estado_paciente" v-model:model-value="oPacienteInfo.estado" fluid :options="aEstadoPacienteSelect"
-        option-label="label" option-value="value" :invalid="oInvalid.estado"></Select>
+        option-label="label" option-value="value" :invalid="oInvalid.estado" @change="onEstadoChanged"></Select>
       <small v-if="oInvalid.estado" class="text-red-500">Este campo es requerido*</small>
     </div>
 
-    <Button label="Crear paciente" icon="pi pi-check" @click="crearPaciente"></Button>
+    <RegulatePackage v-if="bSelectPackage" :isPageLoading="isPageLoading"></RegulatePackage>
+
+    <Button  label="Crear paciente" icon="pi pi-check" @click="crearPaciente"></Button>
 
   </div>
 </template>
