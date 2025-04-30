@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref, watch, computed } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 
 const props = defineProps({
@@ -16,7 +16,7 @@ const props = defineProps({
 const emit = defineEmits(['updateExtraInfo'])
 
 const store = useStore()
-const id_sede = computed(()=> store.getters.id_sede )
+const id_sede = computed(() => store.getters.id_sede)
 
 const aServicios = ref([])
 const aServiciosSelect = ref([])
@@ -61,7 +61,7 @@ watch(
   () => [props.nEstadoPaciente, aServicios.value],
   ([estado]) => {
     bDisableMax.value = true
-    console.log("id_sede",id_sede.value)
+    console.log("id_sede", id_sede.value)
     aServiciosSelect.value = aServicios.value.filter(s => (s.id_estado_paciente === estado) && (id_sede.value ? s.id_sede == id_sede.value : true)).map(s => ({
       label: s.nombre,
       value: s.id
@@ -83,7 +83,7 @@ onMounted(() => {
         option-value="value" placeholder="Seleccione el paquete" fluid></Select>
     </div>
     <div>
-      <label for="quantity" class="block font-bold mb-3">Sesion actual</label>
+      <label for="quantity" class="block font-bold mb-3">Sesiones realizadas</label>
       <InputNumber fluid :use-grouping="false" v-model:model-value="nQuantity" :placeholder="'Max: ' + nMaxQuantity"
         :max="nMaxQuantity" :min="1" :disabled="bDisableMax"></InputNumber>
     </div>
