@@ -183,10 +183,8 @@ const menuItems = ref([
                 icon: 'pi pi-fw pi-money-bill',
                 items: [
                     { label: 'Caja chica', to: '#' },
-                    { label: 'Gastos / Ingresos', to: '#' },
-                    { label: 'Ingreso diario', to: '#' },
-                    { label: 'Utilidad semanal', to: '#' },
-                    { label: 'Balance de ganancias', to: '#' },
+                    { label: 'Ingresos', to: '#' },
+                    { label: 'Egresos', to: '#' },
                 ]
             },
             {

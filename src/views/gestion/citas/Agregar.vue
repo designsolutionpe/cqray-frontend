@@ -19,6 +19,7 @@ const oNuevaCita = ref({
   // id_detalle_horario: null,
   id_sede: null,
   id_usuario: null,
+  id_paquete: null,
   historia_clinica: null,
   fecha_cita: null,
   hora_cita: null,
@@ -391,6 +392,7 @@ watch([
   ] = values
 
   oNuevaCita.value = {
+    ...oNuevaCita.value,
     id_paciente,
     historia_clinica,
     fecha_cita,
