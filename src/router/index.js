@@ -412,11 +412,13 @@ router.beforeEach((to, from, next) => {
     if (to.meta.requiresAuth && !store.getters.isAuthenticated) {
         next({ name: 'login' });  // Si no está autenticado, redirigir al login
     }
+    else if ( store.getters.userRole == 'Desarrollador' ) next();
     // Verificar si la ruta requiere un rol específico
     else if (to.meta.roles && !to.meta.roles.includes(store.getters.userRole)) {
         next({ name: 'accessDenied' });  // Si el rol no coincide, redirigir a acceso denegado
     }
     else {
+      console.log("rol",store.getters.userRole);
         next();  // Permitir la navegación si todo está bien
     }
 });

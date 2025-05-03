@@ -419,12 +419,72 @@ const menuItems = ref([
 
 const filteredMenu = ref([]);
 
+const roleFiltering = ref({
+  'Desarrollador': true,
+  'Superadministrador': {
+    'Principal': true,
+    'Gestion Clínica': {
+      'Agendamiento de Citas': true,
+      'Integrador Whatsapp': true,
+      'Pacientes': true
+    },
+    'Mantenimiento': {
+      'Control sedes': true,
+      'Categorías': true,
+      'Unidad de Medida': true,
+      'Artículos': true
+    },
+    'Gestión ventas': {
+      'Realizar Ventas': true,
+    }
+  },
+  'Administrador': {
+    'Gestión Clínica': {
+      'Agendamiento de Citas': true,
+      'Pacientes': true
+    },
+    'Mantenimiento': {
+      'Artículos': true,
+    },
+    'Gestión ventas': {
+      'Realizar Ventas': true
+    }
+  }
+});
+
 const updateMenu = () => {
     // Inicializamos el menú vacío
     filteredMenu.value = [];
 
+    console.log('check filtering',Object.keys(roleFiltering.value))
+
+    if( Object.keys(roleFiltering.value).includes(userRole.value) )
+    {
+      const role = roleFiltering.value[userRole.value]
+      filteredMenu.value = menuItems.value.map(item => {
+        console.log('item',item,role)
+        if( typeof role == 'boolean' && role ) return item
+        if( typeof role[item.label] != 'undefined' )
+        {
+          const group = role[item.label]
+          if( typeof group == 'boolean' && role ) return item
+          
+          item.items = item.items.map( subItem => {
+            
+          })
+          console.log('test',role[item.label])
+          return item
+        }
+      })
+    }
+
+    return
+
     // Verificamos si el rol es 'Superadministrador'
-    if (userRole.value === 'Superadministrador') {
+    if (userRole.value === 'Desarrollador') {
+      filteredMenu.value = menuItems.value
+    }
+    else if (userRole.value === 'Superadministrador') {
         filteredMenu.value = menuItems.value.map(item => {
             if (item.label === 'Gestion Clínica') {
                 item.items = item.items.filter(subitem => {

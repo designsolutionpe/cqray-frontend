@@ -27,7 +27,7 @@ const loginUserHandler = async () => {
         isAuthenticated: true,
         id: response.data.id,
         id_sede: response.data.id_sede,
-        userRole: response.data.rol,
+        userRole: response.data.role.nombre,
         token: response.token,
         nombre: response.data.persona.nombre,
         apellido: response.data.persona.apellido,
