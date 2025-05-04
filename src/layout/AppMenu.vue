@@ -12,7 +12,7 @@ const menuItems = ref([
         items: [{ label: 'Tablero', icon: 'pi pi-fw pi-home', to: '/' }]
     },
     {
-        label: 'Gestion Clínica',
+        label: 'Gestión Clínica',
         icon: 'pi pi-fw pi-briefcase',
         items: [
             {
@@ -66,8 +66,16 @@ const menuItems = ref([
                 label: 'Control usuarios',
                 icon: 'pi pi-fw pi-users',
                 items: [
-                    { label: 'Todos los usuarios', to: '/mantenimiento/usuario' },
-                    { label: 'Añadir usuario', to: '#' },
+                    { label: 'Todos los usuarios', to: '/mantenimiento/usuarios' },
+                    { label: 'Añadir usuario', to: '/mantenimiento/usuarios/agregar' },
+                ]
+            },
+            {
+                label: 'Control roles',
+                icon: 'pi pi-fw pi-tag',
+                items: [
+                    { label: 'Todos los roles', to: '/mantenimiento/roles' },
+                    { label: 'Añadir rol', to: '/mantenimiento/roles/agregar' },
                 ]
             },
             {
@@ -420,107 +428,105 @@ const menuItems = ref([
 const filteredMenu = ref([]);
 
 const roleFiltering = ref({
-  'Desarrollador': true,
-  'Superadministrador': {
-    'Principal': true,
-    'Gestion Clínica': {
-      'Agendamiento de Citas': true,
-      'Integrador Whatsapp': true,
-      'Pacientes': true
+    'Desarrollador': true,
+    'Superadministrador': {
+        'Principal': true,
+        'Gestión Clínica': {
+            'Agendamientos de Citas': true,
+            'Integrador Whatsapp': true,
+            'Pacientes': true
+        },
+        'Mantenimiento': {
+            'Control sedes': true,
+            'Control usuarios': {
+                'Todos los usuarios': true
+            },
+            'Control roles': {
+                'Todos los roles': true
+            },
+            'Categorías': true,
+            'Unidad de Medida': true,
+            'Artículos': true
+        },
+        'Gestión Ventas': {
+            'Realizar Ventas': true,
+        }
     },
-    'Mantenimiento': {
-      'Control sedes': true,
-      'Categorías': true,
-      'Unidad de Medida': true,
-      'Artículos': true
+    'Administrador': {
+        'Principal': true,
+        'Gestión Clínica': {
+            'Agendamientos de Citas': true,
+            'Integrador Whatsapp': true,
+            'Pacientes': true
+        },
+        'Mantenimiento': {
+            'Artículos': true,
+        },
+        'Gestión Ventas': {
+            'Realizar Ventas': true
+        }
     },
-    'Gestión ventas': {
-      'Realizar Ventas': true,
+    'Contador': {
+        'Principal': true
+    },
+    'CallCenter': {
+        'Principal': true
+    },
+    'Paciente': {
+        'Principal': true
     }
-  },
-  'Administrador': {
-    'Gestión Clínica': {
-      'Agendamiento de Citas': true,
-      'Pacientes': true
-    },
-    'Mantenimiento': {
-      'Artículos': true,
-    },
-    'Gestión ventas': {
-      'Realizar Ventas': true
-    }
-  }
 });
 
 const updateMenu = () => {
     // Inicializamos el menú vacío
     filteredMenu.value = [];
 
-    console.log('check filtering',Object.keys(roleFiltering.value))
+    // Verifica que el rol exista
+    if (Object.keys(roleFiltering.value).includes(userRole.value)) {
+        const role = roleFiltering.value[userRole.value]
 
-    if( Object.keys(roleFiltering.value).includes(userRole.value) )
-    {
-      const role = roleFiltering.value[userRole.value]
-      filteredMenu.value = menuItems.value.map(item => {
-        console.log('item',item,role)
-        if( typeof role == 'boolean' && role ) return item
-        if( typeof role[item.label] != 'undefined' )
-        {
-          const group = role[item.label]
-          if( typeof group == 'boolean' && role ) return item
-          
-          item.items = item.items.map( subItem => {
-            
-          })
-          console.log('test',role[item.label])
-          return item
-        }
-      })
-    }
+        if (typeof role == 'undefined') return
 
-    return
+        // Si el rol es TRUE mostrar todo
+        if (typeof role == 'boolean' && role)
+            return filteredMenu.value = menuItems.value
+        else if (typeof role == 'boolean' && !role)
+            return
 
-    // Verificamos si el rol es 'Superadministrador'
-    if (userRole.value === 'Desarrollador') {
-      filteredMenu.value = menuItems.value
-    }
-    else if (userRole.value === 'Superadministrador') {
+        // Si el rol tiene modulos por activar
         filteredMenu.value = menuItems.value.map(item => {
-            if (item.label === 'Gestion Clínica') {
-                item.items = item.items.filter(subitem => {
-                    return subitem.label !== 'Quiroprácticos'
-                });
-                return item;
-            }
-            return item;
-        }).filter(item => item !== null);
-    } else if (userRole.value === 'Administrador') {
-        // Si el rol es 'Administrador'
-        filteredMenu.value = menuItems.value.map(item => {
-            if (item.label === 'Principal') {
-                return item;
-            }
-            if (item.label === 'Gestion Clínica') {
-                item.items = item.items.filter(subitem => {
-                    return subitem.label === 'Agendamientos de Citas'
-                        || subitem.label === 'Pacientes';
-                });
-                return item;
-            }
-            if (item.label === 'Mantenimiento') {
-                const show = ['Artículos'];
-                item.items = item.items.filter(subitem => show.includes(subitem.label))
-                return item
-            }
-            if (item.label === 'Gestión Ventas') {
-                const show = ['Realizar Ventas'];
-                item.items = item.items.filter(subitem => show.includes(subitem.label))
-                return item
-            }
-            return null;
-        }).filter(item => item !== null);
-    } else {
-        filteredMenu.value = [];
+            const module_name = item.label
+
+            if (typeof role[module_name] == 'undefined') return
+
+            // Verifica si el modulo debe ser totalmente activo
+            if (typeof role[module_name] == 'boolean' && role[module_name]) return item
+            else if (typeof role[module_name] == 'boolean' && !role[module_name]) return
+
+            // Verifica los submodulos
+            item.items = item.items.map(subitem => {
+                const submodule_name = subitem.label
+
+                if (Object.keys(role[module_name]).includes(submodule_name)) {
+                    const submodule_obj = role[module_name][submodule_name]
+
+                    console.log('submodule', submodule_obj)
+
+                    if (typeof submodule_obj == 'boolean' && submodule_obj) return subitem
+                    else if (typeof submodule_obj == 'boolean' && !submodule_obj) return
+
+                    if (Array.isArray(Object.keys(submodule_obj)))
+                        subitem.items = subitem.items.filter(nanoitem => Object.keys(submodule_obj).includes(nanoitem.label) && submodule_obj[nanoitem.label])
+
+                    return subitem
+                }
+
+            }).filter(e => e)
+
+            return item
+
+        }).filter(e => e)
+
     }
 };
 

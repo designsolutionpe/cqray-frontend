@@ -191,12 +191,6 @@ const router = createRouter({
                     component: () => import('@/views/gestion/ventas/AgregarConstanciaPago.vue'),
                     meta: { requiresAuth: true, roles: ['Superadministrador', 'Administrador'] }
                 },
-                // {
-                //     path: '/mantenimiento/sede',
-                //     name: 'sede',
-                //     component: () => import('@/views/mantenimiento/Sede.vue'),
-                //     meta : { requiresAuth: true}
-                // },
                 {
                     path: '/mantenimiento/sedes/todas',
                     name: 'sedes-todas',
@@ -213,6 +207,30 @@ const router = createRouter({
                     path: '/mantenimiento/usuario',
                     name: 'usuario',
                     component: () => import('@/views/mantenimiento/Usuario.vue'),
+                    meta: { requiresAuth: true, roles: ['Superadministrador'] }
+                },
+                {
+                    path: '/mantenimiento/usuarios',
+                    name: 'usuarios-todos',
+                    component: () => import('@/views/mantenimiento/usuarios/todos.vue'),
+                    meta: { requiresAuth: true, roles: ['Superadministrador'] }
+                },
+                {
+                    path: '/mantenimiento/usuarios/agregar',
+                    name: 'usuarios-agregar',
+                    component: () => import('@/views/mantenimiento/usuarios/agregar.vue'),
+                    meta: { requiresAuth: true, roles: ['Superadministrador'] }
+                },
+                {
+                    path: '/mantenimiento/roles',
+                    name: 'roles-todos',
+                    component: () => import('@/views/mantenimiento/roles/todos.vue'),
+                    meta: { requiresAuth: true, roles: ['Superadministrador'] }
+                },
+                {
+                    path: '/mantenimiento/roles/agregar',
+                    name: 'roles-agregar',
+                    component: () => import('@/views/mantenimiento/roles/agregar.vue'),
                     meta: { requiresAuth: true, roles: ['Superadministrador'] }
                 },
                 {
@@ -268,107 +286,6 @@ const router = createRouter({
                     component: () => import('@/views/mantenimiento/articulos/Servicio.vue'),
                     meta: { requiresAuth: true, roles: ['Superadministrador', 'Administrador'] }
                 },
-
-
-                /*
-                {
-                    path: '/mantenimiento/horario',
-                    name: 'horario',
-                    component: () => import('@/views/mantenimiento/Horario.vue'),
-                    meta: { requiresAuth: true, roles: ['Superadministrador'] }
-                },
-                */
-                // {
-                //     path: '/uikit/formlayout',
-                //     name: 'formlayout',
-                //     component: () => import('@/views/uikit/FormLayout.vue')
-                // },
-                // {
-                //     path: '/uikit/input',
-                //     name: 'input',
-                //     component: () => import('@/views/uikit/InputDoc.vue')
-                // },
-                // {
-                //     path: '/uikit/button',
-                //     name: 'button',
-                //     component: () => import('@/views/uikit/ButtonDoc.vue')
-                // },
-                // {
-                //     path: '/uikit/table',
-                //     name: 'table',
-                //     component: () => import('@/views/uikit/TableDoc.vue')
-                // },
-                // {
-                //     path: '/uikit/list',
-                //     name: 'list',
-                //     component: () => import('@/views/uikit/ListDoc.vue')
-                // },
-                // {
-                //     path: '/uikit/tree',
-                //     name: 'tree',
-                //     component: () => import('@/views/uikit/TreeDoc.vue')
-                // },
-                // {
-                //     path: '/uikit/panel',
-                //     name: 'panel',
-                //     component: () => import('@/views/uikit/PanelsDoc.vue')
-                // },
-
-                // {
-                //     path: '/uikit/overlay',
-                //     name: 'overlay',
-                //     component: () => import('@/views/uikit/OverlayDoc.vue')
-                // },
-                // {
-                //     path: '/uikit/media',
-                //     name: 'media',
-                //     component: () => import('@/views/uikit/MediaDoc.vue')
-                // },
-                // {
-                //     path: '/uikit/message',
-                //     name: 'message',
-                //     component: () => import('@/views/uikit/MessagesDoc.vue')
-                // },
-                // {
-                //     path: '/uikit/file',
-                //     name: 'file',
-                //     component: () => import('@/views/uikit/FileDoc.vue')
-                // },
-                // {
-                //     path: '/uikit/menu',
-                //     name: 'menu',
-                //     component: () => import('@/views/uikit/MenuDoc.vue')
-                // },
-                // {
-                //     path: '/uikit/charts',
-                //     name: 'charts',
-                //     component: () => import('@/views/uikit/ChartDoc.vue')
-                // },
-                // {
-                //     path: '/uikit/misc',
-                //     name: 'misc',
-                //     component: () => import('@/views/uikit/MiscDoc.vue')
-                // },
-                // {
-                //     path: '/uikit/timeline',
-                //     name: 'timeline',
-                //     component: () => import('@/views/uikit/TimelineDoc.vue')
-                // },
-                // {
-                //     path: '/pages/empty',
-                //     name: 'empty',
-                //     component: () => import('@/views/pages/Empty.vue')
-                // },
-                // {
-                //     path: '/pages/crud',
-                //     name: 'crud',
-                //     component: () => import('@/views/pages/Crud.vue')
-                // },
-                // {
-                //     path: '/documentation',
-                //     name: 'documentation',
-                //     component: () => import('@/views/pages/Documentation.vue')
-                // }
             ]
         },
         {
@@ -412,13 +329,13 @@ router.beforeEach((to, from, next) => {
     if (to.meta.requiresAuth && !store.getters.isAuthenticated) {
         next({ name: 'login' });  // Si no está autenticado, redirigir al login
     }
-    else if ( store.getters.userRole == 'Desarrollador' ) next();
+    else if (store.getters.userRole == 'Desarrollador') next();
     // Verificar si la ruta requiere un rol específico
     else if (to.meta.roles && !to.meta.roles.includes(store.getters.userRole)) {
         next({ name: 'accessDenied' });  // Si el rol no coincide, redirigir a acceso denegado
     }
     else {
-      console.log("rol",store.getters.userRole);
+        console.log("rol", store.getters.userRole);
         next();  // Permitir la navegación si todo está bien
     }
 });

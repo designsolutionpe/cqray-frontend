@@ -1,18 +1,26 @@
 import api from '@/service/Api';
 
-export const getUsuarios = async () => {
+export const getUsuarios = async (cancelToken) => {
     try {
-        const response = await api.get('/usuarios');
+        const response = await api.get('/usuarios', {
+            cancelToken: cancelToken || null
+        });
+        if (typeof response.cancelled != 'undefined')
+            return null
         return response.data;
-    } catch (error){
-        console.error('Error al obtener usuarios:',error);
+    } catch (error) {
+        console.error('Error al obtener usuarios:', error);
         throw error;
     }
 }
 
-export const getUsuarioById = async (id) => {
+export const getUsuarioById = async (id, cancelToken) => {
     try {
-        const response = await api.get(`/usuarios/${id}`);
+        const response = await api.get(`/usuarios/${id}`, {
+            cancelToken: cancelToken || null
+        });
+        if (typeof response.cancelled != 'undefined')
+            return null
         return response.data;
     } catch (error) {
         console.error('Error al obtener el usuario:', error);
@@ -23,7 +31,7 @@ export const getUsuarioById = async (id) => {
 // Crear un nuevo usuario
 export const createUsuario = async (data) => {
     try {
-        const response = await api.post('/usuarios', data); 
+        const response = await api.post('/usuarios', data);
         return response.data;
     } catch (error) {
         console.error('Error al crear usuario:', error);
@@ -34,7 +42,7 @@ export const createUsuario = async (data) => {
 // Actualizar usuario
 export const updateUsuario = async (id, data) => {
     try {
-        const response = await api.put(`/usuarios/${id}`, data); 
+        const response = await api.put(`/usuarios/${id}`, data);
         return response.data;
     } catch (error) {
         console.error('Error al actualizar usuario:', error.response?.data || error);
@@ -45,17 +53,17 @@ export const updateUsuario = async (id, data) => {
 // Actualizar usuario y persona
 export const updateUsuarioPersona = async (id, formData) => {
 
-    formData.append('_method', 'PUT');  
+    formData.append('_method', 'PUT');
     try {
-      const response = await api.post(`/usuario-persona/${id}`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      });
-      return response.data;
+        const response = await api.post(`/usuario-persona/${id}`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+        return response.data;
     } catch (error) {
-      console.error('Error al actualizar Usuario/Persona:', error.response?.data || error);
-      throw error;
+        console.error('Error al actualizar Usuario/Persona:', error.response?.data || error);
+        throw error;
     }
 };
 

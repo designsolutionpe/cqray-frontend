@@ -1,13 +1,10 @@
 <script setup>
-import { getUsuarios } from '@/service/mantenimiento/UsuarioService';
-import { createUsuario } from '@/service/mantenimiento/UsuarioService';
-import { updateUsuario } from '@/service/mantenimiento/UsuarioService';
-import { deleteUsuario } from '@/service/mantenimiento/UsuarioService';
+import PersonaBusqueda from '@/components/busqueda/PersonaBusqueda.vue';
 import { getSedes } from '@/service/mantenimiento/SedeService';
+import { createUsuario, deleteUsuario, getUsuarios, updateUsuario } from '@/service/mantenimiento/UsuarioService';
 import { FilterMatchMode } from '@primevue/core/api';
 import { useToast } from 'primevue/usetoast';
 import { onMounted, ref } from 'vue';
-import PersonaBusqueda from '@/components/busqueda/PersonaBusqueda.vue';
 
 const tiposDocumento = ref([
     { label: "DNI", value: "DNI" },
@@ -212,7 +209,7 @@ onMounted(() => {
 
                 <Column field="persona.apellido" header="Apellidos" sortable style="min-width: 10rem"></Column>
                 <Column field="persona.nombre" header="Nombres" sortable style="min-width: 10rem"></Column>
-                <Column field="rol" header="Rol" sortable style="min-width: 8rem"></Column>
+                <Column field="role.nombre" header="Rol" sortable style="min-width: 8rem"></Column>
 
                 <Column :exportable="false" style="min-width: 12rem">
                     <template #body="slotProps">
