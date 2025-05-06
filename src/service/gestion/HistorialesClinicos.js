@@ -14,3 +14,16 @@ export const getHistorialesPacientes = async (cancelToken) => {
     throw error
   }
 }
+
+export const linkWithCita = async (id,id_cita) => {
+    try
+    {
+        const response = await api.put(`/historias-clinicas/${id}/link`, { id_cita })
+        return response.data
+    }
+    catch(error)
+    {
+        console.error("Error linkeando la cita: ",error)
+        throw error
+    }
+}

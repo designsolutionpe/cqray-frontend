@@ -244,7 +244,7 @@ onBeforeUnmount(() => {
 
                 <!-- <Column :exportable="false">
                   <template #body="pacienteItem">
-                    <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="null"></Button>
+                    <Button icon="pi pi-link" outlined rounded class="mr-2" @click="null"></Button>
                   </template>
                 </Column> -->
 
@@ -337,12 +337,11 @@ onBeforeUnmount(() => {
                   </template>
                 </Column>
 
-                <!-- <Column :exportable="false" style="min-width: 9rem;">
+                 <Column :exportable="false" style="min-width: 9rem;" header="Acciones">
                   <template #body="pacienteItem">
-                    <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="null"></Button>
-                    <Button icon="pi pi-trash" severity='danger' outlined rounded class="mr-2" @click="null"></Button>
+                    <Button v-if="!pacienteItem.data.id_cita" icon="pi pi-link" outlined rounded class="mr-2" @click="null"></Button>
                   </template>
-                </Column> -->
+                </Column>
 
               </DataTable>
             </TabPanel>
