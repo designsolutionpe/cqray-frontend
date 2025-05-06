@@ -1,5 +1,7 @@
 <script setup>
+import SeleccionaCita from '@/components/dialogs/SeleccionaCita.vue';
 import Preloader from '@/components/Preloader.vue';
+import { linkWithCita } from '@/service/gestion/HistorialesClinicos';
 import { getPaciente } from '@/service/gestion/PacienteService';
 import { formatDate, handleServerError } from '@/utils/Util';
 import axios from 'axios';
@@ -130,9 +132,35 @@ onBeforeUnmount(() => {
   cancelToken.value.cancel()
 })
 
+const seleccionaCitaRef = ref()
+const registrosActivoDisponibles = ref([])
+const selectedRegistro = ref(null)
+
+const onSelectCita = (item_id) => {
+  selectedRegistro.value = item_id
+  registrosActivoDisponibles.value = n_paquetes_activos.value.map(q => q.id)
+  console.log('registros activos disponibles', registrosActivoDisponibles.value)
+  seleccionaCitaRef.value.showDialog()
+}
+
+const onCitaSelected = async (param) => {
+  const id_cita = param.id
+  isPageLoading.value = true
+  try {
+    const response = await linkWithCita(selectedRegistro.value, id_cita)
+    toast.add({ severity: 'success', summary: 'Link completado con exito', life: 3000 })
+    isPageLoading.value = false
+  }
+  catch (error) {
+    isPageLoading.value = false
+    handleServerError(error, 'actualizar historial', toast)
+  }
+}
 
 </script>
 <template>
+  <SeleccionaCita ref="seleccionaCitaRef" :dont-show-citas="registrosActivoDisponibles"
+    v-on:send-cita-selected="onCitaSelected"></SeleccionaCita>
   <div class="card relative overflow-hidden md:w-[650px] lg:w-full">
     <Preloader v-if="isPageLoading"></Preloader>
     <div class="grid grid-cols-4 gap-3">
@@ -337,9 +365,10 @@ onBeforeUnmount(() => {
                   </template>
                 </Column>
 
-                 <Column :exportable="false" style="min-width: 9rem;" header="Acciones">
+                <Column :exportable="false" style="min-width: 9rem;" header="Acciones">
                   <template #body="pacienteItem">
-                    <Button v-if="!pacienteItem.data.id_cita" icon="pi pi-link" outlined rounded class="mr-2" @click="null"></Button>
+                    <Button v-if="!pacienteItem.data.id_cita" icon="pi pi-link" outlined rounded class="mr-2"
+                      @click="onSelectCita(pacienteItem.data.id)"></Button>
                   </template>
                 </Column>
 
