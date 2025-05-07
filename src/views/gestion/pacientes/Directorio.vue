@@ -6,7 +6,7 @@ import { getPaciente } from '@/service/gestion/PacienteService';
 import { formatDate, handleServerError } from '@/utils/Util';
 import axios from 'axios';
 import { useToast } from 'primevue';
-import { computed, onBeforeMount, onBeforeUnmount, onMounted, ref } from 'vue';
+import { computed, onBeforeMount, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 
@@ -135,6 +135,15 @@ onBeforeUnmount(() => {
 const seleccionaCitaRef = ref()
 const registrosActivoDisponibles = ref([])
 const selectedRegistro = ref(null)
+const sPacienteNombre = ref('')
+
+watch(
+  oPacienteInfo,
+  ({ persona: { nombre, apellido } }) => {
+    sPacienteNombre.value = `${nombre} ${apellido}`
+    console.log('paciente nombre', sPacienteNombre.value)
+  }
+)
 
 const onSelectCita = (item_id) => {
   selectedRegistro.value = item_id
@@ -159,7 +168,7 @@ const onCitaSelected = async (param) => {
 
 </script>
 <template>
-  <SeleccionaCita ref="seleccionaCitaRef" :dont-show-citas="registrosActivoDisponibles"
+  <SeleccionaCita ref="seleccionaCitaRef" :dont-show-citas="registrosActivoDisponibles" :sPaciente="sPacienteNombre"
     v-on:send-cita-selected="onCitaSelected"></SeleccionaCita>
   <div class="card relative overflow-hidden md:w-[650px] lg:w-full">
     <Preloader v-if="isPageLoading"></Preloader>

@@ -15,7 +15,11 @@ const props = defineProps({
   dontShowCitas: {
     type: Array,
     required: true
-  }
+  },
+  sPaciente: {
+    type: String,
+    required: true
+  },
 })
 
 const bShow = ref(false)
@@ -28,6 +32,7 @@ const bDialogLoading = ref(true)
 const filters = ref({})
 
 const initFilters = () => {
+  console.log('props', props)
   filters.value = {
     global: { value: null, matchMode: FilterMatchMode.CONTAINS }
   }
@@ -72,6 +77,13 @@ watch(
   ],
   ([citas]) => {
     bDialogLoading.value = (citas)
+  }
+)
+
+watch(
+  props.sPaciente,
+  (paciente) => {
+    aCitas.value = response.filter(c => `${c.nombre} ${c.apellido}` == paciente)
   }
 )
 

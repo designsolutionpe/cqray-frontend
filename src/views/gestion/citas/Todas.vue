@@ -515,8 +515,8 @@ onBeforeUnmount(() => {
             :disabled="(id_sede != null) && (citaItem.data.id_sede != id_sede)"
             v-tooltip.top="{ value: 'Comuniquese con su Superadministrador o con el Administrador de la sede para modificar esta cita', disabled: id_sede == null ? true : (id_sede != null) && (citaItem.data.id_sede == id_sede) }"></Button>
           <Button icon="pi pi-trash" outlined rounded severity="danger" class="mr-2"
-            :disabled="user_role != 'Superadministrador'"
-            v-tooltip.top="{ value: 'Solicita permiso a tu SUPERADMINISTRADOR, para realizar ésta acción.', disabled: user_role == 'Superadministrador' }"
+            :disabled="!['Desarrollador', 'Superadministrador'].includes(user_role)"
+            v-tooltip.top="{ value: 'Solicita permiso a tu SUPERADMINISTRADOR, para realizar ésta acción.', disabled: ['Desarrollador', 'Superadministrador'].includes(user_role) }"
             @click="onShowDialog(citaItem.data.id)"></Button>
         </template>
       </Column>

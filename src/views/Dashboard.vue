@@ -12,7 +12,7 @@ import { computed, onBeforeMount, onBeforeUnmount, onMounted, ref } from 'vue';
 import { useStore } from 'vuex';
 
 const store = useStore()
-const isSuperAdmin = computed(() => (store.getters.userRole == 'Superadministrador'))
+const isSuperAdmin = computed(() => (['Desarrollador', 'Superadministrador'].includes(store.getters.userRole)))
 const id_sede = computed(() => store.getters.id_sede)
 
 const nSedesCount = ref("---")
@@ -180,7 +180,7 @@ onBeforeUnmount(() => {
                             <div class="col-span-8 flex justify-center flex-col pl-4">
                                 <span class="block text-lg font-bold">Pagos</span>
                                 <span class="block text-2xl font-bold text-primary dark:text-white/90">{{ nPagosCount
-                                }}</span>
+                                    }}</span>
                             </div>
                         </div>
                     </template>

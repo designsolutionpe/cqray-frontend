@@ -443,8 +443,9 @@ onBeforeUnmount(() => {
           <Button icon="pi pi-folder" outlined rounded severity='contrast' class="mr-2"
             @click="onOpenDirectory(pacienteItem.data.id)"></Button>
           <Button icon="pi pi-trash" outlined rounded severity="danger" class="mr-2"
-            @click="openDeleteDialog(pacienteItem.data)" :disabled="user_role != 'Superadministrador'"
-            v-tooltip.top="{ value: 'Solicita permiso a tu SUPERADMINISTRADOR, para realizar ésta acción.', disabled: user_role == 'Superadministrador' }"></Button>
+            @click="openDeleteDialog(pacienteItem.data)"
+            :disabled="!['Desarrollador', 'Superadministrador'].includes(user_role)"
+            v-tooltip.top="{ value: 'Solicita permiso a tu SUPERADMINISTRADOR, para realizar ésta acción.', disabled: ['Desarrollador', 'Superadministrador'].includes(user_role) }"></Button>
         </template>
       </Column>
 
