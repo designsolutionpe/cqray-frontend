@@ -27,7 +27,7 @@ const menuItems = ref([
             {
                 label: 'Integrador Whatsapp',
                 icon: 'pi pi-fw pi-whatsapp',
-                to: '#'
+                url: 'https://integradorcrm.unichat.space'
             },
             {
                 label: 'Quiroprácticos',
