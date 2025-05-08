@@ -191,7 +191,7 @@ const menuItems = ref([
                 label: 'Caja',
                 icon: 'pi pi-fw pi-money-bill',
                 items: [
-                    { label: 'Caja chica', to: '#' },
+                    { label: 'Caja chica', to: '/inventario/caja-chica' },
                     { label: 'Ingresos', to: '#' },
                     { label: 'Egresos', to: '#' },
                 ]

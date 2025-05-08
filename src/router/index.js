@@ -286,6 +286,12 @@ const router = createRouter({
                     component: () => import('@/views/mantenimiento/articulos/Servicio.vue'),
                     meta: { requiresAuth: true, roles: ['Superadministrador', 'Administrador'] }
                 },
+                {
+                    path: '/inventario/caja-chica',
+                    name: 'caja-chica',
+                    component: () => import('@/views/gestion/inventario/caja-chica/CajaChica.vue'),
+                    meta: { requiresAuth: true, roles: ['Superadministrador'] }
+                }
             ]
         },
         {
