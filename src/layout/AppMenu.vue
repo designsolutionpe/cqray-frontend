@@ -27,7 +27,7 @@ const menuItems = ref([
             {
                 label: 'Integrador Whatsapp',
                 icon: 'pi pi-fw pi-whatsapp',
-                url: 'https://integradorcrm.unichat.space',
+                url: 'https://integrador.unichat.space',
                 target: '_blank'
             },
             {
@@ -451,6 +451,9 @@ const roleFiltering = ref({
         },
         'Gestión Ventas': {
             'Realizar Ventas': true,
+        },
+        'Gestión e Inventario': {
+            'Caja': true
         }
     },
     'Administrador': {
