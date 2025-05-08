@@ -80,12 +80,12 @@ watch(
   }
 )
 
-watch(
-  props.sPaciente,
-  (paciente) => {
-    aCitas.value = response.filter(c => `${c.nombre} ${c.apellido}` == paciente)
-  }
-)
+// watch(
+//   props.sPaciente,
+//   (paciente) => {
+//     aCitas.value = response.filter(c => `${c.nombre} ${c.apellido}` == paciente)
+//   }
+// )
 
 onBeforeMount(() => {
   cancelToken.value = axios.CancelToken.source()
@@ -109,7 +109,7 @@ defineExpose({ showDialog })
     <div class="flex flex-col gap-6 pt-5">
       <p class="text-2xl font-bold m-0 text-secondary">Selecciona la cita</p>
       <DataTable :value="aCitas" table-style="min-width: 50rem" v-model:selection="citaSelected" data-key="id"
-        show-gridlines v-model:filters="filters" :rows="10" paginator
+        show-gridlines v-model:filters="filters" :rows="5" paginator
         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
         currentPageReportTemplate="Mostrando {first} de {last} - {totalRecords} citas">
         <!-- Header -->

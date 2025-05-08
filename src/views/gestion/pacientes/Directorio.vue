@@ -158,6 +158,7 @@ const onCitaSelected = async (param) => {
   try {
     const response = await linkWithCita(selectedRegistro.value, id_cita)
     toast.add({ severity: 'success', summary: 'Link completado con exito', life: 3000 })
+    cargarPaciente()
     isPageLoading.value = false
   }
   catch (error) {
