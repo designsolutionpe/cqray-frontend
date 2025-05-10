@@ -290,15 +290,27 @@ const router = createRouter({
                     path: '/inventario/caja-chica',
                     name: 'caja-chica',
                     component: () => import('@/views/gestion/inventario/caja-chica/CajaChica.vue'),
-                    meta: { requiresAuth: true, roles: ['Superadministrador'] }
-                }
+                    meta: { requiresAuth: true, roles: ['Superadministrador', 'Administrador'] }
+                },
+                {
+                    path: '/inventario/caja-chica/ingresos',
+                    name: 'caja-chica_ingresos',
+                    component: () => import('@/views/gestion/inventario/caja-chica/Ingresos.vue'),
+                    meta: { requiresAuth: true, roles: [] }
+                },
+                {
+                    path: '/inventario/caja-chica/egresos',
+                    name:' caja-chica_egresos',
+                    component: () => import('@/views/gestion/inventario/caja-chica/Egresos.vue'),
+                    meta: { requiresAuth: true, roles: [] }
+                },
             ]
         },
-        {
+        /*{
             path: '/landing',
             name: 'landing',
             component: () => import('@/views/pages/Landing.vue')
-        },
+        },*/
         {
             path: '/pages/notfound',
             name: 'notfound',

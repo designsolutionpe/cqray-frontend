@@ -192,8 +192,8 @@ const menuItems = ref([
                 icon: 'pi pi-fw pi-money-bill',
                 items: [
                     { label: 'Caja chica', to: '/inventario/caja-chica' },
-                    { label: 'Ingresos', to: '#' },
-                    { label: 'Egresos', to: '#' },
+                    { label: 'Ingresos', to: '/inventario/caja-chica/ingresos' },
+                    { label: 'Egresos', to: '/inventario/caja-chica/egresos' },
                 ]
             },
             {
@@ -468,6 +468,9 @@ const roleFiltering = ref({
         },
         'Gestión Ventas': {
             'Realizar Ventas': true
+        },
+        'Gestión e Inventario': {
+            'Caja': true
         }
     },
     'Contador': {

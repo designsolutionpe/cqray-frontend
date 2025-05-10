@@ -9,6 +9,7 @@
 
     const store = useStore()
     const id_sede = computed(()=> store.getters.id_sede || "")
+    const id_check_sede = computed(()=> store.getters.id_sede)
 
     const isPageLoading = ref(true)
 
@@ -34,11 +35,13 @@
 
                 response.forEach( i => {
                     const fecha = i.fecha
+                    const sede = i.sede
                     const balance = parseFloat(i.balance)
 
                     if(!group[fecha]){
                         group[fecha] = {
                             fecha,
+                            sede,
                             ingresos: 0,
                             egresos: 0,
                             saldo_inicial: 0,
@@ -94,7 +97,7 @@
         <Preloader v-if="isPageLoading"></Preloader>
         <div class="flex flex-col gap-4">
             <p class="text-2xl font-bold text-secondary">Caja Chica</p>
-            <div class="grid grid-cols-4">
+            <div class="grid grid-cols-4" v-if="id_sede != ''">
                 <div class="card border col-span-4">
                     <p class="text-lg font-bold text-secondary">Ingresos</p>
                     <p>S/. {{ parseFloat(today_data.ingresos).toFixed(2) }}</p>
@@ -108,6 +111,8 @@
                 <Column field="id" header="#" sortable>
                     <template #body="item">{{ item.index + 1 }}</template>
                 </Column>
+
+                <Column field="sede.nombre" header="Sede" sortable style="min-width: 8rem" v-if="id_sede == ''"></Column>
 
                 <Column field="fecha" header="Fecha de cierre" sortable></Column>
                 <Column field="ingresos" header="Ingresos" sortable>
