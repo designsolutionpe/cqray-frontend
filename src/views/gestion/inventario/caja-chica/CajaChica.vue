@@ -26,6 +26,15 @@ const today_data = ref({
     total: 0
 })
 
+const showOpenCaja = ref(false)
+const aperturaCajaInput = ref()
+
+const aperturaCajaChica = async () => {
+    showOpenCaja.value = false
+    isPageLoading.value = true
+    console.log("apertura con",aperturaCajaChica)
+}
+
 const cargarCajaChica = async () => {
     isPageLoading.value = true
     try {
@@ -91,12 +100,20 @@ onBeforeUnmount(() => {
 })
 </script>
 <template>
+    <Dialog v-model:visible="showOpenCaja" :show-header="false" modal :draggable="false" :closable="false" class="pt-4">
+        <p class="text-2xl font-bold text-secondary">Apertura Caja Chica</p>
+        <InputNumber v-model:model-value="aperturaCajaInput" mode="currency" currency="PER" locale="es-PE" fluid></InputNumber>>
+        <div class="grid grid-cols-4 gap-4 mt-4">
+            <Button class="col-span-4" icon="pi pi-times" label="Cancelar" outlined  fluid @click="showOpenCaja = false"></Button>
+            <Button class="col-span-4" icon="pi pi-check" label="Guardar" fluid></Button>
+        </div>
+    </Dialog>
     <div class="card relative overflow-hidden" v-if="id_sede != ''">
         <Preloader v-if="isPageLoading"></Preloader>
         <div class="flex flex-col gap-4">
             <div class="flex gap-4">
                 <p class="text-2xl font-bold text-secondary m-0">Caja Chica</p>
-                <Button label="Aperturar caja"></Button>
+                <Button label="Aperturar caja" @click="showOpenCaja = true"></Button>
             </div>
             <div class="grid grid-cols-4 gap-6 items-center">
                 <div class="card !p-5 !m-0 border col-span-4 sm:col-span-2 lg:col-span-1">
