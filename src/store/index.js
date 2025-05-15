@@ -10,7 +10,8 @@ export default createStore({
     nombre: localStorage.getItem('nombre') || '',
     apellido: localStorage.getItem('apellido') || '',
     foto: localStorage.getItem('foto') || null,
-    id_paciente: localStorage.getItem('id_paciente_directorio') || null
+    id_paciente: localStorage.getItem('id_paciente_directorio') || null,
+    caja_current_date: localStorage.getItem('caja_current_date') || ''
   },
 
   mutations: {
@@ -59,11 +60,16 @@ export default createStore({
       localStorage.removeItem('nombre');
       localStorage.removeItem('apellido');
       localStorage.removeItem('foto');
-      localStorage.removeItem('id_paciente_directorio')
+      localStorage.removeItem('id_paciente_directorio');
+      localStorage.removeItem('caja_current_date');
     },
     updatePacienteID(state, id) {
       state.id_paciente = id
       localStorage.setItem('id_paciente_directorio', id)
+    },
+    updateCajaCurrentDate(state, current_date) {
+      state.caja_current_date = current_date
+      localStorage.setItem('caja_current_date', current_date)
     }
   },
   actions: {
@@ -78,6 +84,9 @@ export default createStore({
     },
     setPacienteID({ commit }, payload) {
       commit('updatePacienteID', payload)
+    },
+    setCajaCurrentDate({ commit }, payload) {
+      commit('updateCajaCurrentDate', payload)
     }
   },
   getters: {
@@ -90,6 +99,7 @@ export default createStore({
     apellido: (state) => state.apellido,
     nombreCompleto: (state) => `${state.nombre} ${state.apellido}`.trim(),
     foto: (state) => state.foto,
-    id_paciente: (state) => state.id_paciente
+    id_paciente: (state) => state.id_paciente,
+    caja_current_date: (state) => state.caja_current_date,
   }
 });

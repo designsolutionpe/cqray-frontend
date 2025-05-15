@@ -296,13 +296,13 @@ const router = createRouter({
                     path: '/inventario/caja-chica/ingresos',
                     name: 'caja-chica_ingresos',
                     component: () => import('@/views/gestion/inventario/caja-chica/Ingresos.vue'),
-                    meta: { requiresAuth: true, roles: [] }
+                    meta: { requiresAuth: true, roles: ['Superadministrador', 'Administrador'] }
                 },
                 {
                     path: '/inventario/caja-chica/egresos',
-                    name:' caja-chica_egresos',
+                    name: ' caja-chica_egresos',
                     component: () => import('@/views/gestion/inventario/caja-chica/Egresos.vue'),
-                    meta: { requiresAuth: true, roles: [] }
+                    meta: { requiresAuth: true, roles: ['Superadministrador', 'Administrador'] }
                 },
             ]
         },
@@ -353,7 +353,6 @@ router.beforeEach((to, from, next) => {
         next({ name: 'accessDenied' });  // Si el rol no coincide, redirigir a acceso denegado
     }
     else {
-        console.log("rol", store.getters.userRole);
         next();  // Permitir la navegación si todo está bien
     }
 });
