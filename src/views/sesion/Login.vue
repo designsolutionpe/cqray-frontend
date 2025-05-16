@@ -23,6 +23,12 @@ const loginUserHandler = async () => {
 
     // Aquí se espera que el backend devuelva algo como un token de acceso
     if (response && response.token) {
+        // Genera el dia de hoy para funcionalidad de caja chica
+        const d = new Date().toDateString()
+        const currentCajaDate = new Date(d).getTime()
+        store.dispatch('setCajaCurrentDate',currentCajaDate)
+
+        // Guarda datos usuario
       store.dispatch('login', {
         isAuthenticated: true,
         id: response.data.id,

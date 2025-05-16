@@ -1,8 +1,8 @@
 import api from '@/service/Api'
 
-export const getCajaChica = async (cancelToken, sede = "", tipo = "") => {
+export const getCajaChica = async (cancelToken, sede = "", tipo = "", fecha = "") => {
     try {
-        const response = await api.get(`/cajachica?sede=${sede}&tipo=${tipo}`, {
+        const response = await api.get(`/cajachica?sede=${sede}&tipo=${tipo}&fecha=${fecha}`, {
             cancelToken: cancelToken || null
         })
         if (typeof response.cancelled != 'undefined')

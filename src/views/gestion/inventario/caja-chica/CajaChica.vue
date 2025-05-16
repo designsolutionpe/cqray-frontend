@@ -55,7 +55,7 @@ const aperturaCajaChica = async () => {
             tipo: 'Ingreso',
             balance: aperturaCajaInput.value,
             id_sede: id_sede.value,
-            fecha: new Date(now).getTime().toString()
+            fecha: caja_current_data.value.toString()
         }
         const response = await insertCajaChicaValue(body, 'i')
         cargarCajaChica()
@@ -121,18 +121,18 @@ const cargarCajaChica = async () => {
     }
 }
 
-const calculateNow = () => {
+/*const calculateNow = () => {
     const d = new Date().toDateString()
     const n = new Date(d).getTime()
     store.dispatch('setCajaCurrentDate', n)
-}
+}*/
 
 onBeforeMount(() => {
     cancelToken.value = axios.CancelToken.source()
 })
 
 onMounted(() => {
-    calculateNow()
+    //calculateNow()
     cargarCajaChica()
 })
 

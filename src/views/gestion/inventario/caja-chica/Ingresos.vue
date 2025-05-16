@@ -1,6 +1,6 @@
 <script setup>
 import Preloader from '@/components/Preloader.vue'
-import { getCajaChica } from '@/service/gestion/inventario/CajaChicaService'
+import { getCajaChica, insertCajaChicaValue } from '@/service/gestion/inventario/CajaChicaService'
 import { handleServerError } from '@/utils/Util'
 import axios from 'axios'
 import { useToast } from 'primevue'
@@ -32,6 +32,7 @@ const isCajaOpened = ref(false)
 
 const showCreateIncome = ref(false)
 
+const incomeInput = ref(null)
 
 const cargarIngresos = async () => {
     isIngresosLoading.value = true
@@ -40,6 +41,7 @@ const cargarIngresos = async () => {
 
         if (response) {
             console.log(response)
+            if( response.find( i => parseInt(i.fecha) == caja_current_date.value ) != undefined ) isCajaOpened.value = true
             aItems.value = response.filter(i => !i.flg_inicial)
         }
 
@@ -49,6 +51,28 @@ const cargarIngresos = async () => {
         isIngresoLoading.value = false
         handleServerError(error, "Obteniendo ingresos", toast)
     }
+}
+
+const onCreateIncome = async () => {
+   isPageLoading.value = true
+   try
+   {
+    const body = {
+        tipo: 'Ingreso',
+        balance: incomeInput.value,
+        id_sede: id_sede.value,
+        fecha: caja_current_date.value.toString()
+    }
+
+    const response = await insertCajaChicaValue(body)
+    showCreateIncome.value = false
+    cargarIngresos()
+   }
+   catch(error)
+   {
+    isPageLoading.value = false
+    handleServerError(error,"Registrar ingreso",toast)
+   }
 }
 
 onBeforeMount(() => {
@@ -68,6 +92,11 @@ onBeforeUnmount(() => {
     <Dialog v-model:visible="showCreateIncome" :show-header="false" modal :draggable="false" :closable="false"
         class="pt-4">
         <p class="text-xl font-bold text-secondary m-0">Nuevo ingreso</p>
+        <InputNumber v-model:model-value="incomeInput" fluid mode="currency" currency="PEN" locale="es-PE"></InputNumber>
+        <div class="grid grid-cols-4 gap-4">
+            <Button class="col-span-4 md:col-span-2" outlined icon="pi pi-times" label="Cancelar" @click="showCreateIncome = false"></Button>
+            <Button class="col-span-4 md:col-span-2" icon="pi pi-check" label="Guardar ingreso" @click="onCreateIncome"></Button>
+        </div>
     </Dialog>
     <div class="card relative overflow-hidden">
         <Preloader v-if="isPageLoading"></Preloader>
@@ -85,7 +114,9 @@ onBeforeUnmount(() => {
 
                 <Column field="sede.nombre" header="Sede" style="min-width: 6rem"></Column>
 
-                <Column field="fecha" header="Fecha" style="min-width: 5rem"></Column>
+                <Column field="fecha" header="Fecha" style="min-width: 5rem">
+                <template #body="item">{{ new Date(parseInt(item.data.fecha)).toLocaleDateString() }}</template>
+                </Column>
                 <Column field="balance" header="Monto" style="min-width: 5rem">
                     <template #body="item">S/. {{ parseFloat(item.data.balance).toFixed(2) }}</template>
                 </Column>
