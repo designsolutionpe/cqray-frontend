@@ -51,7 +51,7 @@ const getEstadoCita = (item, target) => {
 }
 
 const getEstadoPago = (item, target) => {
-  console.log('estado', 'item', item, 'target', target)
+  //console.log('estado', 'item', item, 'target', target)
   switch (item) {
     case 0:
       if (target == 'severity') return 'info'

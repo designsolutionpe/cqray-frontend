@@ -137,7 +137,7 @@ const bViewDialog = ref(false)
 const isUpdateLoading = ref(false)
 
 const updateSedeData = (sede) => {
-  console.log('sede seleccionada', sede)
+  //console.log('sede seleccionada', sede)
   oSedeData.value = {
     id: sede.id,
     nombre: sede.nombre,

@@ -1,7 +1,7 @@
 <script setup>
 import { loginUser } from '@/service/sesion/LoginService';
-import { ref } from 'vue';
 import { useToast } from 'primevue/usetoast';
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 
@@ -23,21 +23,34 @@ const loginUserHandler = async () => {
 
     // Aquí se espera que el backend devuelva algo como un token de acceso
     if (response && response.token) {
-        // Genera el dia de hoy para funcionalidad de caja chica
-        const d = new Date().toDateString()
-        const currentCajaDate = new Date(d).getTime()
-        store.dispatch('setCajaCurrentDate',currentCajaDate)
+      // Genera el dia de hoy para funcionalidad de caja chica
 
-        // Guarda datos usuario
+      const { tipo } = response.data.caja_last_item || { tipo: 'Terminal' }
+
+      const d = new Date().toDateString()
+      const currentCajaDate = new Date(d).getTime()
+
+      const cajaChicaData = {
+        is_opened: (tipo != 'Terminal'),
+        current_balance: null,
+        current_date: currentCajaDate,
+        last_record: response.data.caja_last_item
+      }
+
+      store.dispatch('setCajaChicaData', cajaChicaData)
+
+      const { user } = response.data
+
+      // Guarda datos usuario
       store.dispatch('login', {
         isAuthenticated: true,
-        id: response.data.id,
-        id_sede: response.data.id_sede,
-        userRole: response.data.role.nombre,
+        id: user.id,
+        id_sede: user.id_sede,
+        userRole: user.role.nombre,
         token: response.token,
-        nombre: response.data.persona.nombre,
-        apellido: response.data.persona.apellido,
-        foto: `${import.meta.env.VITE_BASE_URL}/api/images/${response.data.persona.foto}`
+        nombre: user.persona.nombre,
+        apellido: user.persona.apellido,
+        foto: `${import.meta.env.VITE_BASE_URL}/api/images/${user.persona.foto}`
       });
       isLoading.value = false
       router.push({ name: 'dashboard' });

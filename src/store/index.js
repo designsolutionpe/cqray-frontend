@@ -11,7 +11,7 @@ export default createStore({
     apellido: localStorage.getItem('apellido') || '',
     foto: localStorage.getItem('foto') || null,
     id_paciente: localStorage.getItem('id_paciente_directorio') || null,
-    caja_current_date: localStorage.getItem('caja_current_date') || ''
+    caja_chica_data: JSON.parse(localStorage.getItem('caja_chica_data')) || {}
   },
 
   mutations: {
@@ -61,15 +61,15 @@ export default createStore({
       localStorage.removeItem('apellido');
       localStorage.removeItem('foto');
       localStorage.removeItem('id_paciente_directorio');
-      localStorage.removeItem('caja_current_date');
+      localStorage.removeItem('caja_chica_data');
     },
     updatePacienteID(state, id) {
       state.id_paciente = id
       localStorage.setItem('id_paciente_directorio', id)
     },
-    updateCajaCurrentDate(state, current_date) {
-      state.caja_current_date = current_date
-      localStorage.setItem('caja_current_date', current_date)
+    updateCajaChicaData(state, data) {
+      state.caja_chica_data = data
+      localStorage.setItem('caja_chica_data', JSON.stringify(data))
     }
   },
   actions: {
@@ -85,8 +85,8 @@ export default createStore({
     setPacienteID({ commit }, payload) {
       commit('updatePacienteID', payload)
     },
-    setCajaCurrentDate({ commit }, payload) {
-      commit('updateCajaCurrentDate', payload)
+    setCajaChicaData({ commit }, payload) {
+      commit('updateCajaChicaData', payload)
     }
   },
   getters: {
@@ -100,6 +100,6 @@ export default createStore({
     nombreCompleto: (state) => `${state.nombre} ${state.apellido}`.trim(),
     foto: (state) => state.foto,
     id_paciente: (state) => state.id_paciente,
-    caja_current_date: (state) => state.caja_current_date,
+    caja_chica_data: (state) => state.caja_chica_data,
   }
 });

@@ -129,7 +129,7 @@ const cargarSedes = async () => {
 const editQuiro = (quiro) => {
   updateQuiroSelected(quiro)
   editDialog.value = true
-  console.log(quiro)
+  //console.log(quiro)
 }
 
 const verQuiropractico = ref(false)
@@ -212,7 +212,7 @@ const onImageError = () => {
 
 const isUpdateLoading = ref(false)
 const updateQuiro = async () => {
-  console.log(oQuiropracticoValues.value)
+  //console.log(oQuiropracticoValues.value)
 
   const sanitizeValue = (value) => {
     return value && typeof value === 'string' ? value.trim() : '';
@@ -236,7 +236,7 @@ const updateQuiro = async () => {
   formData.append('email', sanitizeValue(oQuiropracticoValues.value.email));
 
   //Datos de Quiropractico
-  console.log('id_sede', oQuiropracticoValues.value.id_sede)
+  //console.log('id_sede', oQuiropracticoValues.value.id_sede)
   formData.append('id_sede', sanitizeNumber(oQuiropracticoValues.value.id_sede));
   formData.append('numero_colegiatura', sanitizeValue(oQuiropracticoValues.value.numero_colegiatura));
   formData.append('especialidad', sanitizeValue(oQuiropracticoValues.value.especialidad));

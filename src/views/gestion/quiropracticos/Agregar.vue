@@ -124,7 +124,7 @@ const enviarServidor = async () => {
   isPageLoading.value = true
   try {
     // Peticion
-    console.log('check submit', oNuevoQuiro.value)
+    //console.log('check submit', oNuevoQuiro.value)
     const response = await createQuiropractico(oNuevoQuiro.value)
     isPageLoading.value = false
     toast.add({
@@ -158,7 +158,7 @@ watch(
 )
 
 // watch([oNuevoQuiro], () => {
-//   console.log('checking post', oNuevoQuiro.value)
+//   //console.log('checking post', oNuevoQuiro.value)
 // })
 
 const formatDate = (d) => {

@@ -140,7 +140,6 @@ const cargarPacientes = async () => {
       oPacienteSelected.value = paciente_ruta.length > 0 ? paciente_ruta[0].id : response[0].id
 
       const paciente_obj = aPacientes.value.find(p => p.id == oPacienteSelected.value)
-      console.log("loading paciente", paciente_obj)
       nEstadoPacienteSelected.value = paciente_obj.estado.id
     }
     isPacientesLoading.value = false
@@ -209,7 +208,7 @@ const cargarArticulos = async () => {
   try {
     const response = await getArticulosServicios(cancelToken.value.token)
     if (response) {
-      console.log('PAQUETES SERVIDOR', response)
+      //console.log('PAQUETES SERVIDOR', response)
       aPaquetes.value = response
       aPaquetesSelect.value = response.filter(q => q.tipo_articulo == 2).map(q => ({
         label: q.nombre,
@@ -265,7 +264,7 @@ const sendWhatsappMessage = () => {
 
   const data = oWhatsappLinkData.value
 
-  console.log('DATA WHATSAPP', data)
+  //console.log('DATA WHATSAPP', data)
 
   const telefono = data.telefono.replace(/\D/g, ''); // Eliminar caracteres no numéricos
 
@@ -327,14 +326,14 @@ watch(oPacienteSelected, (id_paciente) => {
   const paciente = aPacientes.value.find(p => p.id === id_paciente)
   var proximo_estado = paciente.estado.id
 
-  console.log("update paciente", paciente)
+  //console.log("update paciente", paciente)
 
   // if (paciente.historial_clinico.length > 0) {
   //   let paciente = aPacientes.value.find(p => p.id === id_paciente)
   //   var paquete_activo = paciente.historial_clinico.filter(q => q.activo)
   //   if (paquete_activo.length > 0) {
   //     paquete_activo = paquete_activo[0].paquete.nombre.toLowerCase()
-  //     console.log('estados', aEstadosPacienteSelect.value, 'paquete', paquete_activo)
+  //     //console.log('estados', aEstadosPacienteSelect.value, 'paquete', paquete_activo)
   //     const estado_paciente = aEstadosPacienteSelect.value.find(e => paquete_activo.includes(e.label.toLowerCase())).value
   //     if (estado_paciente != undefined) {
   //       proximo_estado = estado_paciente
@@ -419,7 +418,7 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
-  console.log("ANTES DE DESTRUIR EL COMPOE")
+  //console.log("ANTES DE DESTRUIR EL COMPOE")
   cancelToken.value.cancel()
 })
 

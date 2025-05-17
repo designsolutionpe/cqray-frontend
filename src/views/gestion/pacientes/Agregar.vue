@@ -119,7 +119,7 @@ const cargarEstadoPaciente = async () => {
         ...oPacienteInfo.value,
         estado: response[0].id
       }
-      console.log('paciente estad', oPacienteInfo.value)
+      //console.log('paciente estad', oPacienteInfo.value)
     }
     isEstadoPacienteLoading.value = false
   }
@@ -145,7 +145,7 @@ const cargarPaquetes = async () => {
 }
 
 const crearPaciente = async () => {
-  console.log('POST', oPacienteInfo.value)
+  //console.log('POST', oPacienteInfo.value)
   isPageLoading.value = true
   try {
     for (let key in oPacienteInfo.value) {
@@ -236,7 +236,7 @@ const onEstadoChanged = e => {
 }
 
 const onGetExtraInfo = (info) => {
-  console.log('extra info', info)
+  //console.log('extra info', info)
 }
 
 onBeforeMount(() => {

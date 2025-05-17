@@ -37,7 +37,7 @@ const p_estado = ref()
 const n_paquetes_activos = ref([])
 
 const changeEstadoBackground = (estado) => {
-  console.log(estado)
+  //console.log(estado)
   switch (estado) {
     case 'Nuevo':
       p_estado.value.classList.add('bg-green-400')
@@ -61,7 +61,7 @@ const changeEstadoBackground = (estado) => {
 }
 
 const getEstadoPago = (item, target) => {
-  console.log('estado', 'item', item, 'target', target)
+  //console.log('estado', 'item', item, 'target', target)
   switch (item) {
     case 0:
       if (target == 'severity') return 'info'
@@ -102,15 +102,15 @@ const cargarPaciente = async () => {
     if (response) {
       aPacientes.value = [response]
       oPacienteInfo.value = response
-      console.log('PACIENTE', oPacienteInfo.value)
+      //console.log('PACIENTE', oPacienteInfo.value)
       changeEstadoBackground(response.estado.nombre)
       oPacienteInfo.value.citas = oPacienteInfo.value.citas.map(c => ({
         ...c,
         hora_cita: new Date(c.fecha_cita + 'T' + c.hora_cita) || null
       }))
       n_paquetes_activos.value = response.historial_clinico.filter(i => i.activo)
-      console.log('paquetes activos', n_paquetes_activos.value)
-      console.log(oPacienteInfo.value.citas)
+      //console.log('paquetes activos', n_paquetes_activos.value)
+      //console.log(oPacienteInfo.value.citas)
       isPageLoading.value = false
     }
   }
@@ -141,14 +141,14 @@ watch(
   oPacienteInfo,
   ({ persona: { nombre, apellido } }) => {
     sPacienteNombre.value = `${nombre} ${apellido}`
-    console.log('paciente nombre', sPacienteNombre.value)
+    //console.log('paciente nombre', sPacienteNombre.value)
   }
 )
 
 const onSelectCita = (item_id) => {
   selectedRegistro.value = item_id
   registrosActivoDisponibles.value = n_paquetes_activos.value.map(q => q.id)
-  console.log('registros activos disponibles', registrosActivoDisponibles.value)
+  //console.log('registros activos disponibles', registrosActivoDisponibles.value)
   seleccionaCitaRef.value.showDialog()
 }
 
@@ -169,7 +169,7 @@ const onCitaSelected = async (param) => {
 
 </script>
 <template>
-  <SeleccionaCita ref="seleccionaCitaRef" :dont-show-citas="registrosActivoDisponibles" :sPaciente="sPacienteNombre"
+  <SeleccionaCita ref="seleccionaCitaRef" :dont-show-citas="registrosActivoDisponibles" :sPaciente="sPacienteNombre" :idSedePaciente="oPacienteInfo.id_sede" :idPaciente="oPacienteInfo.id"
     v-on:send-cita-selected="onCitaSelected"></SeleccionaCita>
   <div class="card relative overflow-hidden md:w-[650px] lg:w-full">
     <Preloader v-if="isPageLoading"></Preloader>
@@ -379,6 +379,9 @@ const onCitaSelected = async (param) => {
                   <template #body="pacienteItem">
                     <Button v-if="!pacienteItem.data.id_cita" icon="pi pi-link" outlined rounded class="mr-2"
                       @click="onSelectCita(pacienteItem.data.id)"></Button>
+                    <!-- <router-link :to="'/gestion/citas/todas?id='+pacienteItem.data.id_cita"> -->
+                    <Button v-if="pacienteItem.data.id_cita" disabled icon="pi pi-eye" severity="info" outlined rounded class="mr-2" v-tooltip.top="{ value: '[En mantenimiento]' }"></Button>
+                    <!-- </router-link> -->
                   </template>
                 </Column>
 

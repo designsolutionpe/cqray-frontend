@@ -99,7 +99,7 @@ const cargarComprobantes = async () => {
     const response = await getComprobantes(cancelToken.value.token)
     if (response) {
       aHistorialPagos.value = response.data
-      console.log('pagos', aHistorialPagos.value)
+      //console.log('pagos', aHistorialPagos.value)
     }
     isPagosLoading.value = false
   }

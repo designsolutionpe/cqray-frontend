@@ -29,10 +29,8 @@ const bDisableMax = ref(true)
 const oDateInit = ref(null)
 
 const getMaxQuantity = () => {
-  console.log('max quantity', aServicios.value)
   if (aServicios.value.length > 0) {
     const q = aServicios.value.find(q => q.id === nServiceSelected.value)
-    console.log('paquete max', q)
     nMaxQuantity.value = q.cantidad
   }
   else nMaxQuantity.value = 1
@@ -49,7 +47,6 @@ watch(
   ]) => {
     bDisableMax.value = false
     getMaxQuantity()
-    console.log('quanity', quantity)
     emit('updateExtraInfo', {
       paquete,
       quantity,
@@ -61,7 +58,6 @@ watch(
   () => [props.nEstadoPaciente, aServicios.value],
   ([estado]) => {
     bDisableMax.value = true
-    console.log("id_sede", id_sede.value)
     aServiciosSelect.value = aServicios.value.filter(s => (s.id_estado_paciente === estado) && (id_sede.value ? s.id_sede == id_sede.value : true)).map(s => ({
       label: s.nombre,
       value: s.id

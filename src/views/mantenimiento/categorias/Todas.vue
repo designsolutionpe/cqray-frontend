@@ -60,7 +60,7 @@ watch([sNombreInput, nEstadoSelected], (values) => {
 })
 
 const updateCategoriaData = (data) => {
-  console.log('selected data', data)
+  //console.log('selected data', data)
   oCategoriaData.value.id = data.id
   sNombreInput.value = data.nombre
   nEstadoSelected.value = data.estado
@@ -75,7 +75,7 @@ const sendCategoriaData = async () => {
   isUpdateCategoria.value = true
   try {
     const response = await updateCategoria(oCategoriaData.value.id, oCategoriaData.value)
-    console.log('categoria update', response)
+    //console.log('categoria update', response)
     isUpdateCategoria.value = false
     bOpenEditDialog.value = false
     cargarCategorias()
@@ -110,7 +110,7 @@ const cargarCategorias = async () => {
   try {
     const response = await getCategorias(cancelToken.value.token)
     if (response) {
-      console.log('categorias', response)
+      //console.log('categorias', response)
       aCategorias.value = response
     }
     isPageLoading.value = false

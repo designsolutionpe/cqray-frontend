@@ -1,8 +1,5 @@
 <script setup>
-import { getSedes } from '@/service/mantenimiento/SedeService';
-import { createSede } from '@/service/mantenimiento/SedeService';
-import { updateSede } from '@/service/mantenimiento/SedeService';
-import { deleteSede } from '@/service/mantenimiento/SedeService';
+import { createSede, deleteSede, getSedes, updateSede } from '@/service/mantenimiento/SedeService';
 import { FilterMatchMode } from '@primevue/core/api';
 import { useToast } from 'primevue/usetoast';
 import { onMounted, ref } from 'vue';
@@ -121,7 +118,7 @@ async function saveSede() {
             sedeDialog.value = false;
             sede.value = {};
         } catch (error) {
-            console.log("Error:", error);
+            //console.log("Error:", error);
             console.error('Error al guardar la sede:', error);
             toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudo guardar la sede', life: 3000 });
         }

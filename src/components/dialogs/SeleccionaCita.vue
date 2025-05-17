@@ -20,6 +20,14 @@ const props = defineProps({
     type: String,
     required: true
   },
+  idSedePaciente: {
+    type: Number,
+    required: true
+  },
+  idPaciente: {
+    type: Number,
+    required: true
+  }
 })
 
 const bShow = ref(false)
@@ -32,7 +40,6 @@ const bDialogLoading = ref(true)
 const filters = ref({})
 
 const initFilters = () => {
-  console.log('props', props)
   filters.value = {
     global: { value: null, matchMode: FilterMatchMode.CONTAINS }
   }
@@ -59,7 +66,7 @@ const onCitaSelected = () => {
 const cargarCitas = async () => {
   bIsCitasLoading.value = true
   try {
-    const response = await getCitas(cancelToken.value.token)
+    const response = await getCitas(cancelToken.value.token,props.idSedePaciente,props.idPaciente)
     if (response) {
       aCitas.value = response
     }

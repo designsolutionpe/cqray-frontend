@@ -83,7 +83,7 @@ function removeImage() {
 
 function onImageError() {
 
-    console.log('error test', previewSrc.value, bImageError.value)
+    //console.log('error test', previewSrc.value, bImageError.value)
 
     bImageError.value = true
 

@@ -39,7 +39,7 @@ const onCreateCategoria = async () => {
   isPageLoading.value = true
   try {
     const response = await createCategoria(oNuevaCategoria.value)
-    console.log('check', response)
+    //console.log('check', response)
     resetInputs()
     toast.add({
       severity: 'success',

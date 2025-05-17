@@ -16,9 +16,9 @@ export const getCajaChica = async (cancelToken, sede = "", tipo = "", fecha = ""
     }
 }
 
-export const insertCajaChicaValue = async (data, estado = '') => {
+export const insertCajaChicaValue = async (data) => {
     try {
-        const response = await api.post(`/cajachica?estado=${estado}`, data)
+        const response = await api.post(`/cajachica`, data)
         return response.data
     }
     catch (error) {

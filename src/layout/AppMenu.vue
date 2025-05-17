@@ -517,8 +517,6 @@ const updateMenu = () => {
                 if (Object.keys(role[module_name]).includes(submodule_name)) {
                     const submodule_obj = role[module_name][submodule_name]
 
-                    console.log('submodule', submodule_obj)
-
                     if (typeof submodule_obj == 'boolean' && submodule_obj) return subitem
                     else if (typeof submodule_obj == 'boolean' && !submodule_obj) return
 

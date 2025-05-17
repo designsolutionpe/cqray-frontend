@@ -8,8 +8,8 @@ import { handleServerError } from '@/utils/Util';
 import axios from 'axios';
 import { useToast } from 'primevue/usetoast';
 import { computed, onBeforeMount, onBeforeUnmount, onMounted, ref, watch } from 'vue';
-import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
+import { useStore } from 'vuex';
 
 const router = useRouter();
 const store = useStore()
@@ -229,7 +229,7 @@ const handleSelectComprobante = (comprobante) => {
   compSeleccionado.value = comprobante.serie + '-' + comprobante.numero 
   + ' ' + comprobante.persona.apellido + ' ' + comprobante.persona.nombre;
 
-  console.log("comprobante_01", comprobante);
+  //console.log("comprobante_01", comprobante);
 
   nota.value.id_sede = comprobante.sede.id
   nota.value.id_comprobante = comprobante.id;
@@ -276,11 +276,11 @@ async function saveNota(){
     try {
         nota.value.detalles = detalles.value;
 
-        console.log("value:", nota.value);
+        //console.log("value:", nota.value);
 
         const response = await createNotaCredito(nota.value,cancelToken.value.token);
 
-        console.log("response:", response);
+        //console.log("response:", response);
 
         if (response){
             toast.add({ severity: 'success', summary: 'Éxito', detail: 'Nota de crédito creada', life: 3000 });

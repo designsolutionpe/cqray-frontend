@@ -165,7 +165,7 @@ const onResetComponent = () => {
 }
 
 const onUpdateUser = async () => {
-  console.log('user', oUsuarioSelected.value)
+  //console.log('user', oUsuarioSelected.value)
   isPageLoading.value = true
   try {
     const response = await createUsuario(oUsuarioSelected.value)

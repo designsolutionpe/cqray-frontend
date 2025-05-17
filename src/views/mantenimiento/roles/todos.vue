@@ -72,7 +72,7 @@ const bShowEdit = ref(false)
 const isUpdateLoading = ref(false)
 
 const loadSelectedUser = (user) => {
-  console.log('LOAD USER', user)
+  //console.log('LOAD USER', user)
   oUsuarioSelected.value = {
     id: user.id,
     nombre: user.nombre,
@@ -92,7 +92,7 @@ const onResetComponent = () => {
 
 const onUpdateUser = async () => {
   isUpdateLoading.value = true
-  console.log('user', oUsuarioSelected.value)
+  //console.log('user', oUsuarioSelected.value)
   try {
     const response = await updateRole(oUsuarioSelected.value.id, oUsuarioSelected.value)
     isUpdateLoading.value = false

@@ -9,11 +9,13 @@ import { FilterMatchMode } from '@primevue/core/api'
 import axios from 'axios'
 import { useToast } from 'primevue'
 import { computed, onBeforeMount, onBeforeUnmount, onMounted, ref } from 'vue'
+import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
 
 const toast = useToast()
 
 const store = useStore()
+const route = useRoute()
 const isSedeLoading = ref(true)
 const isEstadoCitaLoading = ref(true)
 const isEstadoPacienteLoading = ref(true)
@@ -289,7 +291,7 @@ const onShowDialog = (id) => {
 }
 
 const sendWhatsappMessage = () => {
-  console.log('test', citaSelected.value)
+  //console.log('test', citaSelected.value)
   const info = citaSelected.value
   const telefono = info.paciente.numero.replace(/\D/g, ''); // Eliminar caracteres no numéricos
 
@@ -298,7 +300,7 @@ const sendWhatsappMessage = () => {
   const nomPaciente = paciente || 'Estimado/a';
 
   const fecha = info.fecha_cita ? formatDate(info.fecha_cita) : 'la fecha programada';
-  console.log('VERIFICAR', info.hora_cita)
+  //console.log('VERIFICAR', info.hora_cita)
   const hora = typeof info.hora_cita != 'string' ? info.hora_cita.toLocaleTimeString('es-PE', { hour12: true }) : info.hora_cita
 
   // const horarioSelecciodo = citaSelected.value.horario;
@@ -350,6 +352,11 @@ onMounted(() => {
   cargarEstadoCita()
   cargarEstadoPaciente()
   cargarCitas()
+
+  if(route.query.id)
+  {
+    console.log('cita a ver',route.query.id)
+  }
 })
 
 onBeforeUnmount(() => {

@@ -21,7 +21,14 @@ watch(
 
 const store = useStore()
 const id_sede = computed(() => store.getters.id_sede || "")
-const caja_current_date = computed(() => store.getters.caja_current_date)
+const caja_chica_data_stored = computed(() => store.getters.caja_chica_data)
+
+const caja_chica_data = ref(caja_chica_data_stored.value)
+
+watch(caja_chica_data, (va) => {
+    //console.log('caja chica data', va)
+    store.dispatch('setCajaChicaData', caja_chica_data.value)
+})
 
 const toast = useToast()
 const cancelToken = ref()
@@ -40,9 +47,8 @@ const cargarIngresos = async () => {
         const response = await getCajaChica(cancelToken.value.token, id_sede.value, "Ingreso")
 
         if (response) {
-            console.log(response)
-            if( response.find( i => parseInt(i.fecha) == caja_current_date.value ) != undefined ) isCajaOpened.value = true
-            aItems.value = response.filter(i => !i.flg_inicial)
+            //console.log(response)
+            aItems.value = response
         }
 
         isIngresosLoading.value = false
@@ -54,25 +60,27 @@ const cargarIngresos = async () => {
 }
 
 const onCreateIncome = async () => {
-   isPageLoading.value = true
-   try
-   {
-    const body = {
-        tipo: 'Ingreso',
-        balance: incomeInput.value,
-        id_sede: id_sede.value,
-        fecha: caja_current_date.value.toString()
-    }
+    isPageLoading.value = true
+    try {
+        const body = {
+            tipo: 'Ingreso',
+            balance: incomeInput.value,
+            id_sede: id_sede.value,
+            fecha: caja_chica_data.value.current_date.toString()
+        }
 
-    const response = await insertCajaChicaValue(body)
-    showCreateIncome.value = false
-    cargarIngresos()
-   }
-   catch(error)
-   {
-    isPageLoading.value = false
-    handleServerError(error,"Registrar ingreso",toast)
-   }
+        const response = await insertCajaChicaValue(body)
+        caja_chica_data.value = {
+            ...caja_chica_data.value,
+            current_balance: caja_chica_data.value.current_balance + incomeInput.value
+        }
+        showCreateIncome.value = false
+        cargarIngresos()
+    }
+    catch (error) {
+        isPageLoading.value = false
+        handleServerError(error, "Registrar ingreso", toast)
+    }
 }
 
 onBeforeMount(() => {
@@ -92,10 +100,13 @@ onBeforeUnmount(() => {
     <Dialog v-model:visible="showCreateIncome" :show-header="false" modal :draggable="false" :closable="false"
         class="pt-4">
         <p class="text-xl font-bold text-secondary m-0">Nuevo ingreso</p>
-        <InputNumber v-model:model-value="incomeInput" fluid mode="currency" currency="PEN" locale="es-PE"></InputNumber>
+        <InputNumber v-model:model-value="incomeInput" fluid mode="currency" currency="PEN" locale="es-PE">
+        </InputNumber>
         <div class="grid grid-cols-4 gap-4">
-            <Button class="col-span-4 md:col-span-2" outlined icon="pi pi-times" label="Cancelar" @click="showCreateIncome = false"></Button>
-            <Button class="col-span-4 md:col-span-2" icon="pi pi-check" label="Guardar ingreso" @click="onCreateIncome"></Button>
+            <Button class="col-span-4 md:col-span-2" outlined icon="pi pi-times" label="Cancelar"
+                @click="showCreateIncome = false"></Button>
+            <Button class="col-span-4 md:col-span-2" icon="pi pi-check" label="Guardar ingreso"
+                @click="onCreateIncome"></Button>
         </div>
     </Dialog>
     <div class="card relative overflow-hidden">
@@ -104,8 +115,8 @@ onBeforeUnmount(() => {
             <div class="flex gap-4">
                 <p class="text-2xl font-bold text-secondary m-0">Ingresos</p>
                 <Button icon="pi pi-plus" label="Nuevo ingreso"
-                    v-tooltip.top="{ value: 'Debe abrir caja primero', disabled: isCajaOpened }"
-                    :disabled="!isCajaOpened" @click="showCreateIncome = true"></Button>
+                    v-tooltip.top="{ value: 'Debe abrir caja primero', disabled: caja_chica_data.is_opened }"
+                    :disabled="!caja_chica_data.is_opened" @click="showCreateIncome = true"></Button>
             </div>
             <DataTable :value="aItems" table-style="30rem" show-gridlines removable-sort>
                 <Column field="id" header="#" sortable style="min-width: 1rem">
@@ -115,7 +126,7 @@ onBeforeUnmount(() => {
                 <Column field="sede.nombre" header="Sede" style="min-width: 6rem"></Column>
 
                 <Column field="fecha" header="Fecha" style="min-width: 5rem">
-                <template #body="item">{{ new Date(parseInt(item.data.fecha)).toLocaleDateString() }}</template>
+                    <template #body="item">{{ new Date(parseInt(item.data.fecha)).toLocaleDateString() }}</template>
                 </Column>
                 <Column field="balance" header="Monto" style="min-width: 5rem">
                     <template #body="item">S/. {{ parseFloat(item.data.balance).toFixed(2) }}</template>

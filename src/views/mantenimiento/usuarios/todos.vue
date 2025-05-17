@@ -70,7 +70,7 @@ const cargarUsuarios = async () => {
   isUsersLoading.value = true
   try {
     const response = await getUsuarios(cancelToken.value.token)
-    console.log('check usuarios', response)
+    //console.log('check usuarios', response)
     if (response) {
       aUsuarios.value = response
     }
@@ -148,7 +148,7 @@ const sClaveInput = ref(null)
 const sConfirmarInput = ref(null)
 
 const loadSelectedUser = (user) => {
-  console.log('LOAD USER', user)
+  //console.log('LOAD USER', user)
   oUsuarioSelected.value = {
     id: user.id,
     rol: user.id_rol,
@@ -175,7 +175,7 @@ const onResetComponent = () => {
 
 const onUpdateUser = async () => {
   isUpdateLoading.value = true
-  console.log('user', oUsuarioSelected.value)
+  //console.log('user', oUsuarioSelected.value)
   try {
     const response = await updateUsuario(oUsuarioSelected.value.id, oUsuarioSelected.value)
     isUpdateLoading.value = false

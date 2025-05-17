@@ -14,9 +14,9 @@ export const getCitaEstados = async (cancelToken) => {
     }
 }
 
-export const getCitas = async (cancelToken) => {
+export const getCitas = async (cancelToken, sede = "", paciente = "") => {
     try {
-        const response = await api.get('/citas', {
+        const response = await api.get(`/citas?sede=${sede}&paciente=${paciente}`, {
             cancelToken: cancelToken || null
         });
         if (typeof response.cancelled != 'undefined')
@@ -48,21 +48,19 @@ export const getCitasPorFecha = async (fecha, idSede = null, cancelToken) => {
     }
 }
 
-export const getCitasCount = async (sede,cancelToken) => {
-  try
-  {
-    const response = await api.get(`/citas/count?id_sede=${sede || ""}`,{
-      cancelToken: cancelToken || null
-    })
-    if( typeof response.cancelled !== "undefined" )
-      return null
-    return response.data
-  }
-  catch(error)
-  {
-    console.error("Error al obtener la cantidad de citas",error)
-    throw error
-  }
+export const getCitasCount = async (sede, cancelToken) => {
+    try {
+        const response = await api.get(`/citas/count?id_sede=${sede || ""}`, {
+            cancelToken: cancelToken || null
+        })
+        if (typeof response.cancelled !== "undefined")
+            return null
+        return response.data
+    }
+    catch (error) {
+        console.error("Error al obtener la cantidad de citas", error)
+        throw error
+    }
 }
 
 

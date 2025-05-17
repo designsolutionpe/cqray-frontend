@@ -146,13 +146,11 @@ const cargarUltimoComprobante = async () => {
   try {
     const response = await getUltimoComprobante(cancelToken.value.token)
     if (response) {
-      console.log('ultimo', response)
       const { numero } = response
       const tipos = ['BOL', 'FAC', , 'CONST'].find((d, i) => tipoComprobanteProp.tipoComprobante == (i + 1))
       var newNumero = 1
       if (numero)
         newNumero = parseInt(numero) + 1
-      console.log('NUMERO', numero, newNumero)
       comprobante.value = {
         ...comprobante.value,
         serie: tipos,
@@ -285,7 +283,6 @@ function hideDialog() {
 
 async function saveComprobante() {
   try {
-    console.log('compr', comprobante.value)
     comprobante.value.tipo_comprobante = tipoComprobanteProp.tipoComprobante;
     comprobante.value.detalles = detalles.value;
     const response = await createComprobante(comprobante.value, cancelToken.value.token)

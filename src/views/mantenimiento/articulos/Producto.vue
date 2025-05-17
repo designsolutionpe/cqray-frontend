@@ -62,7 +62,7 @@ const cargarServicios = async () => {
   try {
     const response = await getArticulosServicios(cancelToken.value.token)
     if (response) {
-      console.log('servicios', response)
+      //console.log('servicios', response)
       aServicios.value = response.filter(s => s.tipo_articulo == 1)
     }
     isServiciosLoading.value = false
@@ -78,7 +78,7 @@ const cargarSedes = async () => {
   try {
     const response = await getSedes(cancelToken.value.token)
     if (response) {
-      console.log('sedes', response)
+      //console.log('sedes', response)
       aSedes.value = response.map(s => ({
         label: s.nombre,
         value: s.id
@@ -97,7 +97,7 @@ const cargarCategorias = async () => {
   try {
     const response = await getCategorias(cancelToken.value.token)
     if (response) {
-      console.log('categorias', response)
+      //console.log('categorias', response)
       aCategorias.value = response.map(c => ({
         label: c.nombre,
         value: c.id
@@ -116,7 +116,7 @@ const cargarMedidas = async () => {
   try {
     const response = await getMedidas(cancelToken.value.token)
     if (response) {
-      console.log('medidas', response)
+      //console.log('medidas', response)
       aMedidas.value = response.map(m => ({
         label: m.nombre,
         value: m.id
@@ -220,7 +220,7 @@ watch(
   })
 
 const updateServicioData = (data) => {
-  console.log('updating servicio data', data)
+  //console.log('updating servicio data', data)
   oServicioData.value = data
   nSedeSelected.value = data.id_sede
   nCategoriaSelected.value = data.id_categoria
@@ -245,7 +245,7 @@ const onOpenEditDialog = (d) => {
 const onEditServicio = async () => {
   isUpdatingServicio.value = true
   try {
-    console.log('enviar', oServicioData.value)
+    //console.log('enviar', oServicioData.value)
     const response = await updateArticuloServicio(oServicioData.value.id, oServicioData.value)
     isUpdatingServicio.value = false
     bEditView.value = false
@@ -312,9 +312,9 @@ const onOpenCrearDialog = () => {
 const onCreateServicio = async () => {
   isCreateServicioLoading.value = true
   try {
-    console.log('por crear', oServicioData.value)
+    //console.log('por crear', oServicioData.value)
     const response = await createArticuloServicio(oServicioData.value)
-    console.log('creaddo', response)
+    //console.log('creaddo', response)
     isCreateServicioLoading.value = false
     bCrearView.value = false
     bEditView.value = false

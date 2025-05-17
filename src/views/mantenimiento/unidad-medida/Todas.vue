@@ -39,7 +39,7 @@ const cargarUnidadMedidas = async () => {
   try {
     const response = await getUnidadMedidas(cancelToken.value.token)
     if (response) {
-      console.log('unidades', response)
+      //console.log('unidades', response)
       aUnidades.value = response
     }
     isUnidadMedidaLoading.value = false
@@ -106,9 +106,9 @@ const onOpenDialog = (id) => {
 const updateUnidad = async () => {
   isUpdatingUnidad.value = true
   try {
-    console.log('unidad', oUnidadSelected.value)
+    //console.log('unidad', oUnidadSelected.value)
     const response = await updateUnidadMedidad(oUnidadSelected.value.id, oUnidadSelected.value);
-    console.log('response', response)
+    //console.log('response', response)
     isUpdatingUnidad.value = false
     resetAll()
     toast.add({

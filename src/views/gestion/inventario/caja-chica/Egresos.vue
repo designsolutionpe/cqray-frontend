@@ -21,14 +21,19 @@ watch(
 
 const store = useStore()
 const id_sede = computed(() => store.getters.id_sede || "")
-const caja_current_date = computed(() => store.getters.caja_current_date)
+const caja_chica_data_stored = computed(() => store.getters.caja_chica_data)
+
+const caja_chica_data = ref(caja_chica_data_stored.value)
+
+watch(caja_chica_data, (va) => {
+    //console.log('caja chica data', va)
+    store.dispatch('setCajaChicaData', caja_chica_data.value)
+})
 
 const toast = useToast()
 const cancelToken = ref()
 
 const aItems = ref([])
-
-const isCajaOpened = ref(false)
 
 const showCreateOutcome = ref(false)
 
@@ -37,12 +42,11 @@ const outcomeInput = ref(null)
 const cargarEgresos = async () => {
     isEgresosLoading.value = true
     try {
-        const response = await getCajaChica(cancelToken.value.token, id_sede.value, null, caja_current_date.value)
+        const response = await getCajaChica(cancelToken.value.token, id_sede.value, 'Egreso')
 
         if (response) {
-            console.log(response)
-            if( response.length > 0 ) isCajaOpened.value = true
-            aItems.value = response.filter(i => !i.flg_terminal && i.tipo == "Egreso")
+            //console.log(response)
+            aItems.value = response
         }
 
         isEgresosLoading.value = false
@@ -54,25 +58,38 @@ const cargarEgresos = async () => {
 }
 
 const onCreateOutcome = async () => {
-   isPageLoading.value = true
-   try
-   {
-    const body = {
-        tipo: 'Egreso',
-        balance: outcomeInput.value,
-        id_sede: id_sede.value,
-        fecha: caja_current_date.value.toString()
-    }
+    isPageLoading.value = true
+    try {
+        //console.log('check neuvo egreso', outcomeInput.value, caja_chica_data.value.current_balance)
+        if (outcomeInput.value > caja_chica_data.value.current_balance) {
+            toast.add({
+                severity: 'error',
+                summary: 'No se puede ingresar un valor que supere el balance actual: ' + caja_chica_data.value.current_balance,
+                life: 5000
+            })
+            isPageLoading.value = false
+            return
+        }
 
-    const response = await insertCajaChicaValue(body)
-    showCreateOutcome.value = false
-    cargarEgresos()
-   }
-   catch(error)
-   {
-    isPageLoading.value = false
-    handleServerError(error,"Registrar egreso",toast)
-   }
+        const body = {
+            tipo: 'Egreso',
+            balance: outcomeInput.value,
+            id_sede: id_sede.value,
+            fecha: caja_chica_data.value.current_date.toString()
+        }
+
+        const response = await insertCajaChicaValue(body)
+        caja_chica_data.value = {
+            ...caja_chica_data.value,
+            current_balance: caja_chica_data.value.current_balance - outcomeInput.value
+        }
+        showCreateOutcome.value = false
+        cargarEgresos()
+    }
+    catch (error) {
+        isPageLoading.value = false
+        handleServerError(error, "Registrar egreso", toast)
+    }
 }
 
 onBeforeMount(() => {
@@ -92,10 +109,13 @@ onBeforeUnmount(() => {
     <Dialog v-model:visible="showCreateOutcome" :show-header="false" modal :draggable="false" :closable="false"
         class="pt-4">
         <p class="text-xl font-bold text-secondary m-0">Nuevo Egreso</p>
-        <InputNumber v-model:model-value="outcomeInput" fluid mode="currency" currency="PEN" locale="es-PE"></InputNumber>
+        <InputNumber v-model:model-value="outcomeInput" fluid mode="currency" currency="PEN" locale="es-PE">
+        </InputNumber>
         <div class="grid grid-cols-4 gap-4">
-            <Button class="col-span-4 md:col-span-2" outlined icon="pi pi-times" label="Cancelar" @click="showCreateOutcome = false"></Button>
-            <Button class="col-span-4 md:col-span-2" icon="pi pi-check" label="Guardar egreso" @click="onCreateOutcome"></Button>
+            <Button class="col-span-4 md:col-span-2" outlined icon="pi pi-times" label="Cancelar"
+                @click="showCreateOutcome = false"></Button>
+            <Button class="col-span-4 md:col-span-2" icon="pi pi-check" label="Guardar egreso"
+                @click="onCreateOutcome"></Button>
         </div>
     </Dialog>
     <div class="card relative overflow-hidden">
@@ -104,8 +124,8 @@ onBeforeUnmount(() => {
             <div class="flex gap-4">
                 <p class="text-2xl font-bold text-secondary m-0">Egresos</p>
                 <Button icon="pi pi-plus" label="Nuevo egreso"
-                    v-tooltip.top="{ value: 'Debe abrir caja primero', disabled: isCajaOpened }"
-                    :disabled="!isCajaOpened" @click="showCreateOutcome = true"></Button>
+                    v-tooltip.top="{ value: 'Debe abrir caja primero', disabled: caja_chica_data.is_opened }"
+                    :disabled="!caja_chica_data.is_opened" @click="showCreateOutcome = true"></Button>
             </div>
             <DataTable :value="aItems" table-style="30rem" show-gridlines removable-sort>
                 <Column field="id" header="#" sortable style="min-width: 1rem">
@@ -115,7 +135,7 @@ onBeforeUnmount(() => {
                 <Column field="sede.nombre" header="Sede" style="min-width: 6rem"></Column>
 
                 <Column field="fecha" header="Fecha" style="min-width: 5rem">
-                <template #body="item">{{ new Date(parseInt(item.data.fecha)).toLocaleDateString() }}</template>
+                    <template #body="item">{{ new Date(parseInt(item.data.fecha)).toLocaleDateString() }}</template>
                 </Column>
                 <Column field="balance" header="Monto" style="min-width: 5rem">
                     <template #body="item">S/. {{ parseFloat(item.data.balance).toFixed(2) }}</template>
