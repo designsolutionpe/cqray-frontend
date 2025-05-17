@@ -155,6 +155,7 @@ const crearPaciente = async () => {
       if (key == 'telefono') continue
       if (key == 'email') continue
       if (key == 'historia_clinica') continue
+      if (key == 'fecha_nacimiento') continue
       if (value == null || (typeof value == 'string' && value.trim().length == 0)) {
         oInvalid.value[key] = true
         isPageLoading.value = false
@@ -168,7 +169,8 @@ const crearPaciente = async () => {
     formData.append('nombre', oPacienteInfo.value.nombre)
     formData.append('apellido', oPacienteInfo.value.apellido)
     formData.append('genero', oPacienteInfo.value.genero)
-    formData.append('fecha_nacimiento', oPacienteInfo.value.fecha_nacimiento)
+    if (oPacienteInfo.value.fecha_nacimiento)
+        formData.append('fecha_nacimiento', oPacienteInfo.value.fecha_nacimiento)
     formData.append('id_sede', oPacienteInfo.value.id_sede)
 
     if (oPacienteInfo.value.direccion)

@@ -157,7 +157,7 @@ const updatePacienteInfo = (paciente) => {
     nombre: paciente.persona.nombre,
     apellido: paciente.persona.apellido,
     genero: paciente.persona.genero,
-    fecha_nacimiento: paciente.persona.fecha_nacimiento.toISOString().substring(0, 10),
+    fecha_nacimiento: paciente.persona.fecha_nacimiento ? paciente.persona.fecha_nacimiento.toISOString().substring(0, 10) : null,
     direccion: paciente.persona.direccion,
     telefono: paciente.persona.telefono,
     email: paciente.persona.email,
