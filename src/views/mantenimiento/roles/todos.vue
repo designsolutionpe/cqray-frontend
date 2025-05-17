@@ -133,7 +133,8 @@ onBeforeUnmount(() => {
           <div class="grid grid-cols-12 gap-4">
             <Button class="col-span-12 sm:col-span-4 lg:col-span-3 xl:col-span-3 2xl:col-span-2" label="Borrar filtros"
               icon="pi pi-filter-slash" @click="resetFilters()" outlined></Button>
-            <router-link to="#" class="col-span-12 sm:col-span-4 lg:col-span-3 xl:col-span-3 2xl:col-span-2">
+            <router-link to="#" class="col-span-12 sm:col-span-4 lg:col-span-3 xl:col-span-3 2xl:col-span-2"
+              v-tooltip.top="{ value: 'En mantenimiento' }">
               <Button icon="pi pi-plus" label="Crear rol" fluid disabled></Button>
             </router-link>
             <IconField class="col-span-12 sm:col-span-4 lg:col-span-6 xl:col-span-6 2xl:col-span-8 lg:justify-self-end">
@@ -161,8 +162,8 @@ onBeforeUnmount(() => {
 
         <Column :exportable="false" style="width: 5rem" header="Acciones">
           <template #body="item">
-            <Button icon="pi pi-pencil" v-tooltip.top="{ value: 'Editar' }" outlined rounded class="mr-2"
-              @click="onOpenEditDialog(item.data)"></Button>
+            <Button icon="pi pi-pencil" v-tooltip.top="{ value: 'En mantenimiento' }" outlined rounded class="mr-2"
+              @click="onOpenEditDialog(item.data)" disabled></Button>
           </template>
         </Column>
       </DataTable>

@@ -238,8 +238,10 @@ onBeforeUnmount(() => {
             lugar y mejora
             tus
             procesos.</p>
-          <Button label="Ingresar" icon="pi pi-fw pi-arrow-circle-right"
-            class="bg-primary text-white w-full p-3"></Button>
+          <a target="_blank" href="https://app.unichat.space/app/login">
+            <Button label="Ingresar" icon="pi pi-fw pi-arrow-circle-right"
+              class="bg-primary text-white w-full p-3"></Button>
+          </a>
         </div>
         <img class="sm:col-span-3 md:scale-150 md:translate-x-20 lg:scale-125 lg:translate-x-0" :src="FONO_BOT"
           alt="Persona usando un telefono">

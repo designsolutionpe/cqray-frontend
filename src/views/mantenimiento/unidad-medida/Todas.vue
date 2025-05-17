@@ -213,7 +213,7 @@ const deleteUnidad = async () => {
           <InputText id="unidad_nombre" v-model:model-value="sNombreInput" fluid></InputText>
         </div>
         <div class="grid grid-cols-2 gap-5">
-          <Button class="col-span-2 md:col-span-1" outlined label="Cancelar"></Button>
+          <Button class="col-span-2 md:col-span-1" outlined label="Cancelar" @click="bEditView = false"></Button>
           <Button class="col-span-2 md:col-span-1" label="Guardar cambios" @click="updateUnidad"></Button>
         </div>
       </div>

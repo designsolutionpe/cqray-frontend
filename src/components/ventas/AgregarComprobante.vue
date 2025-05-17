@@ -60,11 +60,21 @@ const onCellEditComplete = (event) => {
 
   const articulo = productos.value.find(p => p.id === newData.id_articulo)
 
-  newData.precio_unitario = parseFloat(articulo.precio)
+  if (newData.precio_unitario == 0 || newData.precio_unitario < articulo.precio)
+    newData.precio_unitario = parseFloat(articulo.precio)
   // Recalcular total de esa fila
   const subtotal = newData.precio_unitario * newData.cantidad;
-  const descuento = subtotal * (newData.descuento / 100);
-  newData.total_producto = subtotal - descuento;
+
+  if (newData.descuento > newData.precio_unitario) {
+    toast.add({
+      severity: 'error',
+      summary: 'No se puede generar un descuento mayor al precio unitario del producto/servicio',
+      life: 5000
+    })
+    return
+  }
+  // const descuento = subtotal * (newData.descuento / 100);
+  newData.total_producto = subtotal - newData.descuento;
 
   detalles.value[index] = newData
 
@@ -79,7 +89,7 @@ const recalcularTotales = () => {
   // Calcular total por cada fila y agregarlo al total general
   detalles.value.forEach(detalle => {
     totalGeneral += detalle.total_producto;
-    totalDescuento += detalle.precio_unitario * detalle.cantidad * (detalle.descuento / 100);
+    totalDescuento += detalle.descuento;
   });
 
   // Verificar si el IGV está marcado
@@ -409,15 +419,17 @@ onBeforeUnmount(() => {
               </template>
             </Column>
 
-            <Column field="descuento" header="Descuento (%)" style="width: 15%">
+            <Column field="descuento" header="Descuento (S/)" style="width: 15%">
+              <template #body="item">S/{{ parseFloat(item.data.descuento).toFixed(2) }}</template>
               <template #editor="{ data, field }">
-                <InputNumber v-model="data[field]" :min="0" :max="100" autofocus />
+                <InputNumber v-model="data[field]" :min="0" mode="currency" currency="PEN" locale="es-PE" autofocus />
               </template>
             </Column>
 
             <Column field="precio_unitario" header="Precio Unitario" style="width: 20%">
+              <template #body="item">S/{{ parseFloat(item.data.precio_unitario).toFixed(2) }}</template>
               <template #editor="{ data, field }">
-                <InputNumber v-model="data[field]" autofocus />
+                <InputNumber v-model="data[field]" :min="0" mode="currency" currency="PEN" locale="es-PE" autofocus />
               </template>
             </Column>
 

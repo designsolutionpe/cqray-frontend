@@ -27,7 +27,7 @@ const menuItems = ref([
             {
                 label: 'Integrador Whatsapp',
                 icon: 'pi pi-fw pi-whatsapp',
-                url: 'https://integrador.unichat.space',
+                url: 'https://app.unichat.space/app/login',
                 target: '_blank'
             },
             {
