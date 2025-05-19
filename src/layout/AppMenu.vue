@@ -215,7 +215,7 @@ const menuItems = ref([
                 icon: 'pi pi-fw pi-sitemap',
                 items: [
                     { label: 'Empleados', to: '#' },
-                    { label: 'Tipo de seguro', to: '#' },
+                    { label: 'Tipo de seguro', to: '/planilla-personal/tipos-seguros' },
                     { label: 'Boleta de pago', to: '#' },
                 ]
             },

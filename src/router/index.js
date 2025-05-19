@@ -304,6 +304,12 @@ const router = createRouter({
                     component: () => import('@/views/gestion/inventario/caja-chica/Egresos.vue'),
                     meta: { requiresAuth: true, roles: ['Superadministrador', 'Administrador'] }
                 },
+                {
+                    path: '/planilla-personal/tipos-seguros',
+                    name: 'planilla_seguros',
+                    component: () => import('@/views/gestion/inventario/planilla-personal/tipo-seguro/Todos.vue'),
+                    meta: { requiresAuth: true, roles: ['Superadministrador', 'Administrador'] }
+                },
             ]
         },
         /*{

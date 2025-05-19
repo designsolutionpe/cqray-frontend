@@ -21,8 +21,8 @@ const comprobante = ref({})
 const crearDetalleVacio = () => ({
   id_articulo: null,
   cantidad: 1,
-  descuento: 0,
-  precio_unitario: 0,
+  descuento: null,
+  precio_unitario: null,
   total_producto: 0
 });
 
@@ -58,9 +58,21 @@ const obtenerNombreProducto = (id) => {
 const onCellEditComplete = (event) => {
   let { newData, index } = event
 
+  if (newData.id_articulo == null) {
+    toast.add({
+      severity: 'error',
+      summary: 'Por favor seleccione un Artículo',
+      life: 5000
+    })
+    return
+  }
+
   const articulo = productos.value.find(p => p.id === newData.id_articulo)
 
-  if (newData.precio_unitario == 0 || newData.precio_unitario < articulo.precio)
+  if (newData.descuento < 0)
+    newData.descuento = 0
+
+  if (newData.precio_unitario <= 0 || newData.precio_unitario < articulo.precio)
     newData.precio_unitario = parseFloat(articulo.precio)
   // Recalcular total de esa fila
   const subtotal = newData.precio_unitario * newData.cantidad;
@@ -263,15 +275,21 @@ watch(
   { immediate: true }
 );
 
+watch(comprobante, () => { })
+
 const calculateVuelto = computed(() => {
-  let calc = comprobante.value.pago_cliente - comprobante.value.total
-  comprobante.value.vuelto = (calc < 0 ? 0 : calc).toFixed(2);
+  let calc = comprobante.value.total - comprobante.value.pago_cliente
+  console.log('calc vuelto', calc)
+  comprobante.value.vuelto = (calc < 0 ? -calc : 0).toFixed(2);
+  console.log('result vuelto', comprobante.value.vuelto)
   return comprobante.value.vuelto;
 });
 
 const calculateDeuda = computed(() => {
   let calc = comprobante.value.total - comprobante.value.pago_cliente
+  console.log('calc deuda', calc)
   comprobante.value.deuda = (calc > 0 ? calc : 0).toFixed(2)
+  console.log('result deuda', comprobante.value.deuda)
   return comprobante.value.deuda
 })
 
@@ -292,6 +310,7 @@ function hideDialog() {
 }
 
 async function saveComprobante() {
+  console.log('check comprobante', comprobante.value)
   try {
     comprobante.value.tipo_comprobante = tipoComprobanteProp.tipoComprobante;
     comprobante.value.detalles = detalles.value;
@@ -420,16 +439,16 @@ onBeforeUnmount(() => {
             </Column>
 
             <Column field="descuento" header="Descuento (S/)" style="width: 15%">
-              <template #body="item">S/{{ parseFloat(item.data.descuento).toFixed(2) }}</template>
+              <template #body="item">S/{{ parseFloat(item.data.descuento | 0).toFixed(2) }}</template>
               <template #editor="{ data, field }">
-                <InputNumber v-model="data[field]" :min="0" mode="currency" currency="PEN" locale="es-PE" autofocus />
+                <InputNumber v-model="data[field]" mode="currency" currency="PEN" locale="es-PE" autofocus />
               </template>
             </Column>
 
             <Column field="precio_unitario" header="Precio Unitario" style="width: 20%">
-              <template #body="item">S/{{ parseFloat(item.data.precio_unitario).toFixed(2) }}</template>
+              <template #body="item">S/{{ parseFloat(item.data.precio_unitario | 0).toFixed(2) }}</template>
               <template #editor="{ data, field }">
-                <InputNumber v-model="data[field]" :min="0" mode="currency" currency="PEN" locale="es-PE" autofocus />
+                <InputNumber v-model="data[field]" mode="currency" currency="PEN" locale="es-PE" autofocus />
               </template>
             </Column>
 
@@ -508,7 +527,9 @@ onBeforeUnmount(() => {
               <label for="pago_cliente" class="block font-bold mb-3">Pago Cliente</label>
             </div>
             <div class="col-span-1">
-              <InputText id="pago_cliente" v-model="comprobante.pago_cliente" type="number" step="0.01" fluid />
+              <InputNumber id="pago_cliente" v-model="comprobante.pago_cliente" mode="currency" currency="PEN"
+                locale="es-PE" fluid>
+              </InputNumber>
             </div>
 
             <!-- Vuelto -->

@@ -225,13 +225,13 @@ onBeforeUnmount(() => {
         <div class="flex flex-col gap-4">
             <p class="text-2xl font-bold text-secondary m-0">Registro {{ id_sede == '' ? 'de Caja Chica' : '' }}</p>
             <DataTable :value="aItems" removable-sort table-style="min-width: 30rem" show-gridlines
-                v-model:filters="filters" filter-display="row" :rows="10" paginator
+                v-model:filters="filters" :rows="10" paginator
                 paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
                 currentPageReportTemplate="Mostrando {first} de {last} - {totalRecords} registros">
 
-                <template #header>
+                <!-- <template #header>
                     <Button label="Borrar filtros" icon="pi pi-filter-slash" @click="resetFilters()" outlined></Button>
-                </template>
+                </template> -->
 
                 <Column field="id" header="#" sortable>
                     <template #body="item">{{ item.index + 1 }}</template>
