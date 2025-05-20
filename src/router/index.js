@@ -260,13 +260,6 @@ const router = createRouter({
                 },
 
                 {
-                    path: '/mantenimiento/personas/todas',
-                    name: 'persona-todas',
-                    component: () => import('@/views/mantenimiento/personas/Todos.vue'),
-                    meta: { requiresAuth: true, roles: ['Superadministrador'] }
-                },
-
-                {
                     path: '/mantenimiento/personas/agregar',
                     name: 'persona-agregar',
                     component: () => import('@/views/mantenimiento/personas/Agregar.vue'),
@@ -309,6 +302,13 @@ const router = createRouter({
                     name: 'planilla_seguros',
                     component: () => import('@/views/gestion/inventario/planilla-personal/tipo-seguro/Todos.vue'),
                     meta: { requiresAuth: true, roles: ['Superadministrador', 'Administrador'] }
+                },
+
+                {
+                    path: '/planilla-personal/empleados',
+                    name: 'planilla_empleados',
+                    component: () => import('@/views/gestion/inventario/planilla-personal/empleados/Todos.vue'),
+                    meta: { requiresAuth: true, roles: ['Superadministrador'] }
                 },
             ]
         },

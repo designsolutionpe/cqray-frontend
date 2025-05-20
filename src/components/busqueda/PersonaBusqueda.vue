@@ -22,15 +22,15 @@ const filteredPersonas = ref([]);
 
 // Función para realizar la búsqueda
 const searchPersonas = async () => {
-    if (numeroDocumento || nombre) {  
+    if (numeroDocumento || nombre) {
         try {
             const data = await getBuscarPersonas({
-            nombre: nombre.value,
-            numero_documento: numeroDocumento.value,
-            id_persona: idPersona.value
-        });
-        personas.value = data;
-        filteredPersonas.value = data; 
+                nombre: nombre.value,
+                numero_documento: numeroDocumento.value,
+                id_persona: idPersona.value
+            });
+            personas.value = data;
+            filteredPersonas.value = data;
         } catch (error) {
             console.error('Error al buscar personas desde la API:', error);
         }
@@ -42,34 +42,36 @@ const selectedPersona = ref(null);
 
 // Emitir la persona seleccionada al componente padre
 const selectPersona = () => {
-  if (selectedPersona.value) {
-    emit('select-persona', selectedPersona.value);
-    emit('update:visible', false);
-  }
+    if (selectedPersona.value) {
+        emit('select-persona', selectedPersona.value);
+        emit('update:visible', false);
+    }
 };
 
-watch( () => props.showDialog, (newVal) => {
+watch(() => props.showDialog, (newVal) => {
     showDialog.value = newVal;
 })
 
 </script>
 
 <template>
-    <Dialog header="Seleccionar Persona" :style="{ 'width': '650px' }" v-model:visible="showDialog" :modal="true" :closable="true">
+    <Dialog header="Seleccionar Persona" :style="{ 'width': '650px' }" v-model:visible="showDialog" :modal="true"
+        :closable="true">
         <InputGroup>
             <InputText v-model="numeroDocumento" placeholder="Número Documento" fluid />
             <InputText v-model="nombre" placeholder="Nombre" fluid />
             <InputGroupAddon v-if="(numeroDocumento || nombre)">
                 <Button icon="pi pi-search" severity="secondary" variant="text" @click="searchPersonas" />
-            </InputGroupAddon> 
+            </InputGroupAddon>
         </InputGroup>
 
         <!-- DataTable de resultados -->
-        <DataTable v-if="(numeroDocumento || nombre)" v-model:selection="selectedPersona" :value="filteredPersonas" dataKey="id">
+        <DataTable v-if="(numeroDocumento || nombre)" v-model:selection="selectedPersona" :value="filteredPersonas"
+            dataKey="id">
             <Column selectionMode="single" headerStyle="width: 3rem"></Column>
-            <Column field="id" header="#" style="min-width: 3rem" />
-            <Column field="tipo_documento" header="Tipo Documento" style="min-width: 4rem"/>
-            <Column field="numero_documento" header="Número Documento" style="min-width: 4rem"/>
+            <!-- <Column field="id" header="#" style="min-width: 3rem" /> -->
+            <Column field="tipo_documento" header="Tipo Documento" style="min-width: 4rem" />
+            <Column field="numero_documento" header="Número Documento" style="min-width: 4rem" />
             <Column field="nombreCompleto" header="Nombre Completo" style="min-width: 12rem" />
         </DataTable>
 

@@ -79,14 +79,14 @@ const menuItems = ref([
                     { label: 'Añadir rol', to: '/mantenimiento/roles/agregar' },
                 ]
             },
-            {
-                label: 'Control personal',
-                icon: 'pi pi-fw pi-users',
-                items: [
-                    { label: 'Todo el personal', to: '/mantenimiento/personas/todas' },
-                    { label: 'Añadir personal', to: '/mantenimiento/personas/agregar' },
-                ]
-            },
+            // {
+            //     label: 'Control personal',
+            //     icon: 'pi pi-fw pi-users',
+            //     items: [
+            //         { label: 'Todo el personal', to: '/mantenimiento/personas/todas' },
+            //         { label: 'Añadir personal', to: '/mantenimiento/personas/agregar' },
+            //     ]
+            // },
             /*
             {
                 label: 'Horario',
@@ -214,7 +214,7 @@ const menuItems = ref([
                 label: 'Planilla personal',
                 icon: 'pi pi-fw pi-sitemap',
                 items: [
-                    { label: 'Empleados', to: '#' },
+                    { label: 'Empleados', to: '/planilla-personal/empleados' },
                     { label: 'Tipo de seguro', to: '/planilla-personal/tipos-seguros' },
                     { label: 'Boleta de pago', to: '#' },
                 ]
