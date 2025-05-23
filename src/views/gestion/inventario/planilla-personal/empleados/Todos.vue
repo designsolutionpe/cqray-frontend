@@ -6,6 +6,7 @@ import axios from 'axios';
 import { useToast } from 'primevue';
 import { computed, onBeforeMount, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useStore } from 'vuex';
+import AgregarEmpleado from '@/components/dialogs/gestion/inventario/planilla-personal/empleados/AgregarEmpleado.vue'
 
 const store = useStore()
 const id_sede = computed(() => store.getters.id_sede)
@@ -53,8 +54,15 @@ onBeforeUnmount(() => {
     cancelToken.value.cancel()
 })
 
+const agregarDialogRef = ref()
+
+const onShowAgregarDialog = () => {
+    agregarDialogRef.value.onShowDialog()
+}
+
 </script>
 <template>
+    <AgregarEmpleado ref="agregarDialogRef"></AgregarEmpleado>
     <div class="card relative overflow-hidden">
         <Preloader v-if="isPageLoading"></Preloader>
         <div class="flex flex-col gap-4">
@@ -63,7 +71,7 @@ onBeforeUnmount(() => {
                 paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
                 currentPageReportTemplate="Mostrando {first} de {last} - {totalRecords} empleados">
                 <template #header>
-                    <Button label="Nuevo empleado" icon="pi pi-plus" @click="null"></Button>
+                    <Button label="Nuevo empleado" icon="pi pi-plus" @click="onShowAgregarDialog"></Button>
                 </template>
 
                 <Column field="persona.nombre" header="Nombre" sortable style="min-width: 15rem"></Column>
