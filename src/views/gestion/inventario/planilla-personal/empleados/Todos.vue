@@ -60,9 +60,13 @@ const onShowAgregarDialog = () => {
     agregarDialogRef.value.onShowDialog()
 }
 
+const onEmpleadoCreated = () => {
+    cargarEmpleados()
+}
+
 </script>
 <template>
-    <AgregarEmpleado ref="agregarDialogRef"></AgregarEmpleado>
+    <AgregarEmpleado ref="agregarDialogRef" v-on:after-event-callback="onEmpleadoCreated"></AgregarEmpleado>
     <div class="card relative overflow-hidden">
         <Preloader v-if="isPageLoading"></Preloader>
         <div class="flex flex-col gap-4">
@@ -82,11 +86,8 @@ const onShowAgregarDialog = () => {
                 <Column field="sueldo" header="Sueldo Bruto" sortable style="min-width: 8rem"></Column>
                 <Column field="is_planilla" header="Planilla" sortable style="min-width: 8rem">
                     <template #body="item">
-                        {{
-                            item.data.is_planilla ?
-                                '<i class="pi pi-check"></i>' :
-                                '<iclass="pi pi-times"></i>'
-                        }}
+                        <i class="pi pi-check" v-if="item.data.is_planilla"></i>
+                        <i class="pi pi-times" v-if="!item.data.is_planilla"></i>
                     </template>
                 </Column>
                 <Column field="tipo_seguro.nombre" header="Tipo de seguro" sortable style="min-width: 15rem"></Column>

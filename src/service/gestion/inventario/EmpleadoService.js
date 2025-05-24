@@ -1,8 +1,8 @@
 import api from "@/service/Api"
 
-export const getEmpleados = async (cT = null, sede = null) => {
+export const getEmpleados = async (cT = null, sede = "") => {
   try {
-    const response = await api.get(`/empleados?sede=${sede}`, {
+    const response = await api.get(`/empleados?sede=${sede || ""}`, {
       cancelToken: cT
     })
     if (typeof response.cancelled != 'undefined')

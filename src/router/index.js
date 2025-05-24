@@ -308,7 +308,7 @@ const router = createRouter({
                     path: '/planilla-personal/empleados',
                     name: 'planilla_empleados',
                     component: () => import('@/views/gestion/inventario/planilla-personal/empleados/Todos.vue'),
-                    meta: { requiresAuth: true, roles: ['Superadministrador'] }
+                    meta: { requiresAuth: true, roles: ['Superadministrador', 'Administrador'] }
                 },
             ]
         },

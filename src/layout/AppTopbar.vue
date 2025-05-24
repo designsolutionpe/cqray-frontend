@@ -1,16 +1,18 @@
 <script setup>
 import { useLayout } from '@/layout/composables/layout';
 import YesNoDialog from '@/components/YesNoDialog.vue'
-import { computed, ref, watch } from 'vue';
+import { computed, ref, watch, onBeforeMount } from 'vue';
 import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 import AppConfigurator from './AppConfigurator.vue';
+import { getSedes } from '@/service/mantenimiento/SedeService'
 
 const router = useRouter();
 const store = useStore();
 const nombreCompleto = computed(() => `${store.getters.nombre} ${store.getters.apellido}`);
 const userRole = computed(() => store.getters.userRole);
 const foto = computed(() => store.getters.foto)
+const sede = computed(() => parseInt(store.getters.id_sede));
 const bImageError = ref(false)
 const yesNoDialog = ref(null)
 
@@ -49,6 +51,17 @@ watch(foto, (n, o) => {
         bImageError.value = false
     else
         bImageError.value = true
+})
+
+const sede_name = ref("Sede")
+
+const cargarSedes = async () => {
+    const response = await getSedes()
+    sede_name.value = response.filter( s => s.id == sede.value )[0].nombre
+}
+
+onBeforeMount(()=>{
+    cargarSedes()
 })
 
 const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
@@ -113,7 +126,7 @@ const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
 
                         <div class="flex flex-col items-center">
                             <div class="font-semibold text-primary dark:text-white">{{ nombreCompleto }}</div>
-                            <div class="text-sm text-secondary">{{ userRole }}</div>
+                            <div class="text-sm text-secondary">{{ userRole + (!isNaN(sede) ? " - " + sede_name : "") }}</div>
                         </div>
                         <button type="button" v-tooltip.bottom="'Perfil'" class="layout-topbar-action overflow-hidden"
                             @click="mostrarPerfil">

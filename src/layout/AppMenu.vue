@@ -453,7 +453,12 @@ const roleFiltering = ref({
             'Realizar Ventas': true,
         },
         'Gestión e Inventario': {
-            'Caja': true
+            'Caja': true,
+            'Planilla personal': {
+                'Empleados': true,
+                'Tipo de seguro': true,
+                'Boleta de pago': false
+            }
         }
     },
     'Administrador': {
@@ -470,7 +475,12 @@ const roleFiltering = ref({
             'Realizar Ventas': true
         },
         'Gestión e Inventario': {
-            'Caja': true
+            'Caja': true,
+            'Planilla personal': {
+                'Empleados': true,
+                'Tipo de seguro': true,
+                'Boleta de pago': false
+            }
         }
     },
     'Contador': {

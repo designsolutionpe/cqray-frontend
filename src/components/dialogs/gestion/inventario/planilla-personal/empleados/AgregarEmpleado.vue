@@ -8,6 +8,12 @@ import { useToast } from 'primevue'
 import { computed, onBeforeMount, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 
+const props = defineProps({
+    onAfterEventCallback: {
+        type: Function
+    }
+})
+
 const store = useStore()
 const id_sede = computed(() => store.getters.id_sede)
 
@@ -24,7 +30,8 @@ const oEmpleado = ref({
     id_sede: id_sede.value,
     ocupacion: null,
     sueldo: null,
-    id_tipo_seguro: null
+    id_tipo_seguro: null,
+    is_planilla: false
 })
 
 const isSedeLoading = ref(true)
@@ -46,7 +53,7 @@ const toast = useToast()
 
 const aTipoDocumentoSelect = ref([
     { value: "DNI" },
-    { value: "Carnet de Extranjeria" },
+    { value: "Carnet de Extranjería" },
     { value: "Pasaporte" },
     { value: "Otro" }
 ])
@@ -86,6 +93,10 @@ const cargarSedes = async () => {
                 label: s.nombre,
                 value: s.id
             }))
+            oEmpleado.value = {
+                ...oEmpleado.value,
+                id_sede: parseInt(id_sede.value)
+            }
         }
         isSedeLoading.value = false
     }
@@ -101,6 +112,7 @@ const onCreateEmpleado = async () => {
     try {
         const response = await createEmpleado(oEmpleado.value)
         cargarPreData()
+        props.onAfterEventCallback()
     }
     catch (error) {
         isPageLoading.value = false
@@ -162,8 +174,7 @@ defineExpose({
                 </div>
                 <div class="col-span-3 md:col-span-1 flex flex-col gap-4">
                     <label for="numero_documento_input" class="block font-bold">Numero de documento</label>
-                    <InputNumber id="numero_documento_input" :use-grouping="false"
-                        v-model:model-value="oEmpleado.numero_documento"></InputNumber>
+                    <InputText id="numero_documento_input" v-model:model-value="oEmpleado.numero_documento"></InputText>
                 </div>
                 <div class="col-span-3 md:col-span-1 flex flex-col gap-4">
                     <label for="genero_select" class="block font-bold">Genero</label>
@@ -174,12 +185,11 @@ defineExpose({
             <div class="grid grid-cols-4 gap-4">
                 <div class="col-span-4 md:col-span-2 flex flex-col gap-4">
                     <label for="fecha_nacimiento_input" class="block font-bold">Fecha de nacimiento</label>
-                    <DatePicker :model-value="oEmpleado.fecha_nacimiento" id="fecha_nacimiento_input"></DatePicker>
+                    <DatePicker :model-value="oEmpleado.fecha_nacimiento" id="fecha_nacimiento_input" dateFormat="dd/mm/yy"></DatePicker>
                 </div>
                 <div class="col-span-4 md:col-span-2 flex flex-col gap-4">
                     <label for="numero_telefono_input" class="block font-bold">Numero de telefono</label>
-                    <InputNumber id="numero_telefono_input" :use-grouping="false"
-                        v-model:model-value="oEmpleado.telefono">
+                    <InputNumber :use-grouping="false" id="numero_telefono_input" v-model:model-value="oEmpleado.telefono">
                     </InputNumber>
                 </div>
             </div>
@@ -210,16 +220,22 @@ defineExpose({
                     </InputNumber>
                 </div>
             </div>
-            <div class="flex flex-col gap-4">
+            <div class="grid grid-cols-4 gap-4">
+            <div class="col-span-3 flex flex-col gap-4">
                 <label for="tipo_seguro_input" class="block font-bold">Tipo de seguro</label>
                 <Select id="tipo_seguro_input" :options="aTipoSeguroSelect" option-label="label" option-value="value"
                     v-model:model-value="oEmpleado.id_tipo_seguro"></Select>
+            </div>
+            <div class="col-span-1 flex flex-col gap-4">
+                <label for="planilla_check" class="block font-bold">Planilla</label>
+                <Checkbox v-model="oEmpleado.is_planilla" inputId="planilla_check" binary></Checkbox>
+            </div>
             </div>
             <div class="grid grid-cols-4 gap-4 mt-4">
                 <Button icon="pi pi-times" label="Cancelar" class="col-span-4 md:col-span-2" outlined
                     @click="onHideDialog"></Button>
                 <Button icon="pi pi-check" label="Guardar nuevo" class="col-span-4 md:col-span-2"
-                    @click="null"></Button>
+                    @click="onCreateEmpleado"></Button>
             </div>
         </div>
     </Dialog>
