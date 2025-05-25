@@ -192,13 +192,16 @@ const cargarTiposPago = async () => {
   try {
     const response = await getTiposPagos(cancelToken.value.token);
     if (response) {
-      let items = response.map(t => ({
+      aTiposPagoSelect.value = response.map(t => ({
         label: t.nombre,
         value: t.id,
         disabled: false
       }))
-      aTiposPagoSelect.value = items
-      aTiposPagoSecSelect.value = items
+      aTiposPagoSecSelect.value = response.map(t => ({
+        label: t.nombre,
+        value: t.id,
+        disabled: false
+      }))
     }
     isTiposPagoLoading.value = false
   }
@@ -281,27 +284,27 @@ watch(
 );
 
 watch(comprobante, (c) => {
-    console.log('comp',c)
+  console.log('comp', c)
 })
 
 const disableTipoPagoPrimario = ref(null)
 const disableTipoPagoSecundario = ref(null)
 
 watch(
-    () => [comprobante.value.id_tipo_pago, comprobante.value.id_tipo_pago_secundario],
-    ([primario, secundario]) => {
-        console.log("cjeca tipo pago",primario,secundario)
-        if( primario || secundario ){
-        aTiposPagoSelect.value = aTiposPagoSelect.value.map( t => {
-            t.disabled = ( t.value == secundario ) 
-            return t
-        })
-        aTiposPagoSecSelect.value = aTiposPagoSecSelect.value.map( t => {
-            t.disabled = ( t.value == primario ) 
-            return t
-        })
-        }
+  () => [comprobante.value.id_tipo_pago, comprobante.value.id_tipo_pago_secundario],
+  ([primario, secundario]) => {
+    console.log("cjeca tipo pago", primario, secundario)
+    if (primario || secundario) {
+      aTiposPagoSelect.value = aTiposPagoSelect.value.map(t => {
+        t.disabled = (t.value == secundario)
+        return t
+      })
+      aTiposPagoSecSelect.value = aTiposPagoSecSelect.value.map(t => {
+        t.disabled = (t.value == primario)
+        return t
+      })
     }
+  }
 )
 
 const calculateVuelto = computed(() => {
@@ -320,13 +323,12 @@ const calculateDeuda = computed(() => {
   return comprobante.value.deuda
 })
 
-watch(showPagoSecundario,(to)=>{
-    if(to && comprobante.value.pago_cliente > 0)
-    {
-        let res = comprobante.value.pago_cliente / 2
-        comprobante.value.pago_cliente = res
-        comprobante.value.pago_cliente_secundario = res
-    }
+watch(showPagoSecundario, (to) => {
+  if (to && comprobante.value.pago_cliente > 0) {
+    let res = comprobante.value.pago_cliente / 2
+    comprobante.value.pago_cliente = res
+    comprobante.value.pago_cliente_secundario = res
+  }
 })
 
 const routeMap = {
@@ -347,7 +349,6 @@ function hideDialog() {
 
 async function saveComprobante() {
   console.log('check comprobante', comprobante.value)
-  return
   try {
     comprobante.value.tipo_comprobante = tipoComprobanteProp.tipoComprobante;
     comprobante.value.detalles = detalles.value;
@@ -358,6 +359,7 @@ async function saveComprobante() {
       comprobante.value = {};
       detalles.value = [{}];
       productos.value = [{}];
+      window.location.reload()
     }
   } catch (error) {
     handleServerError(error, 'comprobante', toast)
@@ -570,14 +572,17 @@ onBeforeUnmount(() => {
             </div>
 
             <div v-if="showPagoSecundario" class="col-span-2 flex flex-col gap-4">
-                <div class="grid grid-cols-2 gap-4">
-                    <label for="tipo_pago_sec" class="col-span-1 block font-bold">Tipo de Pago secundario</label>
-                    <Select id="tipo_pago_sec" class="col-span-1" v-model="comprobante.id_tipo_pago_secundario" :options="aTiposPagoSecSelect" option-label="label" option-value="value" placeholder="Selecciona el tipo de pago secundario" option-disabled="disabled"></Select>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <label for="pago_cliente_sec" class="col-span-1 block font-bold">Pago Cliente secundario</label>
-                    <InputNumber id="pago_cliente_sec" v-model="comprobante.pago_cliente_secundario" mode="currency" currency="PEN" locale="es-PE" fluid></InputNumber>
-                </div>
+              <div class="grid grid-cols-2 gap-4">
+                <label for="tipo_pago_sec" class="col-span-1 block font-bold">Tipo de Pago secundario</label>
+                <Select id="tipo_pago_sec" class="col-span-1" v-model="comprobante.id_tipo_pago_secundario"
+                  :options="aTiposPagoSecSelect" option-label="label" option-value="value"
+                  placeholder="Selecciona el tipo de pago secundario" option-disabled="disabled"></Select>
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                <label for="pago_cliente_sec" class="col-span-1 block font-bold">Pago Cliente secundario</label>
+                <InputNumber id="pago_cliente_sec" v-model="comprobante.pago_cliente_secundario" mode="currency"
+                  currency="PEN" locale="es-PE" fluid></InputNumber>
+              </div>
             </div>
 
             <!-- Vuelto -->
@@ -597,7 +602,8 @@ onBeforeUnmount(() => {
             </div>
 
             <div class="col-span-1">
-                <Button v-if="!showPagoSecundario" icon="pi pi-plus" label="Dividir pagos" @click="showPagoSecundario = true"></Button>
+              <Button v-if="!showPagoSecundario" icon="pi pi-plus" label="Dividir pagos"
+                @click="showPagoSecundario = true"></Button>
             </div>
 
           </div>
