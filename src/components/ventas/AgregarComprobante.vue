@@ -326,9 +326,20 @@ const calculateDeuda = computed(() => {
 watch(showPagoSecundario, (to) => {
   if (to && comprobante.value.pago_cliente > 0) {
     let res = comprobante.value.pago_cliente / 2
-    comprobante.value.pago_cliente = res
-    comprobante.value.pago_cliente_secundario = res
+    comprobante.value.pago_cliente = isNaN(res) ? 0 : res
+    comprobante.value.pago_cliente_secundario = isNaN(res) ? 0 : res
   }
+  else{
+    let primario = comprobante.value.pago_cliente, secundario = comprobante.value.pago_cliente_secundario
+
+    if( (primario && !isNaN(primario)) && (secundario && !isNaN(secundario) ) ) {
+        comprobante.value.pago_cliente += comprobante.value.pago_cliente_secundario
+  }
+  else{
+    comprobante.value.pago_cliente = isNaN(primario) ? 0 : primario + isNaN(secundario) ? 0 : secundario
+    comprobante.value.id_tipo_pago_secundario = undefined
+    }
+    }
 })
 
 const routeMap = {
@@ -601,9 +612,10 @@ onBeforeUnmount(() => {
               <InputText id="deuda" :value="calculateDeuda" type="number" step="0.01" readonly fluid />
             </div>
 
-            <div class="col-span-1">
+            <div class="col-span-2">
               <Button v-if="!showPagoSecundario" icon="pi pi-plus" label="Dividir pagos"
-                @click="showPagoSecundario = true"></Button>
+                @click="showPagoSecundario = true" fluid></Button>
+              <Button v-if="showPagoSecundario" icon="pi pi-minus" label="Unificar pagos" @click="showPagoSecundario = false" fluid></Button>
             </div>
 
           </div>
