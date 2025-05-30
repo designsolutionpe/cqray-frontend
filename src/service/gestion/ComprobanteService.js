@@ -29,6 +29,21 @@ export const getUltimoComprobante = async (cancelToken) => {
     }
 }
 
+export const getPacienteDeuda = async (cancelToken = null, idPaciente = null) => {
+    try {
+        const response = await api.get(`/comprobantes/deuda/${idPaciente}`, {
+            cancelToken
+        })
+        if (typeof response.cancelled !== 'undefined')
+            return null
+        return response.data
+    }
+    catch (error) {
+        console.error('Error al obtener los comprobantes:', error);
+        throw error;
+    }
+}
+
 export const getBuscarComprobantes = async (
     { serie = '', numero = '' }) => {
     try {

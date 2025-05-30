@@ -1,7 +1,7 @@
 <script setup>
 import PersonaBusqueda from '@/components/busqueda/PersonaBusqueda.vue';
 import Preloader from '@/components/Preloader.vue';
-import { createComprobante, getUltimoComprobante } from '@/service/gestion/ComprobanteService';
+import { createComprobante, getPacienteDeuda, getUltimoComprobante } from '@/service/gestion/ComprobanteService';
 import { searchArticulos } from '@/service/mantenimiento/ArticulosService';
 import { getSedes } from '@/service/mantenimiento/SedeService';
 import { getTiposPagos } from '@/service/mantenimiento/TipoPagoService';
@@ -26,7 +26,7 @@ const crearDetalleVacio = () => ({
   total_producto: 0
 });
 
-const detalles = ref([crearDetalleVacio()]);
+const detalles = ref([]);
 
 const agregarFila = () => {
   detalles.value.push(crearDetalleVacio());
@@ -43,6 +43,8 @@ const obtenerProductos = async () => {
         nombre: item.nombre,
         precio: item.precio_venta || 0,
       }));
+      if (detalles.value.length > 0)
+        recalcularTotales()
     } else {
       productos.value = []; // En caso de que no haya productos
     }
@@ -117,6 +119,7 @@ const recalcularTotales = () => {
   comprobante.value.subtotal = subtotal.toFixed(2); // Total sin IGV
   comprobante.value.descuento = totalDescuento.toFixed(2); // Total de descuento
   comprobante.value.monto_igv = montoIGV.toFixed(2); // Monto del IGV
+  console.log("CHECK COMPROBANTE", comprobante.value)
 };
 
 const eliminarFila = (index) => {
@@ -125,7 +128,8 @@ const eliminarFila = (index) => {
 };
 
 const limpiarDetalles = () => {
-  detalles.value = [crearDetalleVacio()];
+  detalles.value = [];
+  cargarVerificacionDeuda()
   recalcularTotales();
 };
 
@@ -249,6 +253,43 @@ const openDialog = () => {
   showDialog.value = true;
 };
 
+const cargarVerificacionDeuda = async () => {
+  isPageLoading.value = true
+  try {
+    const response = await getPacienteDeuda(cancelToken.value.token, selectedPersona.value.id)
+    console.log('deuda persona', response)
+    if (typeof response.error != 'undefined') {
+      isPageLoading.value = false
+      toast.add({ severity: 'success', summary: response.error, life: 3000 });
+    }
+    if (response.length > 0) {
+      toast.add({ severity: 'info', summary: 'El paciente seleccionado tiene deudas pendientes', life: 5000 });
+      for (let ind in response) {
+        let detalleInd = response[ind]
+        let detalle = {
+          id_articulo: detalleInd.id_articulo,
+          cantidad: 1,
+          descuento: 0,
+          precio_unitario: parseFloat(detalleInd.deuda),
+          total_producto: parseFloat(detalleInd.deuda),
+          is_deuda: true
+        }
+        detalles.value.push(detalle)
+        onCellEditComplete({ newData: detalle, index: ind })
+      }
+      isPageLoading.value = false
+    }
+    else {
+      isPageLoading.value = false
+      detalles.value = []
+    }
+  }
+  catch (error) {
+    isPageLoading.value = false
+    // handleServerError(error, error.message, toast)
+  }
+}
+
 const handleSelectPersona = (persona) => {
   selectedPersona.value = persona;
   numeroDocumento.value = persona.numeroDocumento;
@@ -256,6 +297,7 @@ const handleSelectPersona = (persona) => {
   comprobante.value.id_persona = persona.id;
   comprobante.value.nombre = `${persona.tipo_documento} ${persona.numero_documento} ${persona.nombreCompleto}`;
   showDialog.value = false;
+  cargarVerificacionDeuda()
 };
 
 watch([
@@ -329,17 +371,17 @@ watch(showPagoSecundario, (to) => {
     comprobante.value.pago_cliente = isNaN(res) ? 0 : res
     comprobante.value.pago_cliente_secundario = isNaN(res) ? 0 : res
   }
-  else{
+  else {
     let primario = comprobante.value.pago_cliente, secundario = comprobante.value.pago_cliente_secundario
 
-    if( (primario && !isNaN(primario)) && (secundario && !isNaN(secundario) ) ) {
-        comprobante.value.pago_cliente += comprobante.value.pago_cliente_secundario
+    if ((primario && !isNaN(primario)) && (secundario && !isNaN(secundario))) {
+      comprobante.value.pago_cliente += comprobante.value.pago_cliente_secundario
+    }
+    else {
+      comprobante.value.pago_cliente = isNaN(primario) ? 0 : primario + isNaN(secundario) ? 0 : secundario
+      comprobante.value.id_tipo_pago_secundario = undefined
+    }
   }
-  else{
-    comprobante.value.pago_cliente = isNaN(primario) ? 0 : primario + isNaN(secundario) ? 0 : secundario
-    comprobante.value.id_tipo_pago_secundario = undefined
-    }
-    }
 })
 
 const routeMap = {
@@ -474,31 +516,38 @@ onBeforeUnmount(() => {
             @row-edit-save="onCellEditComplete" :pt="{ table: { style: 'min-width: 50rem' } }">
             <Column field="id_articulo" header="Producto" style="width: 25%">
               <template #body="{ data }">
-                <Tag>{{ obtenerNombreProducto(data.id_articulo) || 'Seleccionar producto' }}</Tag>
+                <Tag>
+                  {{
+                    obtenerNombreProducto(data.id_articulo) ||
+                    (data.is_deuda ? 'Deuda por servicio' : 'Seleccionar producto')
+                  }}
+                </Tag>
               </template>
               <template #editor="{ data, field }">
                 <Select v-model="data[field]" :options="productos" optionLabel="nombre"
-                  placeholder="Seleccionar producto" optionValue="id" filter fluid />
+                  placeholder="Seleccionar producto" optionValue="id" filter fluid :disabled="data.is_deuda" />
               </template>
             </Column>
 
             <Column field="cantidad" header="Cantidad" style="width: 15%">
               <template #editor="{ data, field }">
-                <InputNumber v-model="data[field]" :min="1" autofocus />
+                <InputNumber v-model="data[field]" :min="1" autofocus :disabled="data.is_deuda" />
               </template>
             </Column>
 
             <Column field="descuento" header="Descuento (S/)" style="width: 15%">
               <template #body="item">S/{{ parseFloat(item.data.descuento | 0).toFixed(2) }}</template>
               <template #editor="{ data, field }">
-                <InputNumber v-model="data[field]" mode="currency" currency="PEN" locale="es-PE" autofocus />
+                <InputNumber v-model="data[field]" mode="currency" currency="PEN" locale="es-PE" autofocus
+                  :disabled="data.is_deuda" />
               </template>
             </Column>
 
             <Column field="precio_unitario" header="Precio Unitario" style="width: 20%">
               <template #body="item">S/{{ parseFloat(item.data.precio_unitario | 0).toFixed(2) }}</template>
               <template #editor="{ data, field }">
-                <InputNumber v-model="data[field]" mode="currency" currency="PEN" locale="es-PE" autofocus />
+                <InputNumber v-model="data[field]" mode="currency" currency="PEN" locale="es-PE" autofocus
+                  :disabled="data.is_deuda" />
               </template>
             </Column>
 
@@ -509,11 +558,13 @@ onBeforeUnmount(() => {
               </template>
             </Column>
 
-            <Column :rowEditor="true" style="width: 10%; min-width: 8rem" bodyStyle="text-align:center"></Column>
+            <Column :rowEditor="true" style="width: 10%; min-width: 8rem" bodyStyle="text-align:start"></Column>
 
             <Column header="Acciones" style="width: 10%">
-              <template #body="{ index }">
-                <Button icon="pi pi-trash" class="p-button-danger p-button-sm" @click="eliminarFila(index)" />
+              <template #body="{ index, data }">
+                <Button icon="pi pi-trash" class="p-button-danger p-button-sm" @click="eliminarFila(index)"
+                  :disabled="data.is_deuda"
+                  v-tooltip.top="{ value: 'No se puede eliminar una deuda', disabled: !data.is_deuda }" />
               </template>
             </Column>
 
@@ -615,7 +666,8 @@ onBeforeUnmount(() => {
             <div class="col-span-2">
               <Button v-if="!showPagoSecundario" icon="pi pi-plus" label="Dividir pagos"
                 @click="showPagoSecundario = true" fluid></Button>
-              <Button v-if="showPagoSecundario" icon="pi pi-minus" label="Unificar pagos" @click="showPagoSecundario = false" fluid></Button>
+              <Button v-if="showPagoSecundario" icon="pi pi-minus" label="Unificar pagos"
+                @click="showPagoSecundario = false" fluid></Button>
             </div>
 
           </div>
