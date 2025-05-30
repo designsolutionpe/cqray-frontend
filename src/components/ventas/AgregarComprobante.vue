@@ -69,28 +69,33 @@ const onCellEditComplete = (event) => {
     return
   }
 
-  const articulo = productos.value.find(p => p.id === newData.id_articulo)
+  if (productos.value.length == 0) return
 
-  if (newData.descuento < 0)
-    newData.descuento = 0
+  if (!newData.is_deuda) {
+    const articulo = productos.value.find(p => p.id === newData.id_articulo)
 
-  if (newData.precio_unitario <= 0 || newData.precio_unitario < articulo.precio)
-    newData.precio_unitario = parseFloat(articulo.precio)
-  // Recalcular total de esa fila
-  const subtotal = newData.precio_unitario * newData.cantidad;
+    if (newData.descuento < 0)
+      newData.descuento = 0
 
-  if (newData.descuento > newData.precio_unitario) {
-    toast.add({
-      severity: 'error',
-      summary: 'No se puede generar un descuento mayor al precio unitario del producto/servicio',
-      life: 5000
-    })
-    return
+    if (newData.precio_unitario <= 0 || newData.precio_unitario < articulo.precio)
+      newData.precio_unitario = parseFloat(articulo.precio)
+
+    // Recalcular total de esa fila
+    const subtotal = newData.precio_unitario * newData.cantidad;
+
+    if (newData.descuento > newData.precio_unitario) {
+      toast.add({
+        severity: 'error',
+        summary: 'No se puede generar un descuento mayor al precio unitario del producto/servicio',
+        life: 5000
+      })
+      return
+    }
+    // const descuento = subtotal * (newData.descuento / 100);
+    newData.total_producto = subtotal - newData.descuento;
+
+    detalles.value[index] = newData
   }
-  // const descuento = subtotal * (newData.descuento / 100);
-  newData.total_producto = subtotal - newData.descuento;
-
-  detalles.value[index] = newData
 
   // Recalcular totales del comprobante
   recalcularTotales();
@@ -282,6 +287,7 @@ const cargarVerificacionDeuda = async () => {
     else {
       isPageLoading.value = false
       detalles.value = []
+      recalcularTotales()
     }
   }
   catch (error) {
@@ -400,11 +406,42 @@ function hideDialog() {
   }
 }
 
+const checkRequiredFields = () => {
+  try {
+    const post = comprobante.value
+    switch (true) {
+      case typeof post.id_persona == 'undefined' || post.id_persona == null:
+        throw new Error("Por favor seleccione a una persona")
+      case typeof post.id_sede == 'undefined' || post.id_sede == null:
+        throw new Error("No se ha seleccionado una sede");
+      case typeof post.tipo == 'undefined' || post.tipo == null:
+        throw new Error("Por favor seleccione el articulo de compra");
+      case typeof post.fecha_emision == 'undefined' || post.fecha_emision == null:
+        throw new Error("Por favor seleccione una fecha correspondiente")
+      case typeof post.moneda == 'undefined' || post.moneda == null:
+        throw new Error("Por favor seleccione una moneda")
+      case typeof post.id_tipo_pago == 'undefined' || post.id_tipo_pago == null:
+        throw new Error("Por favor seleccione un tipo de pago principal")
+      case typeof post.pago_cliente == 'undefined' || post.pago_cliente == null || post.pago_cliente == 0:
+        throw new Error("Por favor rellene el campo 'Pago de Cliente'")
+      case showPagoSecundario.value && (typeof post.id_tipo_pago_secundario == 'undefined' || post.id_tipo_pago_secundario == null):
+        throw new Error("Por favor seleccione un tipo de pago secundario")
+      case showPagoSecundario.value && (typeof post.pago_cliente_secundario == 'undefined' || post.pago_cliente_secundario == null || post.pago_cliente_secundario == 0):
+        throw new Error("Por favor rellene el campo 'Pago de Cliente Secundario'")
+    }
+  }
+  catch (error) {
+    toast.add({ severity: 'error', summary: error.message, life: 5000 });
+    throw new Error();
+  }
+}
+
 async function saveComprobante() {
-  console.log('check comprobante', comprobante.value)
+  checkRequiredFields()
   try {
     comprobante.value.tipo_comprobante = tipoComprobanteProp.tipoComprobante;
     comprobante.value.detalles = detalles.value;
+    console.log('check comprobante', comprobante.value)
     const response = await createComprobante(comprobante.value, cancelToken.value.token)
     if (response) {
       toast.add({ severity: 'success', summary: 'Éxito', detail: 'Comprobante creado', life: 3000 });
@@ -428,7 +465,6 @@ onBeforeMount(() => {
 onMounted(() => {
   cargarSedes()
   cargarTiposPago()
-  cargarUltimoComprobante()
 })
 
 onBeforeUnmount(() => {
