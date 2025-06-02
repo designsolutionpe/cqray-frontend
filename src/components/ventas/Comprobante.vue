@@ -132,7 +132,7 @@ watch(() => tipoComprobanteProp.tipoComprobante, () => {
                 <Column field="monto_igv" header="IGV" sortable style="width: 10%;"></Column>
                 <Column field="descuento" header="Descuento" sortable style="width: 10%;"></Column>
                 <Column field="total" header="Total" sortable style="width: 11%;"></Column>
-                <Column style="width: 10%;">
+                <Column style="min-width: 8rem;">
                     <template #body="slotProps">
                         <!--
                         <Button icon="pi pi-eye" outlined rounded severity="info" class="mr-1" @click="viewComprobante(slotProps.data)" />
@@ -140,6 +140,8 @@ watch(() => tipoComprobanteProp.tipoComprobante, () => {
                         -->
                         <Button icon="pi pi-trash" outlined rounded severity="danger" class="mr-1"
                             @click="confirmDeleteComprobante(slotProps.data)" />
+                        <Button icon="pi pi-print" outlined rounded severity="info" disabled
+                            v-tooltip.top="{ value: 'Imprimir comprobante' }" />
                     </template>
                 </Column>
 

@@ -450,7 +450,9 @@ const roleFiltering = ref({
             'Artículos': true
         },
         'Gestión Ventas': {
-            'Realizar Ventas': true,
+            'Realizar Ventas': {
+                'Constancia de Pago': true
+            },
         },
         'Gestión e Inventario': {
             'Caja': true,
@@ -472,7 +474,9 @@ const roleFiltering = ref({
             'Artículos': true,
         },
         'Gestión Ventas': {
-            'Realizar Ventas': true
+            'Realizar Ventas': {
+                'Constancia de Pago': true
+            },
         },
         'Gestión e Inventario': {
             'Caja': true,

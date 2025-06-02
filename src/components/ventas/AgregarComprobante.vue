@@ -567,7 +567,7 @@ onBeforeUnmount(() => {
 
             <Column field="cantidad" header="Cantidad" style="width: 15%">
               <template #editor="{ data, field }">
-                <InputNumber v-model="data[field]" :min="1" autofocus :disabled="data.is_deuda" />
+                <InputNumber v-model="data[field]" :min="1" autofocus :disabled="data.is_deuda || data.tipo == 2" />
               </template>
             </Column>
 
