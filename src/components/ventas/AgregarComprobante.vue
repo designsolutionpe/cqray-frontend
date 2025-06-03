@@ -452,9 +452,11 @@ async function saveComprobante() {
       toast.add({ severity: 'success', summary: 'Éxito', detail: 'Comprobante creado', life: 3000 });
       // Limpiar los campos después de guardar
       comprobante.value = {};
-      detalles.value = [{}];
-      productos.value = [{}];
-      window.location.reload()
+      detalles.value = [];
+      productos.value = [];
+      // Abrir PDF a parte
+      if (typeof response.voucher_url != 'null')
+        window.open(response.voucher_url, "_blank");
     }
   } catch (error) {
     handleServerError(error, 'comprobante', toast)

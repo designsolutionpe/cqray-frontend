@@ -165,7 +165,8 @@ const updateSedeFetch = async () => {
     for (let key in oSedeData.value) {
       if (key == 'id') continue
       const value = oSedeData.value[key]
-      if (value.trim().length != 0) {
+      console.log("CHECK VALUE", value, oSedeData.value)
+      if (value && value.trim().length != 0) {
         formData.append(key, value)
       }
     }
