@@ -258,6 +258,8 @@ const openDialog = () => {
   showDialog.value = true;
 };
 
+const isPacienteDeuda = ref(false);
+
 const cargarVerificacionDeuda = async () => {
   isPageLoading.value = true
   try {
@@ -269,6 +271,7 @@ const cargarVerificacionDeuda = async () => {
     }
     if (response.length > 0) {
       toast.add({ severity: 'info', summary: 'El paciente seleccionado tiene deudas pendientes', life: 5000 });
+      isPacienteDeuda.value = true;
       for (let ind in response) {
         let detalleInd = response[ind]
         let detalle = {
@@ -286,11 +289,13 @@ const cargarVerificacionDeuda = async () => {
     }
     else {
       isPageLoading.value = false
+      isPacienteDeuda.value = false
       detalles.value = []
       recalcularTotales()
     }
   }
   catch (error) {
+    isPacienteDeuda.value = false
     isPageLoading.value = false
     // handleServerError(error, error.message, toast)
   }
@@ -544,7 +549,8 @@ onBeforeUnmount(() => {
       <Card v-if="productos.length > 0" class="p-mb-4 custom-card gap-6 mb-6">
         <template #content>
           <div class="flex gap-2 mb-3">
-            <Button label="Agregar detalle" icon="pi pi-plus" @click="agregarFila" />
+            <p v-if="isPacienteDeuda" class="font-bold text-color">* No se puede agregar más paquetes debido a la deuda pendiente</p>
+            <Button label="Agregar detalle" icon="pi pi-plus" @click="agregarFila" :disabled="isPacienteDeuda"/>
             <Button label="Limpiar detalles" icon="pi pi-refresh" severity="secondary" @click="limpiarDetalles" />
           </div>
 
