@@ -548,9 +548,10 @@ onBeforeUnmount(() => {
 
       <Card v-if="productos.length > 0" class="p-mb-4 custom-card gap-6 mb-6">
         <template #content>
+          <p v-if="isPacienteDeuda" class="block font-bold text-red-500">* No se puede agregar más paquetes debido a la
+            deuda pendiente</p>
           <div class="flex gap-2 mb-3">
-            <p v-if="isPacienteDeuda" class="font-bold text-color">* No se puede agregar más paquetes debido a la deuda pendiente</p>
-            <Button label="Agregar detalle" icon="pi pi-plus" @click="agregarFila" :disabled="isPacienteDeuda"/>
+            <Button label="Agregar detalle" icon="pi pi-plus" @click="agregarFila" :disabled="isPacienteDeuda" />
             <Button label="Limpiar detalles" icon="pi pi-refresh" severity="secondary" @click="limpiarDetalles" />
           </div>
 
@@ -573,7 +574,8 @@ onBeforeUnmount(() => {
 
             <Column field="cantidad" header="Cantidad" style="width: 15%">
               <template #editor="{ data, field }">
-                <InputNumber v-model="data[field]" :min="1" autofocus :disabled="data.is_deuda || comprobante.tipo == 2" />
+                <InputNumber v-model="data[field]" :min="1" autofocus
+                  :disabled="data.is_deuda || comprobante.tipo == 2" />
               </template>
             </Column>
 

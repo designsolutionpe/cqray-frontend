@@ -139,9 +139,10 @@ watch(() => tipoComprobanteProp.tipoComprobante, () => {
                         <Button icon="pi pi-pencil" outlined rounded class="mr-1" @click="editComprobante(slotProps.data)" />
                         -->
                         <Button icon="pi pi-trash" outlined rounded severity="danger" class="mr-1"
-                            @click="confirmDeleteComprobante(slotProps.data)" />
+                            @click="confirmDeleteComprobante(slotProps.data)"
+                            v-tooltip.top="{ value: '[En mantenimiento]' }" disabled />
                         <Button icon="pi pi-print" outlined rounded severity="info" disabled
-                            v-tooltip.top="{ value: 'Imprimir comprobante' }" />
+                            v-tooltip.top="{ value: '[En mantenimiento]' }" />
                     </template>
                 </Column>
 
