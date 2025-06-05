@@ -353,6 +353,7 @@ watch(oPacienteSelected, (id_paciente) => {
   nEstadoPacienteSelected.value = paciente.estado.id
 
   var paq_active = paciente.historial_clinico.find(q => q.activo)
+  alert(JSON.stringify(paq_active))
   if (paq_active)
     nPaqueteSelected.value = paq_active.id_articulo
 

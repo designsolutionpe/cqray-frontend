@@ -1,5 +1,5 @@
 <script setup>
-import { getCitas } from '@/service/gestion/CitaService';
+import { getCitasForSelect } from '@/service/gestion/CitaService';
 import { handleServerError } from '@/utils/Util';
 import { FilterMatchMode } from '@primevue/core/api';
 import axios from 'axios';
@@ -66,7 +66,8 @@ const onCitaSelected = () => {
 const cargarCitas = async () => {
   bIsCitasLoading.value = true
   try {
-    const response = await getCitas(cancelToken.value.token,props.idSedePaciente,props.idPaciente)
+  alert("sede "+props.idSedePaciente+" paciente "+props.idPaciente)
+    const response = await getCitasForSelect(cancelToken.value.token,props.idSedePaciente,props.idPaciente)
     if (response) {
       aCitas.value = response
     }

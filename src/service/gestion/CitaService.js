@@ -16,7 +16,7 @@ export const getCitaEstados = async (cancelToken) => {
 
 export const getCitas = async (cancelToken, sede = "", paciente = "") => {
     try {
-        const response = await api.get(`/citas?sede=${sede}&paciente=${paciente}`, {
+        const response = await api.get(`/citas`, {
             cancelToken: cancelToken || null
         });
         if (typeof response.cancelled != 'undefined')
@@ -24,6 +24,20 @@ export const getCitas = async (cancelToken, sede = "", paciente = "") => {
         return response.data;
     } catch (error) {
         console.error('Error al obtener las citas:', error);
+        throw error;
+    }
+}
+
+export const getCitasForSelect = async (cancelToken = null, sede = "", paciente = "") => {
+    try {
+        const response = await api.get(`/citas-paciente?sede=${sede}&paciente=${paciente}`, {
+            cancelToken
+        });
+        if( typeof response.cancelled != 'undefined' )
+            return [];
+        return response.data;
+    } catch( error ) {
+        console.error('Error',error)
         throw error;
     }
 }
