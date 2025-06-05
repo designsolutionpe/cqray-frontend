@@ -78,6 +78,12 @@ function confirmDeleteComprobante() {
 
 }
 
+function imprimirComprobante(data) {
+ //   alert(JSON.stringify(data.voucher_url))
+    if(data.voucher_url)
+        window.open(data.voucher_url,"_blank");
+}
+
 onMounted(() => {
     cargarComprobantes();
 });
@@ -141,8 +147,8 @@ watch(() => tipoComprobanteProp.tipoComprobante, () => {
                         <Button icon="pi pi-trash" outlined rounded severity="danger" class="mr-1"
                             @click="confirmDeleteComprobante(slotProps.data)"
                             v-tooltip.top="{ value: '[En mantenimiento]' }" disabled />
-                        <Button icon="pi pi-print" outlined rounded severity="info" disabled
-                            v-tooltip.top="{ value: '[En mantenimiento]' }" />
+                        <Button icon="pi pi-print" outlined rounded severity="info" @click="imprimirComprobante(slotProps.data)"
+                            v-tooltip.top="{ value: slotProps.data.voucher_url != null ? 'Imprimir comprobante' : 'Hubo un error con el comprobante' }" :disabled="slotProps.data.voucher_url == null" />
                     </template>
                 </Column>
 
