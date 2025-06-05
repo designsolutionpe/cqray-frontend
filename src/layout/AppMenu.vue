@@ -455,7 +455,10 @@ const roleFiltering = ref({
             },
         },
         'Gestión e Inventario': {
-            'Caja': true,
+            'Caja': {
+                'Caja chica': true,
+                'Egresos': true
+            },
             'Planilla personal': {
                 'Empleados': true,
                 'Tipo de seguro': true,
@@ -479,7 +482,10 @@ const roleFiltering = ref({
             },
         },
         'Gestión e Inventario': {
-            'Caja': true,
+            'Caja': {
+                'Caja chica': true,
+                'Egresos': true
+            },
             'Planilla personal': {
                 'Empleados': true,
                 'Tipo de seguro': true,

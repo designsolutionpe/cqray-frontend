@@ -81,7 +81,20 @@ const cargarCajaChica = async () => {
     try {
         const response = await getCajaChica(cancelToken.value.token, id_sede.value)
         if (response) {
-            //console.log('check response', response)
+            console.log("response caja chica", response)
+            // let ingresos = 0, egresos = 0
+            // for (let i of response.ingresos) {
+            //     console.log("I INGRESO", i)
+            //     ingresos += parseFloat(i.total)
+            // }
+            // for (let i of response.egresos)
+            //     egresos += parseFloat(i.balance)
+
+            // today_data.value = { ingresos, egresos, total_cierre: ingresos - egresos }
+
+            // aItems.value = [...response.ingresos, ...response.egresos]
+
+            console.log('check response', response)
             let today_inicial = 0, today_ingresos = 0, today_egresos = 0
             const group = {}
             for (let data of response) {
@@ -94,7 +107,8 @@ const cargarCajaChica = async () => {
                         ingresos: 0,
                         egresos: 0,
                         saldo_inicial: 0,
-                        total_cierre: 0
+                        total_cierre: 0,
+                        motivo: data.motivo
                     }
                 }
 
@@ -112,21 +126,21 @@ const cargarCajaChica = async () => {
                         break;
                 }
 
-                if (parseInt(data.fecha) == caja_chica_data.value.current_date) {
-                    caja_chica_data.value.is_opened = true
-                    switch (data.tipo) {
-                        case 'Inicial':
-                            //console.log('update inicial', data.balance)
-                            today_inicial = data.balance
-                            break;
-                        case 'Ingreso':
-                            today_ingresos += data.balance
-                            break;
-                        case 'Egreso':
-                            today_egresos += data.balance
-                            break;
-                    }
+                switch (data.tipo) {
+                    case 'Inicial':
+                        //console.log('update inicial', data.balance)
+                        today_inicial = data.balance
+                        break;
+                    case 'Ingreso':
+                        today_ingresos += data.balance
+                        break;
+                    case 'Egreso':
+                        today_egresos += data.balance
+                        break;
                 }
+                // if (parseInt(data.fecha) == caja_chica_data.value.current_date) {
+                //     caja_chica_data.value.is_opened = true
+                // }
             }
             today_data.value = {
                 ingresos: today_ingresos,
@@ -135,10 +149,10 @@ const cargarCajaChica = async () => {
                 total_cierre: (today_inicial + today_ingresos) - today_egresos
             }
 
-            caja_chica_data.value = {
-                ...caja_chica_data.value,
-                current_balance: today_data.value.total_cierre
-            }
+            // caja_chica_data.value = {
+            //     ...caja_chica_data.value,
+            //     current_balance: today_data.value.total_cierre
+            // }
 
             //console.log('chek today', today_inicial, today_ingresos, today_egresos, today_data.value)
 
@@ -150,7 +164,7 @@ const cargarCajaChica = async () => {
             if (caja_chica_data.value.last_record && !caja_chica_data.value.is_opened)
                 today_data.value.saldo_inicial = caja_chica_data.value.last_record.tipo == 'Terminal' ? caja_chica_data.value.last_record.balance : 0
 
-            aItems.value = Object.values(group)
+            aItems.value = response
         }
         isPageLoading.value = false
     }
@@ -195,9 +209,10 @@ onBeforeUnmount(() => {
         <Preloader v-if="isPageLoading"></Preloader>
         <div class="flex flex-col gap-4">
             <div class="flex gap-4">
-                <p class="text-2xl font-bold text-secondary m-0">Caja Chica</p>
-                <Button label="Aperturar caja" @click="showOpenCaja = true" :disabled="caja_chica_data.is_opened"
-                    v-tooltip.top="{ value: 'La caja ya se encuentra abierta', disabled: !caja_chica_data.is_opened }"></Button>
+                <p class="text-2xl font-bold text-secondary m-0">Caja</p>
+                <!-- <Button label="Aperturar caja" @click="showOpenCaja = true" :disabled="caja_chica_data.is_opened"
+                    v-tooltip.top="{ value: 'La caja ya se encuentra abierta', disabled: !caja_chica_data.is_opened }"></Button> -->
+
             </div>
             <div class="grid grid-cols-4 gap-6 items-center">
                 <div class="card !p-5 !m-0 border col-span-4 sm:col-span-2 lg:col-span-1">
@@ -209,10 +224,10 @@ onBeforeUnmount(() => {
                     <p>S/. {{ parseFloat(today_data.egresos).toFixed(2) }}</p>
                 </div>
 
-                <div class="card !p-5 !m-0 border col-span-4 sm:col-span-2 lg:col-span-1">
+                <!-- <div class="card !p-5 !m-0 border col-span-4 sm:col-span-2 lg:col-span-1">
                     <p class="text-lg font-bold text-primary'">Saldo inicial</p>
                     <p>S/. {{ parseFloat(today_data.saldo_inicial).toFixed(2) }}</p>
-                </div>
+                </div> -->
                 <div class="card !p-5 !m-0 border col-span-4 sm:col-span-2 lg:col-span-1">
                     <p class="text-lg font-bold text-primary'">Total</p>
                     <p>S/. {{ parseFloat(today_data.total_cierre).toFixed(2) }}</p>
@@ -240,11 +255,12 @@ onBeforeUnmount(() => {
                 <Column field="sede.nombre" header="Sede" sortable style="min-width: 8rem" v-if="id_sede == ''">
                 </Column>
 
-                <Column field="fecha" header="Fecha de cierre" sortable :show-filter-menu="false">
+                <!-- <Column field="fecha" header="Fecha de cierre" sortable :show-filter-menu="false">
                     <template #body="item">{{ new Date(parseInt(item.data.fecha)).toLocaleDateString() }}</template>
-                </Column>
-                <Column field="ingresos" header="Ingresos" sortable>
-                    <template #body="item">S/. {{ parseFloat(item.data.ingresos).toFixed(2) }}</template>
+                </Column> -->
+                <Column field="motivo" header="Motivo" :show-filter-menu="false"></Column>
+                <Column field="balance" header="Ingresos" sortable>
+                    <template #body="item">S/. {{ parseFloat(item.data.balance).toFixed(2) }}</template>
                 </Column>
                 <Column field="egresos" header="Egresos" sortable>
                     <template #body="item">S/. {{ parseFloat(item.data.egresos).toFixed(2) }}</template>
