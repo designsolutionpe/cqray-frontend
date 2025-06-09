@@ -38,6 +38,7 @@ const aItems = ref([])
 const showCreateOutcome = ref(false)
 
 const outcomeInput = ref(null)
+const reasonInput = ref(null)
 
 const cargarEgresos = async () => {
     isEgresosLoading.value = true
@@ -61,7 +62,7 @@ const onCreateOutcome = async () => {
     isPageLoading.value = true
     try {
         //console.log('check neuvo egreso', outcomeInput.value, caja_chica_data.value.current_balance)
-        if (outcomeInput.value > caja_chica_data.value.current_balance) {
+        /*if (outcomeInput.value > caja_chica_data.value.current_balance) {
             toast.add({
                 severity: 'error',
                 summary: 'No se puede ingresar un valor que supere el balance actual: ' + caja_chica_data.value.current_balance,
@@ -69,20 +70,21 @@ const onCreateOutcome = async () => {
             })
             isPageLoading.value = false
             return
-        }
+        }*/
 
         const body = {
             tipo: 'Egreso',
             balance: outcomeInput.value,
             id_sede: id_sede.value,
-            fecha: caja_chica_data.value.current_date.toString()
+            fecha: new Date(),
+            motivo: reasonInput.value
         }
 
         const response = await insertCajaChicaValue(body)
-        caja_chica_data.value = {
+        /*caja_chica_data.value = {
             ...caja_chica_data.value,
             current_balance: caja_chica_data.value.current_balance - outcomeInput.value
-        }
+        }*/
         showCreateOutcome.value = false
         cargarEgresos()
     }
@@ -108,10 +110,17 @@ onBeforeUnmount(() => {
 <template>
     <Dialog v-model:visible="showCreateOutcome" :show-header="false" modal :draggable="false" :closable="false"
         class="pt-4">
-        <p class="text-xl font-bold text-secondary m-0">Nuevo Egreso</p>
-        <InputNumber v-model:model-value="outcomeInput" fluid mode="currency" currency="PEN" locale="es-PE">
+        <p class="text-xl font-bold text-secondary m-0 mb-4">Nuevo Egreso</p>
+        <div class="grid grid-cols-4 gap-4 mb-4">
+            <label for="balance" class="col-span-4 block font-bold">Balance</label>
+        <InputNumber id="balance" class="col-span-4" v-model:model-value="outcomeInput" fluid mode="currency" currency="PEN" locale="es-PE">
         </InputNumber>
-        <div class="grid grid-cols-4 gap-4">
+        </div>
+        <div class="grid grid-cols-4 gap-4 mb-4">
+            <label for="motivo" class="col-span-4 block font-bold">Motivo</label>
+            <InputText id="motivo" class="col-span-4" v-model:model-value="reasonInput"></InputText>
+        </div>
+        <div class="col-span-4 grid grid-cols-4 gap-4">
             <Button class="col-span-4 md:col-span-2" outlined icon="pi pi-times" label="Cancelar"
                 @click="showCreateOutcome = false"></Button>
             <Button class="col-span-4 md:col-span-2" icon="pi pi-check" label="Guardar egreso"
@@ -124,19 +133,19 @@ onBeforeUnmount(() => {
             <div class="flex gap-4">
                 <p class="text-2xl font-bold text-secondary m-0">Egresos</p>
                 <Button icon="pi pi-plus" label="Nuevo egreso"
-                    v-tooltip.top="{ value: 'Debe abrir caja primero', disabled: caja_chica_data.is_opened }"
-                    :disabled="!caja_chica_data.is_opened" @click="showCreateOutcome = true"></Button>
+                     @click="showCreateOutcome = true"></Button>
             </div>
             <DataTable :value="aItems" table-style="30rem" show-gridlines removable-sort>
                 <Column field="id" header="#" sortable style="min-width: 1rem">
                     <template #body="item">{{ item.index + 1 }}</template>
                 </Column>
 
-                <Column field="sede.nombre" header="Sede" style="min-width: 6rem"></Column>
+                <Column field="sede.nombre" header="Sede" style="min-width: 6rem" v-if="!id_sede"></Column>
 
                 <Column field="fecha" header="Fecha" style="min-width: 5rem">
-                    <template #body="item">{{ new Date(parseInt(item.data.fecha)).toLocaleDateString() }}</template>
+                    <template #body="item">{{ new Date(item.data.fecha).toLocaleDateString() }}</template>
                 </Column>
+                <Column field="motivo" header="Motivo" style="min-width: 5rem"></Column>
                 <Column field="balance" header="Monto" style="min-width: 5rem">
                     <template #body="item">S/. {{ parseFloat(item.data.balance).toFixed(2) }}</template>
                 </Column>

@@ -238,7 +238,7 @@ onBeforeUnmount(() => {
     <div class="card relative overflow-hidden">
         <Preloader v-if="isPageLoading"></Preloader>
         <div class="flex flex-col gap-4">
-            <p class="text-2xl font-bold text-secondary m-0">Registro {{ id_sede == '' ? 'de Caja Chica' : '' }}</p>
+            <p class="text-2xl font-bold text-secondary m-0">Registro {{ id_sede == '' ? 'de Caja' : '' }}</p>
             <DataTable :value="aItems" removable-sort table-style="min-width: 30rem" show-gridlines
                 v-model:filters="filters" :rows="10" paginator
                 paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
@@ -255,19 +255,20 @@ onBeforeUnmount(() => {
                 <Column field="sede.nombre" header="Sede" sortable style="min-width: 8rem" v-if="id_sede == ''">
                 </Column>
 
-                <!-- <Column field="fecha" header="Fecha de cierre" sortable :show-filter-menu="false">
-                    <template #body="item">{{ new Date(parseInt(item.data.fecha)).toLocaleDateString() }}</template>
-                </Column> -->
+                <Column field="fecha" header="Fecha de cierre" sortable :show-filter-menu="false">
+                    <template #body="item">{{ new Date(item.data.fecha).toLocaleDateString() }}</template>
+                </Column>
                 <Column field="motivo" header="Motivo" :show-filter-menu="false"></Column>
-                <Column field="balance" header="Ingresos" sortable>
+                <Column field="tipo" header="Tipo" :show-filter-menu="false"></Column>
+                <Column field="balance" header="Balance" sortable>
                     <template #body="item">S/. {{ parseFloat(item.data.balance).toFixed(2) }}</template>
                 </Column>
-                <Column field="egresos" header="Egresos" sortable>
+                <!-- <Column field="egresos" header="Egresos" sortable>
                     <template #body="item">S/. {{ parseFloat(item.data.egresos).toFixed(2) }}</template>
                 </Column>
                 <Column field="total_cierre" header="Total cierre" sortable>
                     <template #body="item">S/. {{ parseFloat(item.data.total_cierre).toFixed(2) }}</template>
-                </Column>
+                </Column> -->
             </DataTable>
         </div>
     </div>

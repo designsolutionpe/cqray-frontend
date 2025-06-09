@@ -191,7 +191,7 @@ const menuItems = ref([
                 label: 'Caja',
                 icon: 'pi pi-fw pi-money-bill',
                 items: [
-                    { label: 'Caja chica', to: '/inventario/caja-chica' },
+                    { label: 'Caja', to: '/inventario/caja-chica' },
                     { label: 'Ingresos', to: '/inventario/caja-chica/ingresos' },
                     { label: 'Egresos', to: '/inventario/caja-chica/egresos' },
                 ]
@@ -456,7 +456,7 @@ const roleFiltering = ref({
         },
         'Gestión e Inventario': {
             'Caja': {
-                'Caja chica': true,
+                'Caja': true,
                 'Egresos': true
             },
             'Planilla personal': {
@@ -483,7 +483,7 @@ const roleFiltering = ref({
         },
         'Gestión e Inventario': {
             'Caja': {
-                'Caja chica': true,
+                'Caja': true,
                 'Egresos': true
             },
             'Planilla personal': {
