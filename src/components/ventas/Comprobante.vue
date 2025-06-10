@@ -49,7 +49,7 @@ const cargarComprobantes = async () => {
         comprobantes.value = response?.data || [];
         // Filtrar comprobantes según el tipo recibido como prop
         filteredComprobantes.value = comprobantes.value.filter(
-            comprobante => comprobante.tipo_comprobante === tipoComprobanteProp.tipoComprobante);
+            comprobante => comprobante.tipo_comprobante === tipoComprobanteProp.tipoComprobante).reverse();
 
     } catch (error) {
         console.error('Error al cargar los comprobantes:', error);
@@ -103,7 +103,7 @@ watch(() => tipoComprobanteProp.tipoComprobante, () => {
                 </template>
             </Toolbar>
 
-            <DataTable ref="dt" :value="filteredComprobantes" dataKey="id" :paginator="true" :rows="10"
+            <DataTable ref="dt" :value="filteredComprobantes" dataKey="numero" :paginator="true" :rows="10"
                 :rowsPerPageOptions="[5, 10, 25, 50, 100]"
                 paginatorTemplate="'FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown'"
                 currentPageReportTemplate="Mostrando {first} de {last} - {totalRecords} comprobantes"
