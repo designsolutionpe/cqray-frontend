@@ -79,7 +79,7 @@ watch(caja_chica_data, (va) => {
 const cargarCajaChica = async () => {
     isPageLoading.value = true
     try {
-        const response = await getCajaChica(cancelToken.value.token, id_sede.value)
+        var response = await getCajaChica(cancelToken.value.token, id_sede.value)
         if (response) {
             console.log("response caja chica", response)
             // let ingresos = 0, egresos = 0
@@ -95,6 +95,17 @@ const cargarCajaChica = async () => {
             // aItems.value = [...response.ingresos, ...response.egresos]
 
             console.log('check response', response)
+            response = response.filter(r => {
+              if( r.comprobante != null )
+              {
+                if(r.comprobante.fecha_anulado == null)
+                  return true;
+                else
+                  return false;
+              }
+
+              return true;
+            })
             let today_inicial = 0, today_ingresos = 0, today_egresos = 0
             const group = {}
             for (let data of response) {

@@ -79,9 +79,21 @@ function confirmDeleteComprobante() {
 }
 
 function imprimirComprobante(data) {
- //   alert(JSON.stringify(data.voucher_url))
-    if(data.voucher_url)
-        window.open(data.voucher_url,"_blank");
+    //   alert(JSON.stringify(data.voucher_url))
+    if (data.voucher_url)
+        window.open(data.voucher_url, "_blank");
+}
+
+function getToolTip(data) {
+    console.log("tooltip data", data, data.voucher_url, data.fecha_anulado);
+    switch (true) {
+        case data.fecha_anulado != null:
+            return 'El comprobante ha sido anulado';
+        case data.voucher_url != null && data.fecha_anulado == null:
+            return 'Imprimir comprobante';
+        default:
+            return 'Hubo un error con el comprobante';
+    }
 }
 
 onMounted(() => {
@@ -147,8 +159,10 @@ watch(() => tipoComprobanteProp.tipoComprobante, () => {
                         <Button icon="pi pi-trash" outlined rounded severity="danger" class="mr-1"
                             @click="confirmDeleteComprobante(slotProps.data)"
                             v-tooltip.top="{ value: '[En mantenimiento]' }" disabled />
-                        <Button icon="pi pi-print" outlined rounded severity="info" @click="imprimirComprobante(slotProps.data)"
-                            v-tooltip.top="{ value: slotProps.data.voucher_url != null ? 'Imprimir comprobante' : 'Hubo un error con el comprobante' }" :disabled="slotProps.data.voucher_url == null" />
+                        <Button icon="pi pi-print" outlined rounded severity="info"
+                            @click="imprimirComprobante(slotProps.data)"
+                            v-tooltip.top="{ value: getToolTip(slotProps.data) }"
+                            :disabled="slotProps.data.voucher_url == null || slotProps.data.fecha_anulado != null" />
                     </template>
                 </Column>
 
