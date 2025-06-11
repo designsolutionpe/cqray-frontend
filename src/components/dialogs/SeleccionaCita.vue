@@ -66,7 +66,7 @@ const onCitaSelected = () => {
 const cargarCitas = async () => {
   bIsCitasLoading.value = true
   try {
-  alert("sede "+props.idSedePaciente+" paciente "+props.idPaciente)
+  //alert("sede "+props.idSedePaciente+" paciente "+props.idPaciente)
     const response = await getCitasForSelect(cancelToken.value.token,props.idSedePaciente,props.idPaciente)
     if (response) {
       aCitas.value = response
@@ -88,6 +88,14 @@ watch(
   }
 )
 
+watch(bShow , (show) => {
+    if(show)
+    {
+        cargarCitas();
+        console.log(props)
+    }
+})
+
 // watch(
 //   props.sPaciente,
 //   (paciente) => {
@@ -97,10 +105,6 @@ watch(
 
 onBeforeMount(() => {
   cancelToken.value = axios.CancelToken.source()
-})
-
-onMounted(() => {
-  cargarCitas()
 })
 
 onBeforeUnmount(() => {
