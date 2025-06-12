@@ -592,8 +592,7 @@ onBeforeUnmount(() => {
             <Column field="precio_unitario" header="Precio Unitario" style="width: 20%">
               <template #body="item">S/{{ parseFloat(item.data.precio_unitario | 0).toFixed(2) }}</template>
               <template #editor="{ data, field }">
-                <InputNumber v-model="data[field]" mode="currency" currency="PEN" locale="es-PE" autofocus
-                  :disabled="data.is_deuda" />
+                <InputNumber v-model="data[field]" mode="currency" currency="PEN" locale="es-PE" autofocus disabled />
               </template>
             </Column>
 
