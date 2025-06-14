@@ -212,6 +212,10 @@ const onCitaSelected = async (param) => {
               oPacienteInfo.historia_clinica ||
               '<sin informacion>' }}</p>
           </div>
+          <div>
+              <p class="text-xl font-bold text-center md:text-left lg:text-center md:w-max lg:w-auto mb-2">Deuda</p>
+              <p class="text-center md:text-left lg:text-center md:w-max lg:w-auto font-medium text-lg">S/ {{ parseFloat(oPacienteInfo.deuda / 100).toFixed(2) || parseFloat(0).toFixed(2) }}</p>
+          </div>
         </div>
       </div>
       <div class="col-span-4 lg:col-span-3 card border-2 !rounded-3xl flex-auto !p-3">

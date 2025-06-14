@@ -254,20 +254,20 @@ onBeforeUnmount(() => {
                 <div class="text-2xl font-bold text-secondary m-0">Filtros</div>
             </div>
             <div class="grid grid-cols-12 gap-6 items-center">
-                <div class="col-span-4 flex flex-col gap-3">
+                <div class="col-span-12 md:col-span-4 flex flex-col gap-3">
                     <label for="current_filter" class="block font-bold">Filtro</label>
                     <Select v-model:model-value="showCurrentFilter" :options="filtersAvailable" optionLabel="value"
                         option-value="value" placeholder="Seleccione un filtro" fluid></Select>
                 </div>
-                <div class="col-span-4 flex flex-col gap-3" v-if="showCurrentFilter == 'Diario'">
+                <div class="col-span-12 md:col-span-4 flex flex-col gap-3" v-if="showCurrentFilter == 'Diario'">
                     <label for="diario_filter" class="block font-bold">Fecha</label>
                     <DatePicker id="diario_filter" v-model="filtroInput" date-format="dd/mm/yy"></DatePicker>
                 </div>
-                <div class="col-span-4 flex flex-col gap-3" v-if="showCurrentFilter == 'Semanal'">
+                <div class="col-span-12 md:col-span-4 flex flex-col gap-3" v-if="showCurrentFilter == 'Semanal'">
                     <label for="semanal_filter" class="block font-bold">Rango</label>
                     <DatePicker id="semanal_filter" v-model="filtroInput" selectionMode="range" :manualInput="false"></DatePicker>
                 </div>
-                <div class="col-span-4 flex flex-col gap-3" v-if="showCurrentFilter == 'Mensual'">
+                <div class="col-span-12 md:col-span-4 flex flex-col gap-3" v-if="showCurrentFilter == 'Mensual'">
                     <label for="mensual_filter" class="block font-bold">Mes</label>
                     <DatePicker id="mensual_filter" v-model="filtroInput" view="month" dateFormat="mm/yy"></DatePicker>
                 </div>

@@ -3,15 +3,21 @@ import { getComprobantes } from '@/service/gestion/ComprobanteService';
 import { formatDate } from '@/utils/Util';
 import { FilterMatchMode } from '@primevue/core/api';
 import { useToast } from 'primevue/usetoast';
-import { onMounted, ref, watch } from 'vue';
+import { onBeforeMount, onMounted, onBeforeUnmount, ref, watch, computed } from 'vue';
 import { useRouter } from 'vue-router';
+import { useStore } from 'vuex'
+import axios from 'axios'
 
 const router = useRouter();
 const toast = useToast();
+const store = useStore();
 const dt = ref();
 const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS }
 });
+
+const cancelToken = ref()
+const id_sede = computed(()=> store.getters.id_sede || "");
 
 const routeMap = {
     1: 'agregarboleta',
@@ -45,7 +51,7 @@ const filteredComprobantes = ref([]);
 // Función para cargar los comprobantes
 const cargarComprobantes = async () => {
     try {
-        const response = await getComprobantes(); // Obtener todos los comprobantes
+        const response = await getComprobantes(cancelToken.value.token, id_sede.value); // Obtener todos los comprobantes
         comprobantes.value = response?.data || [];
         // Filtrar comprobantes según el tipo recibido como prop
         filteredComprobantes.value = comprobantes.value.filter(
@@ -96,9 +102,17 @@ function getToolTip(data) {
     }
 }
 
+onBeforeMount(()=>{
+    cancelToken.value = axios.CancelToken.source()
+})
+
 onMounted(() => {
     cargarComprobantes();
 });
+
+onBeforeUnmount(()=>{
+    cancelToken.value.cancel()
+})
 
 // Si el tipo de comprobante cambia, actualizar el listado
 watch(() => tipoComprobanteProp.tipoComprobante, () => {

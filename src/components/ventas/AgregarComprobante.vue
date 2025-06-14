@@ -269,9 +269,10 @@ const cargarVerificacionDeuda = async () => {
       isPageLoading.value = false
       toast.add({ severity: 'success', summary: response.error, life: 3000 });
     }
-    if (response.length > 0) {
+    if (response.length > 0 && comprobante.value.tipo == 2) {
       toast.add({ severity: 'info', summary: 'El paciente seleccionado tiene deudas pendientes', life: 5000 });
       isPacienteDeuda.value = true;
+      detalles.value = []
       for (let ind in response) {
         let detalleInd = response[ind]
         let detalle = {
@@ -331,6 +332,7 @@ watch(
   ([idSede, tipoArticulo]) => {
     if (idSede && tipoArticulo) {
       obtenerProductos();
+      cargarVerificacionDeuda()
     }
   },
   { immediate: true }
@@ -387,10 +389,13 @@ watch(showPagoSecundario, (to) => {
 
     if ((primario && !isNaN(primario)) && (secundario && !isNaN(secundario))) {
       comprobante.value.pago_cliente += comprobante.value.pago_cliente_secundario
+      comprobante.value.id_tipo_pago_secundario = undefined
+      comprobante.value.pago_cliente_secundario = null
     }
     else {
       comprobante.value.pago_cliente = isNaN(primario) ? 0 : primario + isNaN(secundario) ? 0 : secundario
       comprobante.value.id_tipo_pago_secundario = undefined
+      comprobante.value.pago_cliente_secundario = null
     }
   }
 })
@@ -706,6 +711,14 @@ onBeforeUnmount(() => {
             </div>
             <div class="col-span-1">
               <InputText id="deuda" :value="calculateDeuda" type="number" step="0.01" readonly fluid />
+            </div>
+
+            <!-- Regularizacion -->
+            <div class="col-span-1">
+                <label for="regularizacion" class="block font-bold mb-3">Regularizacion</label>
+            </div>
+            <div class="col-span-1">
+                <Checkbox id="regularizacion" binary v-model="comprobante.regularizacion"></Checkbox>
             </div>
 
             <div class="col-span-2">

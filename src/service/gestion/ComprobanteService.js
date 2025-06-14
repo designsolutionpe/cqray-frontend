@@ -1,8 +1,8 @@
 import api from '@/service/Api';
 
-export const getComprobantes = async (cancelToken) => {
+export const getComprobantes = async (cancelToken,sede = "") => {
     try {
-        const response = await api.get('/comprobantes', {
+        const response = await api.get(`/comprobantes?sede=${sede}`, {
             cancelToken: cancelToken || null
         });
         if (typeof response.cancelled !== 'undefined')
