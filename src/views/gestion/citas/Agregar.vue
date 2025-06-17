@@ -359,7 +359,7 @@ watch(oPacienteSelected, (id_paciente) => {
 
   bActiveHistorial.value = (sHistorialClinica.value != null)
   bActiveNumero.value = (sNumeroPaciente.value.trim().length != 0)
-  bActiveEstadoPaciente.value = (nEstadoPacienteSelected.value != null)
+  // bActiveEstadoPaciente.value = (nEstadoPacienteSelected.value != null)
   bActiveServicios.value = (nPaqueteSelected.value != null)
 })
 

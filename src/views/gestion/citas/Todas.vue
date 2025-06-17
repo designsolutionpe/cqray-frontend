@@ -71,6 +71,7 @@ const initFilters = () => {
     hora_cita: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
     'paciente.persona.edad': { value: null, matchMode: FilterMatchMode.CONTAINS },
     'tipo_paciente.nombre': { value: null, matchMode: FilterMatchMode.EQUALS },
+    'paciente.estado.nombre': { value: null, matchMode: FilterMatchMode.EQUALS },
     'estado.nombre': { value: null, matchMode: FilterMatchMode.EQUALS },
   }
 }
@@ -156,6 +157,7 @@ const cargarCitas = async () => {
   try {
     const response = await getCitas(cancelToken.value.token)
     if (response) {
+      console.log('citas', response)
       citasTable.value = response.map(cita => ({
         ...cita,
         fecha_cita: new Date(cita.fecha_cita + 'T00:00:00'),
@@ -190,7 +192,7 @@ const updateCitaSelectedInfo = (cita) => {
     estado: cita.estado.id,
     paciente: {
       id: cita.paciente.id,
-      estado: cita.tipo_paciente.id,
+      estado: cita.paciente.estado.id,
       nombreCompleto: cita.paciente.persona.nombreCompleto,
       numero: cita.paciente.persona.telefono,
       edad: new Date().getYear() - new Date(cita.paciente.persona.fecha_nacimiento + 'T00:00:00').getYear()
@@ -353,9 +355,8 @@ onMounted(() => {
   cargarEstadoPaciente()
   cargarCitas()
 
-  if(route.query.id)
-  {
-    console.log('cita a ver',route.query.id)
+  if (route.query.id) {
+    console.log('cita a ver', route.query.id)
   }
 })
 
@@ -369,7 +370,7 @@ onBeforeUnmount(() => {
     <Preloader v-if="isCitasLoading"></Preloader>
     <p class="text-2xl font-bold text-secondary">Todas las citas</p>
     <DataTable v-model:filters="filters" :value="citasTable" removable-sort table-style="min-width: 50rem"
-      filter-display="row" data-key="id" paginator show-gridlines :rows="10"
+      filter-display="row" data-key="id" paginator show-gridlines :rows="8"
       paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
       currentPageReportTemplate="Mostrando {first} de {last} - {totalRecords} citas"
       :global-filter-fields="['paciente.persona.tipo_documento', 'paciente.persona.numero_documento', 'sede.nombre', 'paciente.persona.nombreCompleto', 'paciente.persona.edad', 'paciente.historia_clinica']">
@@ -490,11 +491,23 @@ onBeforeUnmount(() => {
         </template>
       </Column>
 
-      <!-- Estado Paciente -->
-      <Column field="tipo_paciente.nombre" header="Estado Paciente" :show-filter-menu="false" sortable
+      <!-- Estado Paciente Registrado -->
+      <Column field="tipo_paciente.nombre" header="Estado Paciente Registrado" :show-filter-menu="false" sortable
         style="min-width: 10rem;">
         <template #body="cita">
           {{ cita.data.tipo_paciente.nombre.toUpperCase() }}
+        </template>
+        <template #filter="{ filterModel, filterCallback }">
+          <Select v-model="filterModel.value" @change="filterCallback()" option-label="label" option-value="label"
+            :options="estadoPacienteSelect" placeholder="Filtrar por estado paciente"></Select>
+        </template>
+      </Column>
+
+      <!-- Estado Paciente -->
+      <Column field="paciente.estado.nombre" header="Estado Paciente Actual" :show-filter-menu="false" sortable
+        style="min-width: 10rem;">
+        <template #body="cita">
+          {{ cita.data.paciente.estado.nombre.toUpperCase() }}
         </template>
         <template #filter="{ filterModel, filterCallback }">
           <Select v-model="filterModel.value" @change="filterCallback()" option-label="label" option-value="label"
