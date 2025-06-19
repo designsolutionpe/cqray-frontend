@@ -39,6 +39,12 @@ const showCreateOutcome = ref(false)
 
 const outcomeInput = ref(null)
 const reasonInput = ref(null)
+const fechaInput = ref(null)
+
+watch( showCreateOutcome , (opened) => {
+    if(opened)
+        fechaInput.value = new Date()
+})
 
 const cargarEgresos = async () => {
     isEgresosLoading.value = true
@@ -76,7 +82,7 @@ const onCreateOutcome = async () => {
             tipo: 'Egreso',
             balance: outcomeInput.value,
             id_sede: id_sede.value,
-            fecha: new Date(),
+            fecha: fechaInput.value,
             motivo: reasonInput.value
         }
 
@@ -119,6 +125,10 @@ onBeforeUnmount(() => {
         <div class="grid grid-cols-4 gap-4 mb-4">
             <label for="motivo" class="col-span-4 block font-bold">Motivo</label>
             <InputText id="motivo" class="col-span-4" v-model:model-value="reasonInput"></InputText>
+        </div>
+        <div class="grid grid-cols-4 gap-4 mb-4">
+            <label for="fecha" class="col-span-4 block font-bold">Fecha</label>
+            <DatePicker dateFormat="dd/mm/yy" id="fecha" class="col-span-4" v-model="fechaInput"></DatePicker>
         </div>
         <div class="col-span-4 grid grid-cols-4 gap-4">
             <Button class="col-span-4 md:col-span-2" outlined icon="pi pi-times" label="Cancelar"

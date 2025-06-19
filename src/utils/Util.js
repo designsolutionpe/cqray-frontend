@@ -4,7 +4,12 @@ export function formatDate(dateStr) {
     if (typeof dateStr == 'object')
         date = dateStr
     else
-        date = new Date(dateStr + 'T00:00:00');
+    {
+        let dt = dateStr.substring(0,10);
+        date = new Date(dt + 'T00:00:00');
+    }
+
+    console.log(date, dateStr, typeof dateStr)
     const day = String(date.getDate()).padStart(2, '0');
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const year = date.getFullYear();
