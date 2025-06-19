@@ -1,13 +1,12 @@
 <script setup>
 import Preloader from '@/components/Preloader.vue'
 import { getCajaChica, insertCajaChicaValue } from '@/service/gestion/inventario/CajaChicaService'
-import { handleServerError } from '@/utils/Util'
+import { formatDate, handleServerError } from '@/utils/Util'
 import { FilterMatchMode } from '@primevue/core/api'
 import axios from 'axios'
 import { useToast } from 'primevue'
 import { computed, onBeforeMount, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useStore } from 'vuex'
-import { formatDate } from '@/utils/Util'
 
 const store = useStore()
 const id_sede = computed(() => store.getters.id_sede || "")
@@ -85,26 +84,25 @@ const filtersAvailable = ref([
 ]);
 
 const filtroInput = ref(new Date());
-const filtroGet = ref(new Date().getTime());
+const filtroGet = ref(null);
 
-watch( showCurrentFilter, () => {
+watch(showCurrentFilter, () => {
     filtroInput.value = null;
 });
 
-watch( filtroInput , (nuevo) => {
-    if(!filtroInput.value) return;
+watch(filtroInput, (nuevo) => {
+    if (!filtroInput.value) return;
 
-    if( showCurrentFilter.value == "Semanal" )
-    {
-      filtroGet.value = filtroInput.value.map( f => f ? f.getTime() : null ).join("-");
-      console.log("filtro",filtroGet.value)
-      if( !filtroGet.value.includes('null') )
-        cargarCajaChica()
-      return;
+    if (showCurrentFilter.value == "Semanal") {
+        filtroGet.value = filtroInput.value.map(f => f ? f.getTime() : null).join("-");
+        console.log("filtro", filtroGet.value)
+        if (!filtroGet.value.includes('null'))
+            cargarCajaChica()
+        return;
     }
 
     filtroGet.value = filtroInput.value.getTime();
-    console.log("filtro",filtroGet.value)
+    console.log("filtro", filtroGet.value)
 
     cargarCajaChica()
 });
@@ -222,6 +220,8 @@ onBeforeMount(() => {
 })
 
 onMounted(() => {
+    let today = new Date()
+    filtroGet.value = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime()
     cargarCajaChica()
 })
 
@@ -265,7 +265,8 @@ onBeforeUnmount(() => {
                 </div>
                 <div class="col-span-12 md:col-span-4 flex flex-col gap-3" v-if="showCurrentFilter == 'Semanal'">
                     <label for="semanal_filter" class="block font-bold">Rango</label>
-                    <DatePicker id="semanal_filter" v-model="filtroInput" selectionMode="range" :manualInput="false"></DatePicker>
+                    <DatePicker id="semanal_filter" v-model="filtroInput" selectionMode="range" :manualInput="false">
+                    </DatePicker>
                 </div>
                 <div class="col-span-12 md:col-span-4 flex flex-col gap-3" v-if="showCurrentFilter == 'Mensual'">
                     <label for="mensual_filter" class="block font-bold">Mes</label>
@@ -324,8 +325,10 @@ onBeforeUnmount(() => {
                 <Column field="sede.nombre" header="Sede" sortable style="min-width: 8rem" v-if="id_sede == ''">
                 </Column>
 
-                <Column field="fecha" header="Fecha de cierre" sortable :show-filter-menu="false">
+                <Column field="fecha" header="Fecha" sortable :show-filter-menu="false">
                     <template #body="item">{{ formatDate(item.data.fecha) }}</template>
+                </Column>
+                <Column field="comprobante.tipo_pago.nombre" header="Tipo de pago" sortable :show-filter-menu="false">
                 </Column>
                 <Column field="motivo" header="Motivo" :show-filter-menu="false"></Column>
                 <Column field="tipo" header="Tipo" :show-filter-menu="false"></Column>

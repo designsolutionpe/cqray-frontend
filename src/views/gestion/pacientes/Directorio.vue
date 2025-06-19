@@ -1,5 +1,7 @@
 <script setup>
 import SeleccionaCita from '@/components/dialogs/SeleccionaCita.vue';
+import DatosPersonalesTab from '@/components/gestion/pacientes/directorio/DatosPersonalesTab.vue';
+import HistorialServiciosTab from '@/components/gestion/pacientes/directorio/HistorialServiciosTab.vue';
 import Preloader from '@/components/Preloader.vue';
 import { linkWithCita } from '@/service/gestion/HistorialesClinicos';
 import { getPaciente } from '@/service/gestion/PacienteService';
@@ -20,6 +22,9 @@ const router = useRouter()
 const cancelToken = ref()
 
 const oPacienteInfo = ref({
+  sede: {
+    nombre: null
+  },
   persona: {
     numero_documento: null
   },
@@ -27,9 +32,15 @@ const oPacienteInfo = ref({
     nombre: null
   },
   historia_clinica: null,
+  historial_servicios: [],
   historial_clinico: [],
   citas: [],
-  events: []
+  events: [],
+  paquete_activo: {
+    paquete: {
+      nombre: ''
+    }
+  }
 })
 const aPacientes = ref([])
 const p_estado = ref()
@@ -102,8 +113,8 @@ const cargarPaciente = async () => {
     if (response) {
       aPacientes.value = [response]
       oPacienteInfo.value = response
-      //console.log('PACIENTE', oPacienteInfo.value)
-      changeEstadoBackground(response.estado.nombre)
+      console.log('PACIENTE', oPacienteInfo.value)
+      // changeEstadoBackground(response.estado.nombre)
       oPacienteInfo.value.citas = oPacienteInfo.value.citas.map(c => ({
         ...c,
         hora_cita: new Date(c.fecha_cita + 'T' + c.hora_cita) || null
@@ -169,129 +180,37 @@ const onCitaSelected = async (param) => {
 
 </script>
 <template>
-  <SeleccionaCita ref="seleccionaCitaRef" :dont-show-citas="registrosActivoDisponibles" :sPaciente="sPacienteNombre" :idSedePaciente="oPacienteInfo.id_sede" :idPaciente="oPacienteInfo.id"
-    v-on:send-cita-selected="onCitaSelected"></SeleccionaCita>
-  <div class="card relative overflow-hidden md:w-[650px] lg:w-full">
+  <SeleccionaCita ref="seleccionaCitaRef" :dont-show-citas="registrosActivoDisponibles" :sPaciente="sPacienteNombre"
+    :idSedePaciente="oPacienteInfo.id_sede || -1" :idPaciente="oPacienteInfo.id || -1"
+    v-on:send-cita-selected="onCitaSelected">
+  </SeleccionaCita>
+  <div class="card relative overflow-hidden">
     <Preloader v-if="isPageLoading"></Preloader>
+    <div class="mb-5 flex flex-col md:flex-row gap-4">
+      <p class="text-2xl font-bold text-secondary m-0">Directorio</p>
+      <router-link :to="`/gestion/citas/agregar?id=${id_paciente}`">
+        <Button icon="pi pi-plus" label="Agregar cita" class="w-full"></Button>
+      </router-link>
+      <router-link to="/gestion/ventas/agregarconstanciapago">
+        <Button icon="pi pi-plus" label="Realizar venta" class="w-full"></Button>
+      </router-link>
+    </div>
     <div class="grid grid-cols-4 gap-3">
-      <div class="col-span-4 lg:col-span-1 flex flex-col gap-4 justify-between">
-        <div class="flex md:flex-row lg:flex-col flex-col gap-4">
-          <p class="text-2xl font-bold text-secondary m-0">Directorio</p>
-          <router-link :to="`/gestion/citas/agregar?id=${id_paciente}`">
-            <Button icon="pi pi-plus" label="Agregar cita" class="w-full"></Button>
-          </router-link>
-          <router-link to="/gestion/pacientes/agregar">
-            <Button icon="pi pi-plus" label="Agregar paciente" class="w-full"></Button>
-          </router-link>
-        </div>
-        <div class="card border-2 !rounded-xl flex flex-col gap-4">
-          <p class="text-xl font-bold text-center md:text-left lg:text-center md:w-max lg:w-auto m-0">ID: {{
-            oPacienteInfo.persona.numero_documento }}</p>
-          <div>
-            <p class="text-xl font-bold text-center md:text-left lg:text-center md:w-max lg:w-auto mb-2">Estado
-              paciente:</p>
-            <p ref="p_estado"
-              class="bg-gray-300 text-white font-bold rounded-full text-center md:text-left lg:text-center md:w-max lg:w-auto px-4 py-2 text-lg">
-              Paciente {{
-                oPacienteInfo.estado.nombre }}
-            </p>
-          </div>
-          <div>
-            <p class="text-xl font-bold text-center md:text-left lg:text-center md:w-max lg:w-auto mb-2">Paquete actual:
-            </p>
-            <p
-              class="bg-red-600 text-white text-center md:text-left lg:text-center md:w-max lg:w-auto font-bold rounded-full px-4 py-2 text-lg">
-              {{n_paquetes_activos.filter(i => i.cita != null).length.toString().padStart(3, '0')}} / {{
-                n_paquetes_activos.length.toString().padStart(3, '0') }}
-            </p>
-          </div>
-          <div>
-            <p class="text-xl font-bold text-center md:text-left lg:text-center md:w-max lg:w-auto mb-2">Historia
-              Clinica</p>
-            <p class="text-center md:text-left lg:text-center md:w-max lg:w-auto font-medium text-lg">{{
-              oPacienteInfo.historia_clinica ||
-              '<sin informacion>' }}</p>
-          </div>
-          <div>
-              <p class="text-xl font-bold text-center md:text-left lg:text-center md:w-max lg:w-auto mb-2">Deuda</p>
-              <p class="text-center md:text-left lg:text-center md:w-max lg:w-auto font-medium text-lg">S/ {{ parseFloat(oPacienteInfo.deuda / 100).toFixed(2) || parseFloat(0).toFixed(2) }}</p>
-          </div>
-        </div>
-      </div>
-      <div class="col-span-4 lg:col-span-3 card border-2 !rounded-3xl flex-auto !p-3">
+      <div class="col-span-4 card border-2 !rounded-3xl flex-auto !p-3">
         <Tabs value="0" scrollable>
           <TabList>
             <Tab value="0">Datos Personales</Tab>
             <Tab value="1">Historial Citas</Tab>
-            <Tab value="2">Historial Clinica</Tab>
-            <Tab value="3">Documentos</Tab>
-            <Tab value="4">Timeline</Tab>
+            <Tab value="2">Historial de Servicio</Tab>
+            <Tab value="3" disabled>Documentos</Tab>
+            <Tab value="4" disabled>Timeline</Tab>
           </TabList>
           <TabPanels>
+            <!-- Datos personales -->
             <TabPanel value="0">
-              <DataTable :value="aPacientes" removable-sort table-style="min-width: 50rem" data-key="id" show-gridlines>
-
-                <Column field="sede.nombre" header="Creado en" :show-filter-menu="false" sortable
-                  style="min-width: 8rem">
-                </Column>
-
-                <Column field="persona.tipo_documento" header="Tipo Documento" :show-filter-menu="false" sortable
-                  style="min-width: 8rem">
-                  <template #body="pacienteItem">
-                    {{ pacienteItem.data.persona.tipo_documento.toUpperCase() }}
-                  </template>
-                </Column>
-
-                <Column field="persona.numero_documento" header="Numero Documento" :show-filter-menu="false" sortable
-                  style="min-width: 10rem;"></Column>
-
-                <Column field="persona.apellido" header="Apellido" :show-filter-menu="false" sortable
-                  style="min-width: 10rem;">
-                  <template #body="pacienteItem">
-                    {{ pacienteItem.data.persona.apellido.toUpperCase() }}
-                  </template>
-                </Column>
-
-                <Column field="persona.nombre" header="Nombre" :show-filter-menu="false" sortable
-                  style="min-width: 10rem;">
-                  <template #body="pacienteItem">
-                    {{ pacienteItem.data.persona.nombre.toUpperCase() }}
-                  </template>
-                </Column>
-
-                <Column field="persona.genero" header="Genero" :show-filter-menu="false" sortable
-                  style="min-width: 8rem">
-                  <template #body="pacienteItem">
-                    {{ pacienteItem.data.persona.genero.toUpperCase() }}
-                  </template>
-                </Column>
-
-                <Column field="persona.fecha_nacimiento" header="Fecha Nacimiento" :show-filter-menu="false" sortable
-                  style="min-width: 15rem;">
-                  <template #body="pacienteItem">
-                    {{ formatDate(pacienteItem.data.persona.fecha_nacimiento) }}
-                  </template>
-                </Column>
-
-                <Column field="estado.nombre" header="Estado" :show-filter-menu="false" sortable
-                  style="min-width: 8rem">
-                  <template #body="pacienteItem">
-                    {{ pacienteItem.data.estado.nombre.toUpperCase() }}
-                  </template>
-                </Column>
-
-                <Column field="historia_clinica" header="Historia Clinica" :show-filter-menu="false" sortable
-                  style="min-width: 10rem;">
-                </Column>
-
-                <!-- <Column :exportable="false">
-                  <template #body="pacienteItem">
-                    <Button icon="pi pi-link" outlined rounded class="mr-2" @click="null"></Button>
-                  </template>
-                </Column> -->
-
-              </DataTable>
+              <DatosPersonalesTab :oPaciente="oPacienteInfo" />
             </TabPanel>
+            <!-- Historial Citas -->
             <TabPanel value="1">
               <DataTable :value="oPacienteInfo.citas" removable-sort table-style="min-width: 20rem" scrollable
                 scroll-height="500px" data-key="id" show-gridlines>
@@ -326,70 +245,9 @@ const onCitaSelected = async (param) => {
 
               </DataTable>
             </TabPanel>
+            <!-- Historial de Servicio -->
             <TabPanel value="2">
-              <DataTable :value="oPacienteInfo.historial_clinico" removable-sort table-style="min-width: 20rem"
-                scrollable scroll-height="500px" data-key="id" show-gridlines>
-
-                <template #empty>
-                  <p class="text-center font-bold">No hay paquetes adquiridos</p>
-                </template>
-
-                <Column field="sede.nombre" header="Sede" sortable style="min-width: 5rem"></Column>
-
-                <Column field="paquete.nombre" header="Paquete seleccionado" sortable style="min-width: 8rem"></Column>
-
-                <Column field="fecha" header="Fecha de atencion" sortable style="min-width: 5rem;">
-                  <template #body="item">
-                    {{ item.data.cita ? item.data.cita.fecha_cita : '---' }}
-                  </template>
-                </Column>
-
-                <Column field="hora" header="Hora de atencion" sortable style="min-width: 5rem;">
-                  <template #body="item">
-                    {{ item.data.cita ? new Date(item.data.cita.fecha_cita + "T" +
-                      item.data.cita.hora_cita).toLocaleTimeString() : '---' }}
-                  </template>
-                </Column>
-
-                <Column field="estado_pago" header="Estado de pago" sortable style="min-width: 8rem">
-                  <template #body="item">
-                    <Tag :severity="getEstadoPago(item.data.estado_pago, 'severity')">
-                      {{ getEstadoPago(item.data.estado_pago, 'text') }}
-                    </Tag>
-                  </template>
-                </Column>
-
-                <Column header="Fraccion de pago" sortable style="min-width: 5">
-                  <template #body="item">{{ item.data.estado_pago != 2 ? '1/1' : '0/1' }}</template>
-                </Column>
-
-                <Column field="cita" header="Estado de Cita" sortable style="min-width: 8rem">
-                  <template #body="item">
-                    <Tag :severity="getEstadoCita(item.data.cita ? item.data.cita.estado : null, 'severity')">
-                      {{ getEstadoCita(item.data.cita ? item.data.cita.estado : null, 'text') }}
-                    </Tag>
-                  </template>
-                </Column>
-
-                <Column field="activo" header="Estado de paquete" sortable style="min-width: 8rem">
-                  <template #body="item">
-                    <Tag :severity="item.data.activo ? 'success' : 'secondary'">
-                      {{ item.data.activo ? 'Activo' : 'Inactivo' }}
-                    </Tag>
-                  </template>
-                </Column>
-
-                <Column :exportable="false" style="min-width: 9rem;" header="Acciones">
-                  <template #body="pacienteItem">
-                    <Button v-if="!pacienteItem.data.id_cita" icon="pi pi-link" outlined rounded class="mr-2"
-                      @click="onSelectCita(pacienteItem.data.id)"></Button>
-                    <!-- <router-link :to="'/gestion/citas/todas?id='+pacienteItem.data.id_cita"> -->
-                    <Button v-if="pacienteItem.data.id_cita" disabled icon="pi pi-eye" severity="info" outlined rounded class="mr-2" v-tooltip.top="{ value: '[En mantenimiento]' }"></Button>
-                    <!-- </router-link> -->
-                  </template>
-                </Column>
-
-              </DataTable>
+              <HistorialServiciosTab :a-servicios="oPacienteInfo.historial_servicios" />
             </TabPanel>
             <TabPanel value="3">
               <Button icon="pi pi-plus" label="Agregar documento" disabled></Button>
@@ -409,6 +267,46 @@ const onCitaSelected = async (param) => {
           </TabPanels>
         </Tabs>
       </div>
+      <!-- <div class="col-span-4 lg:col-span-1 flex flex-col gap-4 justify-between">
+        <div class="card border-2 !rounded-xl flex flex-col gap-4">
+          <p class="text-xl font-bold text-center md:text-left lg:text-center md:w-max lg:w-auto m-0">ID: {{
+            oPacienteInfo.persona.numero_documento }}</p>
+          <div>
+            <p class="text-xl font-bold text-center md:text-left lg:text-center md:w-max lg:w-auto mb-2">Estado
+              paciente:</p>
+            <p ref="p_estado"
+              class="bg-gray-300 text-white font-bold rounded-full text-center md:text-left lg:text-center md:w-max lg:w-auto px-4 py-2 text-lg">
+              Paciente {{
+                oPacienteInfo.estado.nombre }}
+            </p>
+          </div>
+          <div>
+            <p class="text-xl font-bold text-center md:text-left lg:text-center md:w-max lg:w-auto mb-2">Paquete actual:
+            </p>
+            <p
+              class="bg-red-600 text-white text-center md:text-left lg:text-center md:w-max lg:w-auto font-bold rounded-full px-4 py-2 text-lg">
+              <span class="block text-center">{{ oPacienteInfo.paquete_activo.paquete.nombre }}</span>
+            </p>
+            <p class="block text-center">{{n_paquetes_activos.filter(i => i.cita !=
+              null).length.toString().padStart(3, '0')}}
+              / {{
+                n_paquetes_activos.length.toString().padStart(3, '0') }}</p>
+            <p class="block text-center">Precio S/{{ oPacienteInfo.paquete_activo.paquete.precio_venta }}</p>
+          </div>
+          <div>
+            <p class="text-xl font-bold text-center md:text-left lg:text-center md:w-max lg:w-auto mb-2">Historia
+              Clinica</p>
+            <p class="text-center md:text-left lg:text-center md:w-max lg:w-auto font-medium text-lg">{{
+              oPacienteInfo.historia_clinica ||
+              '<sin informacion>' }}</p>
+          </div>
+          <div>
+            <p class="text-xl font-bold text-center md:text-left lg:text-center md:w-max lg:w-auto mb-2">Deuda</p>
+            <p class="text-center md:text-left lg:text-center md:w-max lg:w-auto font-medium text-lg">S/ {{
+              parseFloat(oPacienteInfo.deuda / 100).toFixed(2) || parseFloat(0).toFixed(2) }}</p>
+          </div>
+        </div>
+      </div> -->
 
     </div>
   </div>
