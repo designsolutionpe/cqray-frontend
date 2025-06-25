@@ -46,6 +46,30 @@ watch( showCreateOutcome , (opened) => {
         fechaInput.value = new Date()
 })
 
+const showCurrentFilter = ref(null)
+const aFilterOptions = ref([
+    { value: "Diario" }
+    { value: "Semanal" }
+    { value: "Mensual" }
+])
+
+const filtroInput = ref(new Date())
+const filtroGet = ref(null)
+
+watch( showCurrentFilter, (filter) => {
+    switch( filter )
+    {
+        case "Semanal":
+            filtroInput.value = null
+            break;
+        default:
+            filtroInput.value = new Date()
+    }
+})
+
+watch( filtroInput , (n) => {
+})
+
 const cargarEgresos = async () => {
     isEgresosLoading.value = true
     try {
@@ -82,9 +106,11 @@ const onCreateOutcome = async () => {
             tipo: 'Egreso',
             balance: outcomeInput.value,
             id_sede: id_sede.value,
-            fecha: fechaInput.value,
+            fecha: fechaInput.value.toISOString(),
             motivo: reasonInput.value
         }
+
+        console.log("egreso",body)
 
         const response = await insertCajaChicaValue(body)
         /*caja_chica_data.value = {
