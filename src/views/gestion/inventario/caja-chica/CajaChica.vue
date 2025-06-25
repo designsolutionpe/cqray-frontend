@@ -1,6 +1,7 @@
 <script setup>
 import Preloader from '@/components/Preloader.vue'
 import { getCajaChica, insertCajaChicaValue } from '@/service/gestion/inventario/CajaChicaService'
+import { getSedes } from '@/service/mantenimiento/SedeService'
 import { formatDate, handleServerError } from '@/utils/Util'
 import { FilterMatchMode } from '@primevue/core/api'
 import axios from 'axios'
@@ -15,6 +16,8 @@ const caja_chica_data_stored = computed(() => store.getters.caja_chica_data)
 const caja_chica_data = ref(caja_chica_data_stored.value)
 
 const isPageLoading = ref(true)
+const isRegistroLoading = ref(true);
+const isSedeLoading = ref(false);
 
 const aItems = ref([])
 
@@ -86,45 +89,38 @@ const filtersAvailable = ref([
 const filtroInput = ref(new Date());
 const filtroGet = ref(null);
 
-watch(showCurrentFilter, () => {
-    filtroInput.value = null;
-});
+const sedesSelect = ref([]);
+const sedeInput = ref(id_sede.value);
 
-watch(filtroInput, (nuevo) => {
-    if (!filtroInput.value) return;
+watch(
+    [
+        filtroInput,
+        sedeInput
+    ],
+    ([nuevo]) => {
+        if (!filtroInput.value) return;
 
-    if (showCurrentFilter.value == "Semanal") {
-        filtroGet.value = filtroInput.value.map(f => f ? f.getTime() : null).join("-");
+        if (showCurrentFilter.value == "Semanal") {
+            filtroGet.value = filtroInput.value.map(f => f ? f.getTime() : null).join("-");
+            console.log("filtro", filtroGet.value)
+            if (!filtroGet.value.includes('null'))
+                cargarCajaChica()
+            return;
+        }
+
+        filtroGet.value = filtroInput.value.getTime();
         console.log("filtro", filtroGet.value)
-        if (!filtroGet.value.includes('null'))
-            cargarCajaChica()
-        return;
-    }
 
-    filtroGet.value = filtroInput.value.getTime();
-    console.log("filtro", filtroGet.value)
-
-    cargarCajaChica()
-});
+        cargarCajaChica()
+    });
 
 const cargarCajaChica = async () => {
-    isPageLoading.value = true
+    isRegistroLoading.value = true
     try {
-        var response = await getCajaChica(cancelToken.value.token, id_sede.value, "", showCurrentFilter.value, filtroGet.value)
+        const sede = id_sede.value || sedeInput.value
+        console.log("SEDE FILTER", sede)
+        var response = await getCajaChica(cancelToken.value.token, sede, "", showCurrentFilter.value, filtroGet.value)
         if (response) {
-            console.log("response caja chica", response)
-            // let ingresos = 0, egresos = 0
-            // for (let i of response.ingresos) {
-            //     console.log("I INGRESO", i)
-            //     ingresos += parseFloat(i.total)
-            // }
-            // for (let i of response.egresos)
-            //     egresos += parseFloat(i.balance)
-
-            // today_data.value = { ingresos, egresos, total_cierre: ingresos - egresos }
-
-            // aItems.value = [...response.ingresos, ...response.egresos]
-
             console.log('check response', response)
             response = response.filter(r => {
                 if (r.comprobante != null) {
@@ -169,7 +165,6 @@ const cargarCajaChica = async () => {
 
                 switch (data.tipo) {
                     case 'Inicial':
-                        //console.log('update inicial', data.balance)
                         today_inicial = data.balance
                         break;
                     case 'Ingreso':
@@ -179,9 +174,6 @@ const cargarCajaChica = async () => {
                         today_egresos += data.balance
                         break;
                 }
-                // if (parseInt(data.fecha) == caja_chica_data.value.current_date) {
-                //     caja_chica_data.value.is_opened = true
-                // }
             }
             today_data.value = {
                 ingresos: today_ingresos,
@@ -189,13 +181,6 @@ const cargarCajaChica = async () => {
                 saldo_inicial: today_inicial,
                 total_cierre: (today_inicial + today_ingresos) - today_egresos
             }
-
-            // caja_chica_data.value = {
-            //     ...caja_chica_data.value,
-            //     current_balance: today_data.value.total_cierre
-            // }
-
-            //console.log('chek today', today_inicial, today_ingresos, today_egresos, today_data.value)
 
             for (let f in group) {
                 const d = group[f]
@@ -207,13 +192,43 @@ const cargarCajaChica = async () => {
 
             aItems.value = response
         }
-        isPageLoading.value = false
+        isRegistroLoading.value = false
     }
     catch (error) {
-        isPageLoading.value = false
+        isRegistroLoading.value = false
         handleServerError(error, "Cargar Caja Chica", toast)
     }
 }
+
+const cargarSedes = async () => {
+    isSedeLoading.value = true;
+    try {
+        const response = await getSedes(cancelToken.value.token);
+        if (response) {
+            console.log("sedes", response)
+            sedesSelect.value = response.map(s => ({ value: s.id, label: s.nombre }));
+            sedeInput.value = sedesSelect.value[0].id
+            console.log("termino de pedir sedes")
+            cargarCajaChica();
+        }
+        isSedeLoading.value = false;
+    }
+    catch (error) {
+        isSedeLoading.value = false;
+        handleServerError(error, "Cargar Sedes", toast)
+    }
+}
+
+watch(
+    [
+        isSedeLoading,
+        isRegistroLoading
+    ],
+    ([sede, registro]) => {
+        console.log("check loaders", sede, registro)
+        isPageLoading.value = (sede || registro);
+    }
+)
 
 onBeforeMount(() => {
     cancelToken.value = axios.CancelToken.source()
@@ -222,7 +237,10 @@ onBeforeMount(() => {
 onMounted(() => {
     let today = new Date()
     filtroGet.value = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime()
-    cargarCajaChica()
+    if (id_sede.value.length == 0)
+        cargarSedes()
+    else
+        cargarCajaChica()
 })
 
 onBeforeUnmount(() => {
@@ -253,24 +271,29 @@ onBeforeUnmount(() => {
             <div class="flex gap-4">
                 <div class="text-2xl font-bold text-secondary m-0">Filtros</div>
             </div>
-            <div class="grid grid-cols-12 gap-6 items-center">
-                <div class="col-span-12 md:col-span-4 flex flex-col gap-3">
-                    <label for="current_filter" class="block font-bold">Filtro</label>
-                    <Select v-model:model-value="showCurrentFilter" :options="filtersAvailable" optionLabel="value"
-                        option-value="value" placeholder="Seleccione un filtro" fluid></Select>
+            <div class="grid grid-cols-6 md:grid-cols-12 gap-6 items-center">
+                <div class="col-span-6 md:col-span-4 flex flex-col gap-3">
+                    <label for="current_filter" class="block font-bold">Filtrar por</label>
+                    <Select id="current_filter" v-model:model-value="showCurrentFilter" :options="filtersAvailable"
+                        optionLabel="value" option-value="value" placeholder="Seleccione un filtro" fluid></Select>
                 </div>
-                <div class="col-span-12 md:col-span-4 flex flex-col gap-3" v-if="showCurrentFilter == 'Diario'">
+                <div class="col-span-6 md:col-span-4 flex flex-col gap-3" v-if="showCurrentFilter == 'Diario'">
                     <label for="diario_filter" class="block font-bold">Fecha</label>
                     <DatePicker id="diario_filter" v-model="filtroInput" date-format="dd/mm/yy"></DatePicker>
                 </div>
-                <div class="col-span-12 md:col-span-4 flex flex-col gap-3" v-if="showCurrentFilter == 'Semanal'">
+                <div class="col-span-6 md:col-span-4 flex flex-col gap-3" v-if="showCurrentFilter == 'Semanal'">
                     <label for="semanal_filter" class="block font-bold">Rango</label>
                     <DatePicker id="semanal_filter" v-model="filtroInput" selectionMode="range" :manualInput="false">
                     </DatePicker>
                 </div>
-                <div class="col-span-12 md:col-span-4 flex flex-col gap-3" v-if="showCurrentFilter == 'Mensual'">
+                <div class="col-span-6 md:col-span-4 flex flex-col gap-3" v-if="showCurrentFilter == 'Mensual'">
                     <label for="mensual_filter" class="block font-bold">Mes</label>
                     <DatePicker id="mensual_filter" v-model="filtroInput" view="month" dateFormat="mm/yy"></DatePicker>
+                </div>
+                <div v-if="id_sede.length == 0" class="col-span-6 md:col-span-4 flex flex-col gap-3">
+                    <label for="current_filter" class="block font-bold">Sede</label>
+                    <Select v-model:model-value="sedeInput" :options="sedesSelect" optionLabel="label"
+                        option-value="value" placeholder="Seleccione una sede" fluid></Select>
                 </div>
             </div>
         </div>
@@ -325,13 +348,16 @@ onBeforeUnmount(() => {
                 <Column field="sede.nombre" header="Sede" sortable style="min-width: 8rem" v-if="id_sede == ''">
                 </Column>
 
+                <Column field="tipo" header="Tipo" :show-filter-menu="false"></Column>
+                <Column field="motivo" header="Motivo" :show-filter-menu="false"></Column>
                 <Column field="fecha" header="Fecha" sortable :show-filter-menu="false">
                     <template #body="item">{{ formatDate(item.data.fecha) }}</template>
                 </Column>
                 <Column field="comprobante.tipo_pago.nombre" header="Tipo de pago" sortable :show-filter-menu="false">
+                    <template #body="item">
+                        {{ item.data.comprobante ? item.data.comprobante.tipo_pago.nombre : '---' }}
+                    </template>
                 </Column>
-                <Column field="motivo" header="Motivo" :show-filter-menu="false"></Column>
-                <Column field="tipo" header="Tipo" :show-filter-menu="false"></Column>
                 <Column field="balance" header="Balance" sortable>
                     <template #body="item">S/. {{ parseFloat(item.data.balance).toFixed(2) }}</template>
                 </Column>

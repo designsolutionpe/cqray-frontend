@@ -1,11 +1,11 @@
 
 export function formatDate(dateStr) {
+    console.log("formatting", dateStr)
     var date = null
     if (typeof dateStr == 'object')
         date = dateStr
-    else
-    {
-        let dt = dateStr.substring(0,10);
+    else {
+        let dt = dateStr.substring(0, 10);
         date = new Date(dt + 'T00:00:00');
     }
 
