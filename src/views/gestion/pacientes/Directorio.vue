@@ -1,6 +1,7 @@
 <script setup>
 import SeleccionaCita from '@/components/dialogs/SeleccionaCita.vue';
 import DatosPersonalesTab from '@/components/gestion/pacientes/directorio/DatosPersonalesTab.vue';
+import DocumentosTab from '@/components/gestion/pacientes/directorio/DocumentosTab.vue';
 import HistorialServiciosTab from '@/components/gestion/pacientes/directorio/HistorialServiciosTab.vue';
 import Preloader from '@/components/Preloader.vue';
 import { linkWithCita } from '@/service/gestion/HistorialesClinicos';
@@ -34,6 +35,7 @@ const oPacienteInfo = ref({
   historia_clinica: null,
   historial_servicios: [],
   historial_clinico: [],
+  documentos: [],
   citas: [],
   events: [],
   paquete_activo: {
@@ -202,7 +204,7 @@ const onCitaSelected = async (param) => {
             <Tab value="0">Datos Personales</Tab>
             <Tab value="1">Historial Citas</Tab>
             <Tab value="2">Historial de Servicio</Tab>
-            <Tab value="3" disabled>Documentos</Tab>
+            <Tab value="3">Documentos</Tab>
             <Tab value="4" disabled>Timeline</Tab>
           </TabList>
           <TabPanels>
@@ -250,8 +252,7 @@ const onCitaSelected = async (param) => {
               <HistorialServiciosTab :a-servicios="oPacienteInfo.historial_servicios" />
             </TabPanel>
             <TabPanel value="3">
-              <Button icon="pi pi-plus" label="Agregar documento" disabled></Button>
-              <p class="text-center text-xl font-bold">&lt;Mantenimiento&#62;</p>
+              <DocumentosTab :a-documentos="oPacienteInfo.documentos" />
             </TabPanel>
             <TabPanel value="4" class="h-[600px] overflow-auto">
               <Timeline :value="oPacienteInfo.events" align="alternate" class="w-full">

@@ -1,3 +1,4 @@
+import router from '@/router';
 import axios from 'axios';
 
 // Configurar Axios con la URL base desde .env
@@ -29,8 +30,11 @@ api.interceptors.request.use(
 api.interceptors.response.use(
     response => response,
     error => {
+        console.log("CHECK ERROR", error)
         if (axios.isCancel(error))
             return Promise.resolve({ cancelled: true })
+        if (error.status == 401)
+            router.push({ name: 'login' });
         console.error('Error en la API:', error.response?.data || error.message);
         return Promise.reject(error);
     }

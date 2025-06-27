@@ -326,6 +326,12 @@ onBeforeUnmount(() => {
                     <p>S/. {{ parseFloat(today_data.total_cierre).toFixed(2) }}</p>
                 </div>
             </div>
+            <div class="grid grid-cols-4 gap-6 items-center">5
+                <div class="card !p-5 !m-0 border col-span-4 sm:col-span-2 lg:col-span-1">
+                    <p class="text-lg font-bold text-primary'">Ingresos</p>
+                    <p>S/. {{ parseFloat(today_data.ingresos).toFixed(2) }}</p>
+                </div>
+            </div>
         </div>
     </div>
     <div class="card relative overflow-hidden">
