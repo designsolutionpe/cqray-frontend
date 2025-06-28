@@ -162,40 +162,35 @@ const crearPaciente = async () => {
         return
       }
 
-      if(
-        key == 'numero_documento')
-        {
-            if(oPacienteInfo.value.tipo_documento == 'DNI' &&
-        value.trim().length != 8)
-        {
-            toast.add({severity:"error",summary:'Numero de documento debe tener 8 digitos', life: 7000});
-            oInvalid.value[key] = true
-            isPageLoading.value = false
-            return
+      if (
+        key == 'numero_documento') {
+        if (oPacienteInfo.value.tipo_documento == 'DNI' &&
+          value.trim().length != 8) {
+          toast.add({ severity: "error", summary: 'Numero de documento debe tener 8 digitos', life: 7000 });
+          oInvalid.value[key] = true
+          isPageLoading.value = false
+          return
         }
-            if( oPacienteInfo.value.tipo_documento == 'DNI' && !/^\d{8}$/.test(value.trim()) )
-            {
-                toast.add({ severity: "error", summary: "Numero de documento inválido (solo se aceptan numeros)", life: 7000 })
-                oInvalid.value[key] = true
-                isPageLoading.value = false
-                return
-            }
-            if( oPacienteInfo.value.tipo_documento == 'Carnet de Extranjería' && value.trim().length > 20 )
-            {
-                toast.add({ severity: "error", summary: "Numero de documento debe tener como maximo 20 digitos", life: 7000 })
-                oInvalid.value[key] = true
-                isPageLoading.value = false
-                return
-            }
+        if (oPacienteInfo.value.tipo_documento == 'DNI' && !/^\d{8}$/.test(value.trim())) {
+          toast.add({ severity: "error", summary: "Numero de documento inválido (solo se aceptan numeros)", life: 7000 })
+          oInvalid.value[key] = true
+          isPageLoading.value = false
+          return
+        }
+        if (oPacienteInfo.value.tipo_documento == 'Carnet de Extranjería' && value.trim().length > 20) {
+          toast.add({ severity: "error", summary: "Numero de documento debe tener como maximo 20 digitos", life: 7000 })
+          oInvalid.value[key] = true
+          isPageLoading.value = false
+          return
+        }
 
-            if( oPacienteInfo.value.tipo_documento == 'Pasaporte' && value.trim().length > 20 )
-            {
-                toast.add({ severity: "error", summary: "Numero de documento debe tener como maximo 20 caracteres", life: 7000 })
-                oInvalid.value[key] = true
-                isPageLoading.value = false
-                return
-            }
+        if (oPacienteInfo.value.tipo_documento == 'Pasaporte' && value.trim().length > 20) {
+          toast.add({ severity: "error", summary: "Numero de documento debe tener como maximo 20 caracteres", life: 7000 })
+          oInvalid.value[key] = true
+          isPageLoading.value = false
+          return
         }
+      }
     }
 
     const formData = new FormData()
@@ -205,7 +200,7 @@ const crearPaciente = async () => {
     formData.append('apellido', oPacienteInfo.value.apellido)
     formData.append('genero', oPacienteInfo.value.genero)
     if (oPacienteInfo.value.fecha_nacimiento)
-        formData.append('fecha_nacimiento', oPacienteInfo.value.fecha_nacimiento)
+      formData.append('fecha_nacimiento', oPacienteInfo.value.fecha_nacimiento)
     formData.append('id_sede', oPacienteInfo.value.id_sede)
 
     if (oPacienteInfo.value.direccion)
@@ -307,8 +302,6 @@ onBeforeUnmount(() => {
         <label for="numero_documento" class="block font-bold mb-3">Numero Documento</label>
         <InputText id="numero_documento" v-model:model-value="oPacienteInfo.numero_documento" fluid
           :invalid="oInvalid.numero_documento"></InputText>
-        <!-- <InputNumber id="numero_documento" v-model="oPacienteInfo.numero_documento" fluid
-            :invalid="oInvalid.numero_documento" :use-grouping="false"></InputNumber> -->
         <small v-if="oInvalid.numero_documento" class="text-red-500">Este campo es requerido*</small>
       </div>
     </div>
