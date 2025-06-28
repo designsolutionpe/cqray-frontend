@@ -32,6 +32,8 @@ const today_data = ref({
     total_cierre: 0
 })
 
+const count_tipos = ref([])
+
 const filters = ref({})
 
 const initFilters = () => {
@@ -94,6 +96,7 @@ const sedeInput = ref(id_sede.value);
 
 watch(
     [
+        showCurrentFilter,
         filtroInput,
         sedeInput
     ],
@@ -120,21 +123,21 @@ const cargarCajaChica = async () => {
         const sede = id_sede.value || sedeInput.value
         console.log("SEDE FILTER", sede)
         var response = await getCajaChica(cancelToken.value.token, sede, "", showCurrentFilter.value, filtroGet.value)
-        if (response) {
-            console.log('check response', response)
-            response = response.filter(r => {
+        if (response.data) {
+            console.log('check response', response.data, typeof response.data)
+            const responseData = response.data.filter(r => {
                 if (r.comprobante != null) {
                     if (r.comprobante.fecha_anulado == null)
                         return true;
                     else
                         return false;
                 }
-
                 return true;
             })
+            const responseCount = response.data.filter( r => r.comprobante != null && r.tipo == 'Ingreso');
             let today_inicial = 0, today_ingresos = 0, today_egresos = 0
             const group = {}
-            for (let data of response) {
+            for (let data of responseCount) {
 
                 const clave = `${data.sede.nombre}-${data.fecha}`
                 if (!group[clave]) {
@@ -190,7 +193,10 @@ const cargarCajaChica = async () => {
             if (caja_chica_data.value.last_record && !caja_chica_data.value.is_opened)
                 today_data.value.saldo_inicial = caja_chica_data.value.last_record.tipo == 'Terminal' ? caja_chica_data.value.last_record.balance : 0
 
-            aItems.value = response
+            aItems.value = responseData
+        }
+        if(response.count) {
+            count_tipos.value = response.count
         }
         isRegistroLoading.value = false
     }
@@ -326,10 +332,10 @@ onBeforeUnmount(() => {
                     <p>S/. {{ parseFloat(today_data.total_cierre).toFixed(2) }}</p>
                 </div>
             </div>
-            <div class="grid grid-cols-4 gap-6 items-center">5
+            <div class="grid grid-cols-4 gap-6 items-center" v-for="tipo in count_tipos">
                 <div class="card !p-5 !m-0 border col-span-4 sm:col-span-2 lg:col-span-1">
-                    <p class="text-lg font-bold text-primary'">Ingresos</p>
-                    <p>S/. {{ parseFloat(today_data.ingresos).toFixed(2) }}</p>
+                    <p class="text-lg font-bold text-primary'">{{ tipo.nombre }}</p>
+                    <p>S/. {{ parseFloat(tipo.suma_balance).toFixed(2) }}</p>
                 </div>
             </div>
         </div>
